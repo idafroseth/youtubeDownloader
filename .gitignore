@@ -28,3 +28,6 @@ local.properties
 .target
 # TeXlipse plugin
 .texlipse
+.project
+.classpath
+.DS_Store
