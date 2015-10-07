@@ -1,6 +1,11 @@
 package no.uio.ifi.guis;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.LayoutManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,24 +23,38 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 public class Statistics extends JFrame {
 	//ChartFactory myChartFactory = new ChartFactory();
+	HashMap<String, ChartPanel> chartFactory = new HashMap<String, ChartPanel>();
+	JPanel contentPane = new JPanel();
+	
 
 	public Statistics ( String applicationTitle){
 		super(applicationTitle);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setLayout(new FlowLayout());
-		setVisible(true);
-		
+		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
+		contentPane.add(Box.createRigidArea(new Dimension(200,100)));
+	
+		JScrollPane scrollPane = new JScrollPane(contentPane);
+		scrollPane.setPreferredSize(new Dimension(800,500));
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		add(scrollPane);
+	    setVisible(true);
 		
 	}
 	private void changeBarColor(JFreeChart plot){
 	//	Plot plot.getPlot();
 	}
 	
-	public void addChart(Map<String, Integer> categoryMap, String chartTitle){
+	/**
+	 * Add a barChart to the GUI
+	 * @param categoryMap a MAP with the bar name and freq
+	 * @param chartTitle the title of the chart
+	 */
+	public void addBarChart(Map<String, Integer> categoryMap, String chartTitle){
 		createDataset(categoryMap);
 		JFreeChart barChart = ChartFactory.createBarChart(chartTitle, "Category", "%", createDataset(categoryMap), PlotOrientation.VERTICAL, true, true, false);
 		ChartPanel panel = new ChartPanel(barChart);
-		add(panel);
+		chartFactory.put(chartTitle, panel);
+		contentPane.add(panel);
 		pack();
 	}
 	
@@ -47,22 +66,40 @@ public class Statistics extends JFrame {
 			}
 			return dataset;
 	}
-	private void saveChartAsPNG(JFreeChart barChart, String fileName) throws IOException{//, int width, int height){
-		int width = 640; //Width of the image
-		int height = 480; //height of the image
-		File file = new File(fileName);
-		ChartUtilities.saveChartAsPNG(file, barChart, width, height);
+	private void saveChartAsPNG(String chartTitle, String fileName){
+		try {
+			int width = 560;
+			int height = 370;
+			
+			File file = new File(fileName);
+			ChartUtilities.saveChartAsPNG(file, chartFactory.get(chartTitle).getChart(), width, height);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
+	
+	
+	public void changeColor(String chartTitle){
+		chartFactory.get(chartTitle).getChart().setBackgroundPaint(new Color(0, 0, 0, 0));
+	}
+	
 	public static void main(String[] args){
 		Statistics chart = new Statistics("YT Dataset Stats");
 		Map<String, Integer> categoryMap = new HashMap<String, Integer>();
 		Map<String, Integer> likes = new HashMap<String, Integer>();
+		Map<String, Integer> third = new HashMap<String, Integer>();
+		third.put("Likes", 85);
+		third.put("dislike", 12);
 		categoryMap.put("Sport", 15);
 		categoryMap.put("Entertainment", 22);
 		categoryMap.put("GameShow", 40);
 		likes.put("Likes", 85);
 		likes.put("dislike", 12);
-		chart.addChart(categoryMap, "Categories frequency");
-		chart.addChart(likes, "LIKES");
+		chart.addBarChart(categoryMap, "Categories frequency");
+		chart.addBarChart(likes, "LIKES");
+		chart.changeColor("LIKES");
+		chart.addBarChart(third, "THIRD");
+		//chart.saveChartAsPNG("Categories frequency", "secondChart");
 	}
 }
