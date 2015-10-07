@@ -30,11 +30,10 @@ public class Statistics extends JFrame {
 	public Statistics ( String applicationTitle){
 		super(applicationTitle);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
-		contentPane.add(Box.createRigidArea(new Dimension(200,100)));
-	
+//		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
+		contentPane.setLayout(new GridLayout(2,2));
 		JScrollPane scrollPane = new JScrollPane(contentPane);
-		scrollPane.setPreferredSize(new Dimension(800,500));
+		scrollPane.setPreferredSize(new Dimension(1000,500));
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		add(scrollPane);
 	    setVisible(true);
@@ -53,6 +52,7 @@ public class Statistics extends JFrame {
 		createDataset(categoryMap);
 		JFreeChart barChart = ChartFactory.createBarChart(chartTitle, "Category", "%", createDataset(categoryMap), PlotOrientation.VERTICAL, true, true, false);
 		ChartPanel panel = new ChartPanel(barChart);
+		panel.setPreferredSize(new Dimension(200,200));
 		chartFactory.put(chartTitle, panel);
 		contentPane.add(panel);
 		pack();
@@ -68,8 +68,8 @@ public class Statistics extends JFrame {
 	}
 	private void saveChartAsPNG(String chartTitle, String fileName){
 		try {
-			int width = 560;
-			int height = 370;
+			int width = 200;
+			int height = 200;
 			
 			File file = new File(fileName);
 			ChartUtilities.saveChartAsPNG(file, chartFactory.get(chartTitle).getChart(), width, height);
@@ -81,7 +81,11 @@ public class Statistics extends JFrame {
 	
 	
 	public void changeColor(String chartTitle){
-		chartFactory.get(chartTitle).getChart().setBackgroundPaint(new Color(0, 0, 0, 0));
+		try{
+			chartFactory.get(chartTitle).getChart().setBackgroundPaint(new Color(0, 0, 0, 0));
+		}catch(NullPointerException e){
+			System.out.println("Could not set the color because there is not any chart with that title in the chartFactory");
+		}
 	}
 	
 	public static void main(String[] args){
@@ -98,8 +102,11 @@ public class Statistics extends JFrame {
 		likes.put("dislike", 12);
 		chart.addBarChart(categoryMap, "Categories frequency");
 		chart.addBarChart(likes, "LIKES");
-		chart.changeColor("LIKES");
 		chart.addBarChart(third, "THIRD");
+		chart.changeColor("LIKES");
+		chart.changeColor("THIRD");
+		chart.changeColor("Categories frequency");
+		
 		//chart.saveChartAsPNG("Categories frequency", "secondChart");
 	}
 }
