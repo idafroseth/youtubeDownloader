@@ -30,3 +30,7 @@ local.properties
 .texlipse
 .project
 .classpath
+<<<<<<< HEAD
+=======
+.DS_Store
+>>>>>>> 13f1751d3bb1ebffd62f6cb510bf9fe411f3b19a
