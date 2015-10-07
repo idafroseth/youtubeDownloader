@@ -38,12 +38,12 @@ public class Crawler {
 			
 			
 			int randomStop = ThreadLocalRandom.current().nextInt(0, 20);
-			File file = new File("output.txt");
-			BufferedWriter writer= new BufferedWriter(new FileWriter(file));
-		
-			writer.write(webSite.toString());
-			
-			writer.flush();
+//			File file = new File("output.txt");
+//			BufferedWriter writer= new BufferedWriter(new FileWriter(file));
+//		
+//		//	writer.write(webSite.toString());
+//			
+//			writer.flush();
 
 			for(Element link : linkedUrls){	
 				if(link.toString().contains("watch?v")){
