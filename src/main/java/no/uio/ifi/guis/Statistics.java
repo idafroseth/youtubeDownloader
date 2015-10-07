@@ -32,6 +32,7 @@ public class Statistics extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 //		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 		contentPane.setLayout(new GridLayout(2,2));
+		contentPane.setBackground(Color.WHITE);
 		JScrollPane scrollPane = new JScrollPane(contentPane);
 		scrollPane.setPreferredSize(new Dimension(1000,500));
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -52,7 +53,7 @@ public class Statistics extends JFrame {
 		createDataset(categoryMap);
 		JFreeChart barChart = ChartFactory.createBarChart(chartTitle, "Category", "%", createDataset(categoryMap), PlotOrientation.VERTICAL, true, true, false);
 		ChartPanel panel = new ChartPanel(barChart);
-		panel.setPreferredSize(new Dimension(200,200));
+		panel.setPreferredSize(new Dimension(400,300));
 		chartFactory.put(chartTitle, panel);
 		contentPane.add(panel);
 		pack();
@@ -70,7 +71,6 @@ public class Statistics extends JFrame {
 		try {
 			int width = 200;
 			int height = 200;
-			
 			File file = new File(fileName);
 			ChartUtilities.saveChartAsPNG(file, chartFactory.get(chartTitle).getChart(), width, height);
 		} catch (IOException e) {
@@ -103,9 +103,9 @@ public class Statistics extends JFrame {
 		chart.addBarChart(categoryMap, "Categories frequency");
 		chart.addBarChart(likes, "LIKES");
 		chart.addBarChart(third, "THIRD");
-		chart.changeColor("LIKES");
-		chart.changeColor("THIRD");
-		chart.changeColor("Categories frequency");
+//		chart.changeColor("LIKES");
+//		chart.changeColor("THIRD");
+//		chart.changeColor("Categories frequency");
 		
 		//chart.saveChartAsPNG("Categories frequency", "secondChart");
 	}
