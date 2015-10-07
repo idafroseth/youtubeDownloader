@@ -33,7 +33,6 @@ public class Crawler {
 	public void crawlPage(String url){
 		try {
 			Document webSite = Jsoup.connect(url).get();
-			
 			Elements metadata = webSite.select("meta[itemprop]");
 			Elements linkedUrls = webSite.select("a[href]"); //.attr("watch?v");
 			
@@ -45,20 +44,17 @@ public class Crawler {
 			writer.write(webSite.toString());
 			
 			writer.flush();
-	//		System.out.println(webSite);
-			for(Element meta :  metadata){
-		//		System.out.println(meta);
+
+			for(Element link : linkedUrls){	
+				if(link.toString().contains("watch?v")){
+					count++;
+					if(count == randomStop){
+						String crawlTo = startUrl + link.attr("href");
+						crawlPage(crawlTo);
+						System.out.println("Crawling "+ crawlTo);
+					}
+				}
 			}
-//			for(Element link : linkedUrls){	
-//				if(link.toString().contains("watch?v")){
-//					count++;
-//					if(count == randomStop){
-//						String crawlTo = startUrl + link.attr("href");
-//						crawlPage(crawlTo);
-//						System.out.println("Crawling "+ crawlTo);
-//					}
-//				}
-//			}
 		
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
