@@ -6,26 +6,41 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
+import java.awt.geom.RectangularShape;
 import java.io.File;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.awt.Font;
+import java.awt.Graphics2D;
 
 import javax.swing.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.StandardChartTheme;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarPainter;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.chart.renderer.*;
 
 public class Statistics extends JFrame {
 	//ChartFactory myChartFactory = new ChartFactory();
 	HashMap<String, ChartPanel> chartFactory = new HashMap<String, ChartPanel>();
 	JPanel contentPane = new JPanel();
-	
+
 
 	public Statistics ( String applicationTitle){
 		super(applicationTitle);
@@ -50,8 +65,29 @@ public class Statistics extends JFrame {
 	 * @param chartTitle the title of the chart
 	 */
 	public void addBarChart(Map<String, Integer> categoryMap, String chartTitle){
+		
 		createDataset(categoryMap);
-		JFreeChart barChart = ChartFactory.createBarChart(chartTitle, "Category", "%", createDataset(categoryMap), PlotOrientation.VERTICAL, true, true, false);
+		JFreeChart barChart = ChartFactory.createBarChart(chartTitle, "Category", "%", createDataset(categoryMap), PlotOrientation.VERTICAL, false, false, false);
+		barChart.getTitle().setFont(new Font("Areal", Font.PLAIN, 17));
+	
+		//Add the value above each bar
+		BarRenderer renderer = (BarRenderer) barChart.getCategoryPlot().getRenderer();
+		renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+		renderer.setSeriesItemLabelsVisible(0,true);
+		
+		Color barColor = new Color(255, 5,5, 128);
+		renderer.setSeriesPaint(0,barColor);
+	//	ChartFactory.setChartTheme(StandardChartTheme.createLegacyTheme());
+	
+
+//		final CategoryPlot plot = barChart.getCategoryPlot();
+//		((BarRenderer) plot.getRenderer().setBarPainter)(new StandardXYBarPainter());
+////		
+		
+//		final CategoryPlot plots = barChart.getCategoryPlot();
+//		BarRenderer.setDefaultBarPainter(new StandardBarPainter());
+//		((BarRenderer) plots.getRenderer()).setBarPainter(new StandardBarPainter());
+//		
 		ChartPanel panel = new ChartPanel(barChart);
 		panel.setPreferredSize(new Dimension(400,300));
 		chartFactory.put(chartTitle, panel);
@@ -102,7 +138,7 @@ public class Statistics extends JFrame {
 		likes.put("dislike", 12);
 		chart.addBarChart(categoryMap, "Categories frequency");
 		chart.addBarChart(likes, "LIKES");
-		chart.addBarChart(third, "THIRD");
+		chart.addBarChart(third, "Third example");
 //		chart.changeColor("LIKES");
 //		chart.changeColor("THIRD");
 //		chart.changeColor("Categories frequency");
@@ -110,3 +146,8 @@ public class Statistics extends JFrame {
 		//chart.saveChartAsPNG("Categories frequency", "secondChart");
 	}
 }
+/**
+ * I have mainly used SQL and Javascript in different student projects. One project I built a Student System web application using Java, JavaScript and a PostgreSQL database.  Are working on a very interesting project right now where we use SQL to store downloaded metadata and user content from YouTube which later would be used in multimodal analysis in a smart City context.
+I have both student project and work experience with Java.  
+
+ */
