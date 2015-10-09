@@ -26,10 +26,14 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
+import com.google.api.services.youtube.model.VideoCategory;
+import com.google.api.services.youtube.model.VideoCategoryListResponse;
 import com.google.api.services.youtube.model.VideoListResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -41,6 +45,7 @@ import java.util.Properties;
 public class Search {
 	ManagementAll mng;
 	ManagementAllRandom mng2;
+
 	/**
 	 * Define a global variable that identifies the name of a file that contains
 	 * the developer's API key.
@@ -173,4 +178,9 @@ public class Search {
 
 		return videoList;
 	}
+	
+	
+	
+	
+
 }

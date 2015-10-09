@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -15,22 +16,27 @@ import java.util.Random;
 
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.Thumbnail;
 import com.google.api.services.youtube.model.Video;
+import com.google.api.services.youtube.model.VideoCategory;
 
 import no.uio.ifi.guis.YTDashGUI;
+import no.uio.ifi.models.CategoryUtilities;
 import no.uio.ifi.models.Search;
 
 public class ManagementAllRandom {
 	YTDashGUI view;
+	CategoryUtilities categoryUtil;
 	Search search;
 	Writer writer;
 	Writer writer2;
 	Writer writer3;
 	Writer writer4;
 	int counter;
-
+	
+	HashMap<String, String> categoriesMap;
+	
 	public ManagementAllRandom() {
+		
 	}
 
 	/*
@@ -40,6 +46,11 @@ public class ManagementAllRandom {
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
 					new FileOutputStream("/Users/Richi/Desktop/randomVideos.txt"), StandardCharsets.UTF_8));
+			
+			CategoryUtilities categoryUT = new CategoryUtilities();
+			categoryUT.initialiazeCategories();
+			categoriesMap = categoryUT.getCategoriesMap();
+			
 			// writer2 = new BufferedWriter(new OutputStreamWriter(new
 			// FileOutputStream("/Users/Richi/Desktop/randomVideos2.txt"),
 			// StandardCharsets.UTF_8));
@@ -58,8 +69,11 @@ public class ManagementAllRandom {
 
 	public static void main(String[] args) {
 		// ManagementAll mng = new ManagementAll();
+		
 		ManagementAllRandom mng = new ManagementAllRandom("maxPower");
 		mng.search = new Search(mng);
+
+		
 		// mng.view = new YTDashGUI(mng);
 
 		Thread one = new Thread() {
@@ -80,59 +94,59 @@ public class ManagementAllRandom {
 
 		one.start();
 
-		Thread two = new Thread() {
-			public void run() {
-				try {
-					for (int i = 0; i < 10000000; i++) {
-						String rnd = mng.randomUrlGenerator();
-						mng.searchBaseOnRandomID("watch?v=" + rnd, 2);
-					}
-					Thread.sleep(1);
-
-					System.out.println("thread error.");
-				} catch (InterruptedException v) {
-					System.out.println(v);
-				}
-			}
-		};
-
-		two.start();
-
-		Thread three = new Thread() {
-			public void run() {
-				try {
-					for (int i = 0; i < 10000000; i++) {
-						String rnd = mng.randomUrlGenerator();
-						mng.searchBaseOnRandomID("watch?v=" + rnd, 3);
-					}
-					Thread.sleep(1);
-
-					System.out.println("thread error.");
-				} catch (InterruptedException v) {
-					System.out.println(v);
-				}
-			}
-		};
-
-		three.start();
-
-		Thread four = new Thread() {
-			public void run() {
-				try {
-					for (int i = 0; i < 10000000; i++) {
-						String rnd = mng.randomUrlGenerator();
-						mng.searchBaseOnRandomID("watch?v=" + rnd, 4);
-					}
-					Thread.sleep(1);
-
-					System.out.println("thread error.");
-				} catch (InterruptedException v) {
-					System.out.println(v);
-				}
-			}
-		};
-
-		four.start();
+//		Thread two = new Thread() {
+//			public void run() {
+//				try {
+//					for (int i = 0; i < 10000000; i++) {
+//						String rnd = mng.randomUrlGenerator();
+//						mng.searchBaseOnRandomID("watch?v=" + rnd, 2);
+//					}
+//					Thread.sleep(1);
+//
+//					System.out.println("thread error.");
+//				} catch (InterruptedException v) {
+//					System.out.println(v);
+//				}
+//			}
+//		};
+//
+//		two.start();
+//
+//		Thread three = new Thread() {
+//			public void run() {
+//				try {
+//					for (int i = 0; i < 10000000; i++) {
+//						String rnd = mng.randomUrlGenerator();
+//						mng.searchBaseOnRandomID("watch?v=" + rnd, 3);
+//					}
+//					Thread.sleep(1);
+//
+//					System.out.println("thread error.");
+//				} catch (InterruptedException v) {
+//					System.out.println(v);
+//				}
+//			}
+//		};
+//
+//		three.start();
+//
+//		Thread four = new Thread() {
+//			public void run() {
+//				try {
+//					for (int i = 0; i < 10000000; i++) {
+//						String rnd = mng.randomUrlGenerator();
+//						mng.searchBaseOnRandomID("watch?v=" + rnd, 4);
+//					}
+//					Thread.sleep(1);
+//
+//					System.out.println("thread error.");
+//				} catch (InterruptedException v) {
+//					System.out.println(v);
+//				}
+//			}
+//		};
+//
+//		four.start();
 
 	}
 
@@ -183,7 +197,7 @@ public class ManagementAllRandom {
 			if (!iteratorSearchResults.hasNext()) {
 				System.out.println(" There aren't any results for your query.");
 			}
-
+			
 			String duration = null;
 			BigInteger likes = null;
 			BigInteger favourites = null;
@@ -192,6 +206,7 @@ public class ManagementAllRandom {
 			BigInteger comments = null;
 			Video singleVideoList = null;
 			String categoryId =null;
+			String category= null;
 			
 			while (iteratorSearchResults.hasNext()) {
 
@@ -215,7 +230,9 @@ public class ManagementAllRandom {
 					dislikes = singleVideoList.getStatistics().getDislikeCount();
 					comments = singleVideoList.getStatistics().getCommentCount();
 					categoryId = singleVideoList.getSnippet().getCategoryId();
-
+					category = categoriesMap.get(categoryId);
+					
+				
 				}
 
 				// Confirm that the result represents a video. Otherwise, the
@@ -236,7 +253,7 @@ public class ManagementAllRandom {
 					System.out.println("Favourites:" + favourites);
 					System.out.println("Comments:" + comments);
 					System.out.println("Category ID:" + categoryId );
-
+					System.out.println("Category: " +category);
 					try {
 
 						writer.write("https://www.youtube.com/watch?v=" + rId.getVideoId());
@@ -244,6 +261,10 @@ public class ManagementAllRandom {
 						writer.write(System.lineSeparator());
 						counter++;
 						System.out.println(counter);
+						System.out.println();
+						System.out.println("-----------------------------------");
+						System.out.println();
+
 
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -405,5 +426,7 @@ public class ManagementAllRandom {
 		}
 		return randomValue;
 	}
+	
+
 
 }
