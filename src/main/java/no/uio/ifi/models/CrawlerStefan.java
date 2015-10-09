@@ -19,7 +19,7 @@ import org.jsoup.select.Elements;
  * 
  * @author Stefan Leicht
  * @version 0.1
- * @deprecated New version with the YouTube API is in development.
+ *
  * 
  */
 public class CrawlerStefan {
