@@ -191,7 +191,8 @@ public class ManagementAllRandom {
 			BigInteger dislikes = null;
 			BigInteger comments = null;
 			Video singleVideoList = null;
-
+			String categoryId =null;
+			
 			while (iteratorSearchResults.hasNext()) {
 
 				SearchResult singleVideoSearchList = iteratorSearchResults.next();
@@ -213,6 +214,7 @@ public class ManagementAllRandom {
 					favourites = singleVideoList.getStatistics().getFavoriteCount();
 					dislikes = singleVideoList.getStatistics().getDislikeCount();
 					comments = singleVideoList.getStatistics().getCommentCount();
+					categoryId = singleVideoList.getSnippet().getCategoryId();
 
 				}
 
@@ -233,6 +235,7 @@ public class ManagementAllRandom {
 					System.out.println("Disklikes:" + dislikes);
 					System.out.println("Favourites:" + favourites);
 					System.out.println("Comments:" + comments);
+					System.out.println("Category ID:" + categoryId );
 
 					try {
 
