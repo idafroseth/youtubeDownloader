@@ -231,7 +231,6 @@ public class ManagementAllRandom {
 					comments = singleVideoList.getStatistics().getCommentCount();
 					categoryId = singleVideoList.getSnippet().getCategoryId();
 					category = categoriesMap.get(categoryId);
-					
 				
 				}
 

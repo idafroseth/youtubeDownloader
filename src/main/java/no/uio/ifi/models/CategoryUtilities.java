@@ -21,17 +21,17 @@ public class CategoryUtilities {
 	public static final String PROPERTIES_FILENAME = "youtube.properties";
 	HashMap<String, String> categoriesMap;
 	private static YouTube youtube;
-	CategoryUtilities categoryUT;
-
+	 CategoryUtilities categoryUT;
+	
 	public CategoryUtilities() {
-
+		
 	}
 
 	public void initialiazeCategories() {
-
-		categoryUT = new CategoryUtilities();
+		
+		categoryUT = new CategoryUtilities(); 
 		categoriesMap = new HashMap<String, String>();
-
+		
 		List<VideoCategory> categoryList = categoryUT.getCategoryList("US");
 		Iterator<VideoCategory> iteratorCategoryResults = categoryList.iterator();
 		if (!iteratorCategoryResults.hasNext()) {
@@ -45,11 +45,11 @@ public class CategoryUtilities {
 			// System.out.println(singleVideo);
 			System.out.println(singleVideo.getId());
 			System.out.println(singleVideo.getSnippet().getTitle());
-
+			
 			categoriesMap.put(singleVideo.getId(), singleVideo.getSnippet().getTitle());
 		}
 	}
-
+	
 	public List<VideoCategory> getCategoryList(String regionCode) {
 		List<VideoCategory> categoryList = null;
 		Properties properties = new Properties();
@@ -82,14 +82,13 @@ public class CategoryUtilities {
 			// Call the YouTube Data API's youtube.videos.list method to
 			// retrieve the resources that represent the specified videos.
 
-			YouTube.VideoCategories.List videoCategoryList = youtube.videoCategories().list("snippet")
-					.setRegionCode(regionCode);
-
+			YouTube.VideoCategories.List videoCategoryList = youtube.videoCategories().list("snippet").setRegionCode(regionCode);
+			
 			// Set your developer key
 			videoCategoryList.setKey(apiKey);
 
 			VideoCategoryListResponse listResponse = videoCategoryList.execute();
-
+			
 			categoryList = listResponse.getItems();
 			System.out.println(categoryList);
 
@@ -104,9 +103,9 @@ public class CategoryUtilities {
 
 		return categoryList;
 	}
-
+	
 	public HashMap<String, String> getCategoriesMap() {
 		return categoriesMap;
 	}
-
+	
 }
