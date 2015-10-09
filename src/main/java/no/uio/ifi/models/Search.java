@@ -20,6 +20,8 @@ import com.google.api.client.http.HttpRequestInitializer;
 
 import no.uio.ifi.Auth;
 import no.uio.ifi.management.ManagementAll;
+import no.uio.ifi.management.ManagementAllRandom;
+
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
@@ -36,6 +38,7 @@ import java.util.Properties;
  */
 public class Search {
 	ManagementAll mng;
+	ManagementAllRandom mng2;
     /**
      * Define a global variable that identifies the name of a file that
      * contains the developer's API key.
@@ -52,6 +55,10 @@ public class Search {
     
     public Search(ManagementAll mng){
     	this.mng = mng;
+    }
+    
+    public Search(ManagementAllRandom mng){
+    	this.mng2 = mng;
     }
     
     public List<SearchResult> getVideoLinkFromKeyWord(String queryTerm){
