@@ -21,7 +21,6 @@ import no.uio.ifi.guis.YTDashGUI;
 import no.uio.ifi.models.Search;
 import no.uio.ifi.models.UtilitiesAPI;
 
-
 public class ManagementAllRandom {
 	YTDashGUI view;
 	UtilitiesAPI utilAPI;
@@ -30,7 +29,7 @@ public class ManagementAllRandom {
 	ManagementAllRandom mng;
 
 	public static String FILEPATH = "/Users/Richi/Desktop/randomVideos.txt";
-	public static int NUMBEROFTHREADS =5;
+	public static int NUMBEROFTHREADS = 5;
 
 	HashMap<String, String> categoriesMap;
 
@@ -58,7 +57,7 @@ public class ManagementAllRandom {
 
 	}
 
-	public void numberOfThreads(int number, ManagementAllRandom mng ) {
+	public void numberOfThreads(int number, ManagementAllRandom mng) {
 		for (int x = 0; x < number; x++) {
 			MyThread temp = new MyThread("Thread #" + x, mng);
 			temp.start();
@@ -98,30 +97,9 @@ public class ManagementAllRandom {
 
 			// get Comments from the Youtube API
 
-			try {
-				List<CommentThread> commentsList = utilAPI.getTopLevelComments(rId.getVideoId());
-
-				if (commentsList.isEmpty()) {
-					System.out.println("Can't get video comments.");
-				} else {
-
-					// Print information from the API response.
-					System.out.println("\n================== Returned Video Comments ==================\n");
-					for (CommentThread videoComment : commentsList) {
-						CommentSnippet snippet = videoComment.getSnippet().getTopLevelComment().getSnippet();
-						System.out.println("  - Author: " + snippet.getAuthorDisplayName());
-						System.out.println("  - Comment: " + snippet.getTextDisplay());
-						System.out.println("\n-------------------------------------------------------------\n");
-					}
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
 			// get VideoList from the Youtube API
 
-			List<Video> videoList = search.getVideoList(rId.getVideoId());
+			List<Video> videoList = utilAPI.getVideoList(rId.getVideoId());
 			Iterator<Video> iteratorVideoResults = videoList.iterator();
 			if (!iteratorVideoResults.hasNext()) {
 				System.out.println(" There aren't any results for your query.");
@@ -163,49 +141,98 @@ public class ManagementAllRandom {
 				System.out.println("Comments:" + comments);
 				System.out.println("Category ID:" + categoryId);
 				System.out.println("Category: " + category);
+			}
 
-				try {
+			List<CommentThread> commentsList = null;
+			try {
 
-					File file = new File(FILEPATH);
-					if (!file.exists()) {
-						file.createNewFile();
-					}
-					FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
-					BufferedWriter bw = new BufferedWriter(fw);
-					bw.write("https://www.youtube.com/watch?v=" + rId.getVideoId());
-					bw.write(";");
-					bw.write(singleVideoSearchList.getSnippet().getTitle());
-					bw.write(";");
-					bw.write(duration);
-					bw.write(";");
-					bw.write(views.toString());
-					bw.write(";");
-					bw.write(likes.toString());
-					bw.write(";");
-					bw.write(dislikes.toString());
-					bw.write(";");
-					bw.write(favourites.toString());
-					bw.write(";");
-					bw.write(comments.toString());
-					bw.write(";");
-					bw.write(categoryId);
-					bw.write(";");
-					bw.write(category);
+				// if (comments.signum() == 1) {
+				//
+				// commentsList = utilAPI.getTopLevelComments(rId.getVideoId());
+				//
+				// if (commentsList.isEmpty()) {
+				// System.out.println("commentsList not available.");
+				// } else {
+				//
+				// // Print information from the API response.
+				// System.out.println("\n================== Returned Video
+				// Comments ==================\n");
+				// for (CommentThread videoComment : commentsList) {
+				// CommentSnippet snippet =
+				// videoComment.getSnippet().getTopLevelComment().getSnippet();
+				// System.out.println(" - Author: " +
+				// snippet.getAuthorDisplayName());
+				// System.out.println(" - Comment: " +
+				// snippet.getTextDisplay());
+				// System.out.println("\n-------------------------------------------------------------\n");
+				// }
+				//
+				// }}
+				// else System.out.println("Comments not available");
 
-					bw.write(System.lineSeparator());
-					bw.close();
-				} catch (IOException e) {
-					e.printStackTrace();
+				File file = new File(FILEPATH);
+				if (!file.exists()) {
+					file.createNewFile();
 				}
 
-				counter++;
-				System.out.println(counter);
-				System.out.println();
-				System.out.println("-----------------------------------");
-				System.out.println();
-			}
-		}
+				FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
+				BufferedWriter bw = new BufferedWriter(fw);
+				bw.write("https://www.youtube.com/watch?v=" + rId.getVideoId());
+				bw.write(";");
+				bw.write(singleVideoSearchList.getSnippet().getTitle());
+				bw.write(";");
+				bw.write(duration);
+				bw.write(";");
+				bw.write(views.toString());
+				bw.write(";");
+				bw.write(likes.toString());
+				bw.write(";");
+				bw.write(dislikes.toString());
+				bw.write(";");
+				bw.write(favourites.toString());
+				bw.write(";");
+				bw.write(comments.toString());
+				bw.write(";");
+				bw.write(categoryId);
+				bw.write(";");
+				bw.write(category);
+				bw.write(";");
 
+				if (comments.signum() == 1) {
+
+					commentsList = utilAPI.getTopLevelComments(rId.getVideoId());
+
+					if (commentsList.isEmpty()) {
+						System.out.println("commentsList not available.");
+					} else {
+
+					}
+					for (CommentThread videoComment : commentsList) {
+						CommentSnippet snippet = videoComment.getSnippet().getTopLevelComment().getSnippet();
+						// System.out.println(" - Author: " +
+						// snippet.getAuthorDisplayName());
+						// System.out.println(" - Comment: " +
+						// snippet.getTextDisplay());
+						// System.out.println("\n-------------------------------------------------------------\n");
+						bw.write(snippet.getAuthorDisplayName());
+						bw.write("[");
+						bw.write(snippet.getTextDisplay());
+						bw.write("]");
+
+					}
+				}
+				bw.write(System.lineSeparator());
+				bw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			counter++;
+			System.out.println(counter);
+			System.out.println();
+			System.out.println("-----------------------------------");
+			System.out.println();
+		}
 	}
 
 	public String randomUrlGenerator() {
@@ -218,7 +245,6 @@ public class ManagementAllRandom {
 		return randomValue;
 	}
 
-	
 	class MyThread extends Thread {
 
 		ManagementAllRandom mng;
