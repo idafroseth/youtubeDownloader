@@ -45,8 +45,8 @@ public class UtilitiesAPI {
 			VideoCategory singleVideo = iteratorCategoryResults.next();
 
 			// System.out.println(singleVideo);
-			System.out.println(singleVideo.getId());
-			System.out.println(singleVideo.getSnippet().getTitle());
+//			System.out.println(singleVideo.getId());
+//			System.out.println(singleVideo.getSnippet().getTitle());
 
 			categoriesMap.put(singleVideo.getId(), singleVideo.getSnippet().getTitle());
 		}

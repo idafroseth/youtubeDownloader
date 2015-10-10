@@ -94,94 +94,60 @@ public class ManagementAllRandom {
 
 		one.start();
 
-		// Thread two = new Thread() {
-		// public void run() {
-		// try {
-		// for (int i = 0; i < 10000000; i++) {
-		// String rnd = mng.randomUrlGenerator();
-		// mng.searchBaseOnRandomID("watch?v=" + rnd, 2);
-		// }
-		// Thread.sleep(1);
-		//
-		// System.out.println("thread error.");
-		// } catch (InterruptedException v) {
-		// System.out.println(v);
-		// }
-		// }
-		// };
-		//
-		// two.start();
-		//
-		// Thread three = new Thread() {
-		// public void run() {
-		// try {
-		// for (int i = 0; i < 10000000; i++) {
-		// String rnd = mng.randomUrlGenerator();
-		// mng.searchBaseOnRandomID("watch?v=" + rnd, 3);
-		// }
-		// Thread.sleep(1);
-		//
-		// System.out.println("thread error.");
-		// } catch (InterruptedException v) {
-		// System.out.println(v);
-		// }
-		// }
-		// };
-		//
-		// three.start();
-		//
-		// Thread four = new Thread() {
-		// public void run() {
-		// try {
-		// for (int i = 0; i < 10000000; i++) {
-		// String rnd = mng.randomUrlGenerator();
-		// mng.searchBaseOnRandomID("watch?v=" + rnd, 4);
-		// }
-		// Thread.sleep(1);
-		//
-		// System.out.println("thread error.");
-		// } catch (InterruptedException v) {
-		// System.out.println(v);
-		// }
-		// }
-		// };
-		//
-		// four.start();
+		 Thread two = new Thread() {
+		 public void run() {
+		 try {
+		 for (int i = 0; i < 10000000; i++) {
+		 String rnd = mng.randomUrlGenerator();
+		 mng.searchBaseOnRandomID("watch?v=" + rnd, 2);
+		 }
+		 Thread.sleep(1);
+		
+		 System.out.println("thread error.");
+		 } catch (InterruptedException v) {
+		 System.out.println(v);
+		 }
+		 }
+		 };
+		
+//		 two.start();
+//		
+//		 Thread three = new Thread() {
+//		 public void run() {
+//		 try {
+//		 for (int i = 0; i < 10000000; i++) {
+//		 String rnd = mng.randomUrlGenerator();
+//		 mng.searchBaseOnRandomID("watch?v=" + rnd, 3);
+//		 }
+//		 Thread.sleep(1);
+//		
+//		 System.out.println("thread error.");
+//		 } catch (InterruptedException v) {
+//		 System.out.println(v);
+//		 }
+//		 }
+//		 };
+//		
+//		 three.start();
+//		
+//		 Thread four = new Thread() {
+//		 public void run() {
+//		 try {
+//		 for (int i = 0; i < 10000000; i++) {
+//		 String rnd = mng.randomUrlGenerator();
+//		 mng.searchBaseOnRandomID("watch?v=" + rnd, 4);
+//		 }
+//		 Thread.sleep(1);
+//		
+//		 System.out.println("thread error.");
+//		 } catch (InterruptedException v) {
+//		 System.out.println(v);
+//		 }
+//		 }
+//		 };
+//		
+//		 four.start();
 
-	}
-
-	public void searchBaseOnKeyWord(String keyword) {
-		List<SearchResult> searchResults = search.getVideoLinkFromKeyWord(keyword);
-		ListIterator<SearchResult> iteratorSearchResults = searchResults.listIterator();
-		System.out.println("\n=============================================================");
-		System.out
-				.println("   First " + Search.NUMBER_OF_VIDEOS_RETURNED + " videos for search on \"" + keyword + "\".");
-		System.out.println("=============================================================\n");
-
-		if (!iteratorSearchResults.hasNext()) {
-			System.out.println(" There aren't any results for your query.");
-		}
-
-		while (iteratorSearchResults.hasNext()) {
-
-			SearchResult singleVideo = iteratorSearchResults.next();
-			ResourceId rId = singleVideo.getId();
-
-			// Confirm that the result represents a video. Otherwise, the
-			// item will not contain a video ID.
-			if (rId.getKind().equals("youtube#video")) {
-				// Thumbnail thumbnail =
-				// singleVideo.getSnippet().getThumbnails().getDefault();
-				// System.out.println(singleVideo);
-				System.out.println("https://www.youtube.com/watch?v=" + rId.getVideoId());
-				System.out.println(singleVideo.getSnippet().getTitle());
-
-				view.videoQueryList_Text.append("https://www.youtube.com/watch?v=" + rId.getVideoId());
-				view.videoQueryList_Text.append("\n");
-				view.videoQueryList_Text.append(singleVideo.getSnippet().getTitle());
-				view.videoQueryList_Text.append("\n");
-			}
-		}
 	}
 
 	public void searchBaseOnRandomID(String keyword, int threadNumber) {
@@ -301,147 +267,7 @@ public class ManagementAllRandom {
 				}
 			}
 		}
-
-		// else if (threadNumber == 2) {
-		// List<SearchResult> searchResults =
-		// search.getVideoLinkFromKeyWord(keyword);
-		// ListIterator<SearchResult> iteratorSearchResults =
-		// searchResults.listIterator();
-		// System.out.println("\n=============================================================");
-		// System.out.println(
-		// " First " + Search.NUMBER_OF_VIDEOS_RETURNED + " videos for search on
-		// \"" + keyword + "\".");
-		// System.out.println("=============================================================\n");
-		//
-		// if (!iteratorSearchResults.hasNext()) {
-		// System.out.println(" There aren't any results for your query.");
-		// }
-		//
-		// while (iteratorSearchResults.hasNext()) {
-		//
-		// SearchResult singleVideo = iteratorSearchResults.next();
-		// ResourceId rId = singleVideo.getId();
-		//
-		// // Confirm that the result represents a video. Otherwise, the
-		// // item will not contain a video ID.
-		// if (rId.getKind().equals("youtube#video")) {
-		// // Thumbnail thumbnail =
-		// // singleVideo.getSnippet().getThumbnails().getDefault();
-		// // System.out.println(singleVideo);
-		// System.out.println("https://www.youtube.com/watch?v=" +
-		// rId.getVideoId());
-		// System.out.println(singleVideo.getSnippet().getTitle());
-		//
-		// try {
-		//
-		// writer2.write("https://www.youtube.com/watch?v=" + rId.getVideoId());
-		// writer2.write(singleVideo.getSnippet().getTitle());
-		// writer2.write(System.lineSeparator());
-		// counter++;
-		// System.out.println(counter);
-		//
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		//
-		// }
-		// }
-		// } else if (threadNumber == 3) {
-		// List<SearchResult> searchResults =
-		// search.getVideoLinkFromKeyWord(keyword);
-		// ListIterator<SearchResult> iteratorSearchResults =
-		// searchResults.listIterator();
-		// System.out.println("\n=============================================================");
-		// System.out.println(
-		// " First " + Search.NUMBER_OF_VIDEOS_RETURNED + " videos for search on
-		// \"" + keyword + "\".");
-		// System.out.println("=============================================================\n");
-		//
-		// if (!iteratorSearchResults.hasNext()) {
-		// System.out.println(" There aren't any results for your query.");
-		// }
-		//
-		// while (iteratorSearchResults.hasNext()) {
-		//
-		// SearchResult singleVideo = iteratorSearchResults.next();
-		// ResourceId rId = singleVideo.getId();
-		//
-		// // Confirm that the result represents a video. Otherwise, the
-		// // item will not contain a video ID.
-		// if (rId.getKind().equals("youtube#video")) {
-		// // Thumbnail thumbnail =
-		// // singleVideo.getSnippet().getThumbnails().getDefault();
-		// // System.out.println(singleVideo);
-		// System.out.println("https://www.youtube.com/watch?v=" +
-		// rId.getVideoId());
-		// System.out.println(singleVideo.getSnippet().getTitle());
-		//
-		// try {
-		//
-		// writer3.write("https://www.youtube.com/watch?v=" + rId.getVideoId());
-		// writer3.write(singleVideo.getSnippet().getTitle());
-		// writer3.write(System.lineSeparator());
-		// counter++;
-		// System.out.println(counter);
-		//
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		//
-		// }
-		// }
-		//
-		// }
-		//
-		// else if (threadNumber == 4) {
-		// List<SearchResult> searchResults =
-		// search.getVideoLinkFromKeyWord(keyword);
-		// ListIterator<SearchResult> iteratorSearchResults =
-		// searchResults.listIterator();
-		// System.out.println("\n=============================================================");
-		// System.out.println(
-		// " First " + Search.NUMBER_OF_VIDEOS_RETURNED + " videos for search on
-		// \"" + keyword + "\".");
-		// System.out.println("=============================================================\n");
-		//
-		// if (!iteratorSearchResults.hasNext()) {
-		// System.out.println(" There aren't any results for your query.");
-		// }
-		//
-		// while (iteratorSearchResults.hasNext()) {
-		//
-		// SearchResult singleVideo = iteratorSearchResults.next();
-		// ResourceId rId = singleVideo.getId();
-		//
-		// // Confirm that the result represents a video. Otherwise, the
-		// // item will not contain a video ID.
-		// if (rId.getKind().equals("youtube#video")) {
-		// // Thumbnail thumbnail =
-		// // singleVideo.getSnippet().getThumbnails().getDefault();
-		// // System.out.println(singleVideo);
-		// System.out.println("https://www.youtube.com/watch?v=" +
-		// rId.getVideoId());
-		// System.out.println(singleVideo.getSnippet().getTitle());
-		//
-		// try {
-		//
-		// writer4.write("https://www.youtube.com/watch?v=" + rId.getVideoId());
-		// writer4.write(singleVideo.getSnippet().getTitle());
-		// writer4.write(System.lineSeparator());
-		// counter++;
-		// System.out.println(counter);
-		//
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		//
-		// }
-		// }
-		//
-		// }
+		
 
 	}
 
