@@ -21,6 +21,7 @@ import no.uio.ifi.guis.YTDashGUI;
 import no.uio.ifi.models.Search;
 import no.uio.ifi.models.UtilitiesAPI;
 
+
 public class ManagementAllRandom {
 	YTDashGUI view;
 	UtilitiesAPI utilAPI;
@@ -29,6 +30,7 @@ public class ManagementAllRandom {
 	ManagementAllRandom mng;
 
 	public static String FILEPATH = "/Users/Richi/Desktop/randomVideos.txt";
+	public static int NUMBEROFTHREADS =5;
 
 	HashMap<String, String> categoriesMap;
 
@@ -51,99 +53,17 @@ public class ManagementAllRandom {
 
 		ManagementAllRandom mng = new ManagementAllRandom("maxPower");
 		mng.search = new Search(mng);
-
+		mng.numberOfThreads(NUMBEROFTHREADS, mng);
 		// mng.view = new YTDashGUI(mng);
 
-		Thread one = new Thread() {
-			public void run() {
-				try {
-					for (int i = 0; i < 10000000; i++) {
-						String rnd = mng.randomUrlGenerator();
-						mng.searchBaseOnRandomID("watch?v=" + rnd);
-					}
-					Thread.sleep(1);
+	}
 
-					System.out.println("thread error.");
-				} catch (InterruptedException v) {
-					System.out.println(v);
-				}
-			}
-		};
-
-		one.start();
-
-		Thread two = new Thread() {
-			public void run() {
-				try {
-					for (int i = 0; i < 10000000; i++) {
-						String rnd = mng.randomUrlGenerator();
-						mng.searchBaseOnRandomID("watch?v=" + rnd);
-					}
-					Thread.sleep(1);
-
-					System.out.println("thread error.");
-				} catch (InterruptedException v) {
-					System.out.println(v);
-				}
-			}
-		};
-
-		two.start();
-
-		Thread three = new Thread() {
-			public void run() {
-				try {
-					for (int i = 0; i < 10000000; i++) {
-						String rnd = mng.randomUrlGenerator();
-						mng.searchBaseOnRandomID("watch?v=" + rnd);
-					}
-					Thread.sleep(1);
-
-					System.out.println("thread error.");
-				} catch (InterruptedException v) {
-					System.out.println(v);
-				}
-			}
-		};
-
-		three.start();
-
-		Thread four = new Thread() {
-			public void run() {
-				try {
-					for (int i = 0; i < 10000000; i++) {
-						String rnd = mng.randomUrlGenerator();
-						mng.searchBaseOnRandomID("watch?v=" + rnd);
-					}
-					Thread.sleep(1);
-
-					System.out.println("thread error.");
-				} catch (InterruptedException v) {
-					System.out.println(v);
-				}
-			}
-		};
-
-		four.start();
-
-		Thread five = new Thread() {
-			public void run() {
-				try {
-					for (int i = 0; i < 10000000; i++) {
-						String rnd = mng.randomUrlGenerator();
-						mng.searchBaseOnRandomID("watch?v=" + rnd);
-					}
-					Thread.sleep(1);
-
-					System.out.println("thread error.");
-				} catch (InterruptedException v) {
-					System.out.println(v);
-				}
-			}
-		};
-
-		five.start();
-
+	public void numberOfThreads(int number, ManagementAllRandom mng ) {
+		for (int x = 0; x < number; x++) {
+			MyThread temp = new MyThread("Thread #" + x, mng);
+			temp.start();
+			System.out.println("Started Thread:" + x);
+		}
 	}
 
 	// get all the information from the youtube API and save it to file
@@ -298,4 +218,28 @@ public class ManagementAllRandom {
 		return randomValue;
 	}
 
+	
+	class MyThread extends Thread {
+
+		ManagementAllRandom mng;
+
+		public MyThread(String s, ManagementAllRandom mng) {
+			super(s);
+			this.mng = mng;
+		}
+
+		public void run() {
+			try {
+				for (int i = 0; i < 10000000; i++) {
+					String rnd = mng.randomUrlGenerator();
+					mng.searchBaseOnRandomID("watch?v=" + rnd);
+				}
+				Thread.sleep(1);
+
+				System.out.println("thread error.");
+			} catch (InterruptedException v) {
+				System.out.println(v);
+			}
+		}
+	}
 }

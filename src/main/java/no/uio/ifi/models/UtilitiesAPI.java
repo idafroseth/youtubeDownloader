@@ -18,6 +18,9 @@ import com.google.api.services.youtube.model.VideoCategoryListResponse;
 
 import no.uio.ifi.Auth;
 
+
+
+
 public class UtilitiesAPI {
 
 	public static final String PROPERTIES_FILENAME = "youtube.properties";
