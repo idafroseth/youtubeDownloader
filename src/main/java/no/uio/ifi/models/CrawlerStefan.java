@@ -27,11 +27,12 @@ public class CrawlerStefan {
 	private Writer fw = null;
 	private long startTime;
 	private long endTime;
-	private static final int numberVideosToCrawl = 2000;
+	private static final int numberVideosToCrawl = 10;
 	private ArrayList<String> arr;
 	private Map<String, Integer> genres = new HashMap<String, Integer>();
 	private Map<String, Integer> authors = new HashMap<String, Integer>();
 	private Map<String, Integer> dates = new HashMap<String, Integer>();
+	private Map<String, Integer> years = new HashMap<String, Integer>();
 	
 	public CrawlerStefan(String startUrl) {
 		this.startUrl = startUrl;
@@ -95,12 +96,18 @@ public class CrawlerStefan {
 //				fw.write( s + "=" + authors.get(s));
 //				fw.append(System.getProperty("line.separator"));
 //			}
-			fw.write("It contains " + dates.size() + " different publishing dates and how often they occure:");
+			fw.write("It contains " + years.size() + " different publishing dates and how often they occure:");
 			fw.append(System.getProperty("line.separator"));
-//			for(String s : dates.keySet()){
-//				fw.write( s + "=" + dates.get(s));
-//				fw.append(System.getProperty("line.separator"));
-//			}
+			for(String s : years.keySet()){
+				fw.write( s + "=" + years.get(s));
+				fw.append(System.getProperty("line.separator"));
+			}
+//			fw.write("It contains " + dates.size() + " different publishing dates and how often they occure:");
+//			fw.append(System.getProperty("line.separator"));
+////			for(String s : dates.keySet()){
+////				fw.write( s + "=" + dates.get(s));
+////				fw.append(System.getProperty("line.separator"));
+////			}
 			fw.write("Time needed (in seconds) to crawl: " + ((endTime - startTime) / Math.pow(10, 9)));
 			fw.append(System.getProperty("line.separator"));
 			fw.write("Number of crawled Videos: " + numberVideosToCrawl);
@@ -183,6 +190,12 @@ public class CrawlerStefan {
 			dates.put(datePublished, dates.get(datePublished) + 1);
 		}else{
 			dates.put(datePublished, 1);
+		}
+		String y = findPattern("\\d+", datePublished);
+		if(years.containsKey(y)){
+			years.put(y, years.get(y) + 1);
+		}else{
+			years.put(y, 1);
 		}
 		
 		for (Element link : linkedUrls) {
