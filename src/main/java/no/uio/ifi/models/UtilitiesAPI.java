@@ -111,6 +111,8 @@ public class UtilitiesAPI {
 		return categoriesMap;
 	}
 
+	
+	//TODO handle no comments error
 	public List<CommentThread> getTopLevelComments(String videoId) throws IOException {
 
 		List<CommentThread> commentsList = null;
