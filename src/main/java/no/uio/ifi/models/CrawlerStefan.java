@@ -18,7 +18,7 @@ import org.jsoup.select.Elements;
 /**
  * 
  * @author Stefan Leicht
- * @version 0.1
+ * @version 0.11
  *
  * 
  */
@@ -156,11 +156,15 @@ public class CrawlerStefan {
 		if(!dislikesRAW.isEmpty())
 			dislikes = disLikes(dislikesRAW.get(0).childNode(0).childNode(0).toString());
 		List<String> description = getDescription(webSite.select("p[id=eow-description]"));
-//		String author = findPattern("author\":\".*?\",", webSite.body().toString());
-//		author = author.substring(9, author.length()-2);
-		String author = findPattern("<a href=\"[[/user/]|[/channel/]].*?alt=\".*?\"", webSite.body().toString());
-		author = findPattern("alt=\".*?\"", author);
-		author = author.substring(5, author.length()-1);
+		String author = null;
+		try{
+		author = findPattern("author\":\".*?\",", webSite.body().toString());
+		author = author.substring(9, author.length()-2);
+		}catch(IllegalStateException e){
+			author = findPattern("<a href=\"[[/user/]|[/channel/]].*?alt=\".*?\"", webSite.body().toString());
+			author = findPattern("alt=\".*?\"", author);
+			author = author.substring(5, author.length()-1);
+		}
 		//lengthSeconds -1
 //		String length = convertLength(findPattern("length_seconds\":\".*?\",", webSite.body().toString()));
 		String length = convertLength(webSite.select("meta[itemprop=duration]").attr("content"));
