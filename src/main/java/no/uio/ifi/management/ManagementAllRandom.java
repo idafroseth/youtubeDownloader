@@ -5,12 +5,16 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.time.Year;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 
+import com.google.api.client.util.DateTime;
 import com.google.api.services.youtube.model.CommentSnippet;
 import com.google.api.services.youtube.model.CommentThread;
 import com.google.api.services.youtube.model.ResourceId;
@@ -59,7 +63,7 @@ public class ManagementAllRandom {
 
 	public void numberOfThreads(int number, ManagementAllRandom mng) {
 		for (int x = 0; x < number; x++) {
-			MyThread temp = new MyThread("Thread #" + x, mng);
+			CrawlThread temp = new CrawlThread("Thread #" + x, mng);
 			temp.start();
 			System.out.println("Started Thread:" + x);
 		}
@@ -89,6 +93,9 @@ public class ManagementAllRandom {
 		Video singleVideoList = null;
 		String categoryId = null;
 		String category = null;
+		String description = null;
+		List<String> tags = null;
+		String year = null;
 
 		while (iteratorSearchResults.hasNext()) {
 
@@ -108,9 +115,9 @@ public class ManagementAllRandom {
 			while (iteratorVideoResults.hasNext()) {
 
 				singleVideoList = iteratorVideoResults.next();
-
 				// TODO fix duration format
 
+				description = singleVideoList.getSnippet().getDescription();
 				duration = singleVideoList.getContentDetails().getDuration();
 				views = singleVideoList.getStatistics().getViewCount();
 				likes = singleVideoList.getStatistics().getLikeCount();
@@ -119,6 +126,14 @@ public class ManagementAllRandom {
 				comments = singleVideoList.getStatistics().getCommentCount();
 				categoryId = singleVideoList.getSnippet().getCategoryId();
 				category = categoriesMap.get(categoryId);
+				tags = singleVideoList.getSnippet().getTags();
+
+				DateTime publishedAT = singleVideoList.getSnippet().getPublishedAt();
+				long datevalue = publishedAT.getValue();
+				Date d = new Date(datevalue);
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				SimpleDateFormat df = new SimpleDateFormat("yyyy");
+				year = df.format(d);
 
 			}
 
@@ -133,6 +148,7 @@ public class ManagementAllRandom {
 				// System.out.println("https://www.youtube.com/watch?v=" +
 				// rId.getVideoId());
 				System.out.println(singleVideoSearchList.getSnippet().getTitle());
+				// System.out.println("Description:" + description);
 				System.out.println("Duration of the video:" + duration);
 				System.out.println("Views:" + views);
 				System.out.println("Likes:" + likes);
@@ -141,11 +157,23 @@ public class ManagementAllRandom {
 				System.out.println("Comments:" + comments);
 				System.out.println("Category ID:" + categoryId);
 				System.out.println("Category: " + category);
+				System.out.print("Tags: ");
+				if (tags != null) {
+					for (String tag : tags) {
+						System.out.print(tag);
+						System.out.print(" ");
+					}
+				}
+
 			}
+
+			/*
+			 * 
+			 * Comments System print ou
+			 */
 
 			List<CommentThread> commentsList = null;
 			try {
-
 				// if (comments.signum() == 1) {
 				//
 				// commentsList = utilAPI.getTopLevelComments(rId.getVideoId());
@@ -181,6 +209,16 @@ public class ManagementAllRandom {
 				bw.write(";");
 				bw.write(singleVideoSearchList.getSnippet().getTitle());
 				bw.write(";");
+
+				/*
+				 * Description
+				 */
+
+				// if (singleVideoSearchList.getSnippet().getDescription() !=
+				// null) {
+				// bw.write(singleVideoSearchList.getSnippet().getDescription());
+				// }
+				// bw.write(";");
 				bw.write(duration);
 				bw.write(";");
 				bw.write(views.toString());
@@ -196,6 +234,22 @@ public class ManagementAllRandom {
 				bw.write(categoryId);
 				bw.write(";");
 				bw.write(category);
+				bw.write(";");
+
+				/*
+				 * Tags
+				 */
+				if (tags != null) {
+					for (String tag : tags) {
+						bw.write(tag);
+						bw.write(" ");
+					}
+				}
+				/*
+				 * Year
+				 */
+				bw.write(";");
+				bw.write(year);
 				bw.write(";");
 
 				if (comments.signum() == 1) {
@@ -214,10 +268,14 @@ public class ManagementAllRandom {
 						// System.out.println(" - Comment: " +
 						// snippet.getTextDisplay());
 						// System.out.println("\n-------------------------------------------------------------\n");
-						bw.write(snippet.getAuthorDisplayName());
-						bw.write("[");
-						bw.write(snippet.getTextDisplay());
-						bw.write("]");
+
+						/*
+						 * Comments
+						 */
+						// bw.write(snippet.getAuthorDisplayName());
+						// bw.write("[");
+						// bw.write(snippet.getTextDisplay());
+						// bw.write("]");
 
 					}
 				}
@@ -245,11 +303,11 @@ public class ManagementAllRandom {
 		return randomValue;
 	}
 
-	class MyThread extends Thread {
+	class CrawlThread extends Thread {
 
 		ManagementAllRandom mng;
 
-		public MyThread(String s, ManagementAllRandom mng) {
+		public CrawlThread(String s, ManagementAllRandom mng) {
 			super(s);
 			this.mng = mng;
 		}
