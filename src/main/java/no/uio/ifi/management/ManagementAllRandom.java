@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
-import java.time.Year;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,7 +37,6 @@ public class ManagementAllRandom {
 	HashMap<String, String> categoriesMap;
 
 	public ManagementAllRandom() {
-
 	}
 
 	/*
@@ -143,19 +141,19 @@ public class ManagementAllRandom {
 				// Thumbnail thumbnail =
 				// singleVideoSearch.getSnippet().getThumbnails().getDefault();
 
-				System.out.println(singleVideoSearchList);
-				System.out.println(singleVideoList);
-				// System.out.println("https://www.youtube.com/watch?v=" +
-				// rId.getVideoId());
-				System.out.println(singleVideoSearchList.getSnippet().getTitle());
+				// System.out.println(singleVideoSearchList);
+				// System.out.println(singleVideoList);
+
+				System.out.println("https://www.youtube.com/watch?v=" + rId.getVideoId());
+				System.out.println("Title: " + singleVideoSearchList.getSnippet().getTitle());
 				// System.out.println("Description:" + description);
-				System.out.println("Duration of the video:" + duration);
-				System.out.println("Views:" + views);
-				System.out.println("Likes:" + likes);
-				System.out.println("Disklikes:" + dislikes);
-				System.out.println("Favourites:" + favourites);
-				System.out.println("Comments:" + comments);
-				System.out.println("Category ID:" + categoryId);
+				System.out.println("Duration: " + duration);
+				System.out.println("Views: " + views);
+				System.out.println("Likes: " + likes);
+				System.out.println("Disklikes: " + dislikes);
+				System.out.println("Favourites: " + favourites);
+				System.out.println("Comments: " + comments);
+				System.out.println("Category ID: " + categoryId);
 				System.out.println("Category: " + category);
 				System.out.print("Tags: ");
 				if (tags != null) {
@@ -164,8 +162,8 @@ public class ManagementAllRandom {
 						System.out.print(" ");
 					}
 				}
-
 			}
+			System.out.println(" ");
 
 			/*
 			 * 

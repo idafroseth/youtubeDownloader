@@ -1,27 +1,39 @@
 package no.uio.ifi.guis;
 
-import no.uio.ifi.management.ManagementAll;
-import no.uio.ifi.models.DownloadThread;
-import no.uio.ifi.models.SingleVideoINFO;
-import no.uio.ifi.models.YoutubeDownloader;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-
-import com.google.api.services.youtube.model.ResourceId;
-import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.Thumbnail;
-import com.google.api.services.youtube.model.Video;
-
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
+
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+
+import com.google.api.services.youtube.model.ResourceId;
+import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Video;
+
+import no.uio.ifi.management.ManagementAll;
+import no.uio.ifi.models.DownloadThread;
+import no.uio.ifi.models.SingleVideoINFO;
+import no.uio.ifi.models.YoutubeDownloader;
 
 public class MainGUI extends JFrame{
 	
