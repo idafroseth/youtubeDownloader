@@ -14,29 +14,30 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 
+import com.google.api.services.youtube.model.CommentSnippet;
+import com.google.api.services.youtube.model.CommentThread;
 import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
-import com.google.api.services.youtube.model.VideoCategory;
 
 import no.uio.ifi.guis.YTDashGUI;
-import no.uio.ifi.models.CategoryUtilities;
 import no.uio.ifi.models.Search;
+import no.uio.ifi.models.UtilitiesAPI;
 
 public class ManagementAllRandom {
 	YTDashGUI view;
-	CategoryUtilities categoryUtil;
+	UtilitiesAPI utilAPI;
 	Search search;
 	Writer writer;
 	Writer writer2;
 	Writer writer3;
 	Writer writer4;
 	int counter;
-	
+
 	HashMap<String, String> categoriesMap;
-	
+
 	public ManagementAllRandom() {
-		
+
 	}
 
 	/*
@@ -46,11 +47,11 @@ public class ManagementAllRandom {
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
 					new FileOutputStream("/Users/Richi/Desktop/randomVideos.txt"), StandardCharsets.UTF_8));
-			
-			CategoryUtilities categoryUT = new CategoryUtilities();
-			categoryUT.initialiazeCategories();
-			categoriesMap = categoryUT.getCategoriesMap();
-			
+
+			utilAPI = new UtilitiesAPI();
+			utilAPI.initialiazeCategories();
+			categoriesMap = utilAPI.getCategoriesMap();
+
 			// writer2 = new BufferedWriter(new OutputStreamWriter(new
 			// FileOutputStream("/Users/Richi/Desktop/randomVideos2.txt"),
 			// StandardCharsets.UTF_8));
@@ -69,11 +70,10 @@ public class ManagementAllRandom {
 
 	public static void main(String[] args) {
 		// ManagementAll mng = new ManagementAll();
-		
+
 		ManagementAllRandom mng = new ManagementAllRandom("maxPower");
 		mng.search = new Search(mng);
 
-		
 		// mng.view = new YTDashGUI(mng);
 
 		Thread one = new Thread() {
@@ -94,59 +94,59 @@ public class ManagementAllRandom {
 
 		one.start();
 
-//		Thread two = new Thread() {
-//			public void run() {
-//				try {
-//					for (int i = 0; i < 10000000; i++) {
-//						String rnd = mng.randomUrlGenerator();
-//						mng.searchBaseOnRandomID("watch?v=" + rnd, 2);
-//					}
-//					Thread.sleep(1);
-//
-//					System.out.println("thread error.");
-//				} catch (InterruptedException v) {
-//					System.out.println(v);
-//				}
-//			}
-//		};
-//
-//		two.start();
-//
-//		Thread three = new Thread() {
-//			public void run() {
-//				try {
-//					for (int i = 0; i < 10000000; i++) {
-//						String rnd = mng.randomUrlGenerator();
-//						mng.searchBaseOnRandomID("watch?v=" + rnd, 3);
-//					}
-//					Thread.sleep(1);
-//
-//					System.out.println("thread error.");
-//				} catch (InterruptedException v) {
-//					System.out.println(v);
-//				}
-//			}
-//		};
-//
-//		three.start();
-//
-//		Thread four = new Thread() {
-//			public void run() {
-//				try {
-//					for (int i = 0; i < 10000000; i++) {
-//						String rnd = mng.randomUrlGenerator();
-//						mng.searchBaseOnRandomID("watch?v=" + rnd, 4);
-//					}
-//					Thread.sleep(1);
-//
-//					System.out.println("thread error.");
-//				} catch (InterruptedException v) {
-//					System.out.println(v);
-//				}
-//			}
-//		};
-//
-//		four.start();
+		// Thread two = new Thread() {
+		// public void run() {
+		// try {
+		// for (int i = 0; i < 10000000; i++) {
+		// String rnd = mng.randomUrlGenerator();
+		// mng.searchBaseOnRandomID("watch?v=" + rnd, 2);
+		// }
+		// Thread.sleep(1);
+		//
+		// System.out.println("thread error.");
+		// } catch (InterruptedException v) {
+		// System.out.println(v);
+		// }
+		// }
+		// };
+		//
+		// two.start();
+		//
+		// Thread three = new Thread() {
+		// public void run() {
+		// try {
+		// for (int i = 0; i < 10000000; i++) {
+		// String rnd = mng.randomUrlGenerator();
+		// mng.searchBaseOnRandomID("watch?v=" + rnd, 3);
+		// }
+		// Thread.sleep(1);
+		//
+		// System.out.println("thread error.");
+		// } catch (InterruptedException v) {
+		// System.out.println(v);
+		// }
+		// }
+		// };
+		//
+		// three.start();
+		//
+		// Thread four = new Thread() {
+		// public void run() {
+		// try {
+		// for (int i = 0; i < 10000000; i++) {
+		// String rnd = mng.randomUrlGenerator();
+		// mng.searchBaseOnRandomID("watch?v=" + rnd, 4);
+		// }
+		// Thread.sleep(1);
+		//
+		// System.out.println("thread error.");
+		// } catch (InterruptedException v) {
+		// System.out.println(v);
+		// }
+		// }
+		// };
+		//
+		// four.start();
 
 	}
 
@@ -187,6 +187,8 @@ public class ManagementAllRandom {
 	public void searchBaseOnRandomID(String keyword, int threadNumber) {
 
 		if (threadNumber == 1) {
+			
+			// get SerachList from the Youtube API
 			List<SearchResult> searchResults = search.getVideoLinkFromKeyWord(keyword);
 			ListIterator<SearchResult> iteratorSearchResults = searchResults.listIterator();
 			System.out.println("\n=============================================================");
@@ -197,7 +199,7 @@ public class ManagementAllRandom {
 			if (!iteratorSearchResults.hasNext()) {
 				System.out.println(" There aren't any results for your query.");
 			}
-			
+
 			String duration = null;
 			BigInteger likes = null;
 			BigInteger favourites = null;
@@ -205,14 +207,42 @@ public class ManagementAllRandom {
 			BigInteger dislikes = null;
 			BigInteger comments = null;
 			Video singleVideoList = null;
-			String categoryId =null;
-			String category= null;
-			
+			String categoryId = null;
+			String category = null;
+
 			while (iteratorSearchResults.hasNext()) {
 
 				SearchResult singleVideoSearchList = iteratorSearchResults.next();
 				ResourceId rId = singleVideoSearchList.getId();
 
+				
+				
+				// get Comments from the Youtube API
+				
+				
+				try {
+					List<CommentThread> commentsList = utilAPI.getTopLevelComments(rId.getVideoId());
+
+					if (commentsList.isEmpty()) {
+						System.out.println("Can't get video comments.");
+					} else {
+						
+						// Print information from the API response.
+						System.out.println("\n================== Returned Video Comments ==================\n");
+						for (CommentThread videoComment : commentsList) {
+							CommentSnippet snippet = videoComment.getSnippet().getTopLevelComment().getSnippet();
+							System.out.println("  - Author: " + snippet.getAuthorDisplayName());
+							System.out.println("  - Comment: " + snippet.getTextDisplay());
+							System.out.println("\n-------------------------------------------------------------\n");
+						}
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				// get VideoList from the Youtube API
+				
 				List<Video> videoList = search.getVideoList(rId.getVideoId());
 				Iterator<Video> iteratorVideoResults = videoList.iterator();
 				if (!iteratorVideoResults.hasNext()) {
@@ -231,7 +261,7 @@ public class ManagementAllRandom {
 					comments = singleVideoList.getStatistics().getCommentCount();
 					categoryId = singleVideoList.getSnippet().getCategoryId();
 					category = categoriesMap.get(categoryId);
-				
+
 				}
 
 				// Confirm that the result represents a video. Otherwise, the
@@ -251,8 +281,8 @@ public class ManagementAllRandom {
 					System.out.println("Disklikes:" + dislikes);
 					System.out.println("Favourites:" + favourites);
 					System.out.println("Comments:" + comments);
-					System.out.println("Category ID:" + categoryId );
-					System.out.println("Category: " +category);
+					System.out.println("Category ID:" + categoryId);
+					System.out.println("Category: " + category);
 					try {
 
 						writer.write("https://www.youtube.com/watch?v=" + rId.getVideoId());
@@ -263,7 +293,6 @@ public class ManagementAllRandom {
 						System.out.println();
 						System.out.println("-----------------------------------");
 						System.out.println();
-
 
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -425,7 +454,5 @@ public class ManagementAllRandom {
 		}
 		return randomValue;
 	}
-	
-
 
 }
