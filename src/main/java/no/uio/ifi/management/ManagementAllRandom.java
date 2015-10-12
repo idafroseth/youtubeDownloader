@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Random;
 
 import com.google.api.client.util.DateTime;
@@ -20,6 +21,7 @@ import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
+import no.uio.ifi.guis.Statistics;
 import no.uio.ifi.guis.YTDashGUI;
 import no.uio.ifi.models.Search;
 import no.uio.ifi.models.UtilitiesAPI;
@@ -31,10 +33,14 @@ public class ManagementAllRandom {
 	int counter;
 	ManagementAllRandom mng;
 
-	public static String FILEPATH = "/Users/Richi/Desktop/randomVideos.txt";
-	public static int NUMBEROFTHREADS = 5;
-
+	public static String FILEPATH = "/Users/randomVideos.txt";//"/Users/Richi/Desktop/randomVideos.txt";
+	public static int NUMBEROFTHREADS = 1;
+	public static final int NUMBER_TO_CRAWL = 1000;
+	public static int NUMBER_CRAWLED = 0;
 	HashMap<String, String> categoriesMap;
+	
+	//A map with count of the number of categories
+	Map<String, Integer> categoryStats = new HashMap<String, Integer>();
 
 	public ManagementAllRandom() {
 	}
@@ -56,6 +62,10 @@ public class ManagementAllRandom {
 		mng.search = new Search(mng);
 		mng.numberOfThreads(NUMBEROFTHREADS, mng);
 		// mng.view = new YTDashGUI(mng);
+		//Just wanted the same amount of data as Stefans crawl stat so did a loop to check ,
+		//since I did now know how to limit the crawler
+	
+
 
 	}
 
@@ -124,6 +134,12 @@ public class ManagementAllRandom {
 				comments = singleVideoList.getStatistics().getCommentCount();
 				categoryId = singleVideoList.getSnippet().getCategoryId();
 				category = categoriesMap.get(categoryId);
+				if(categoryStats.containsKey(category)){
+					//We must update
+					categoryStats.replace(category,categoryStats.get(category)+1);
+				}else{
+					categoryStats.put(category,1);
+				}
 				tags = singleVideoList.getSnippet().getTags();
 
 				DateTime publishedAT = singleVideoList.getSnippet().getPublishedAt();
@@ -312,11 +328,15 @@ public class ManagementAllRandom {
 
 		public void run() {
 			try {
-				for (int i = 0; i < 10000000; i++) {
+				for (int i = 0; i < 40; i++) {
 					String rnd = mng.randomUrlGenerator();
 					mng.searchBaseOnRandomID("watch?v=" + rnd);
+					NUMBER_CRAWLED++;
 				}
 				Thread.sleep(1);
+				
+				Statistics stat = new Statistics("Richards crawler");
+				stat.addBarChart(categoryStats, "Generes");
 
 				System.out.println("thread error.");
 			} catch (InterruptedException v) {
