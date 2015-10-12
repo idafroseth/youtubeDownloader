@@ -15,6 +15,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import no.uio.ifi.guis.Statistics;
+
 /**
  * 
  * @author Stefan Leicht
@@ -27,7 +29,7 @@ public class CrawlerStefan {
 	private Writer fw = null;
 	private long startTime;
 	private long endTime;
-	private static final int numberVideosToCrawl = 10;
+	private static final int numberVideosToCrawl = 1000;
 	private ArrayList<String> arr;
 	private Map<String, Integer> genres = new HashMap<String, Integer>();
 	private Map<String, Integer> authors = new HashMap<String, Integer>();
@@ -42,6 +44,9 @@ public class CrawlerStefan {
 	public static void main(String[] args){
 		CrawlerStefan myCrawler = new CrawlerStefan("https://www.youtube.com");
 		myCrawler.crawl();
+		Statistics stat = new Statistics("Stefans Crawler");
+		stat.addBarChart(myCrawler.genres, "Generes");
+		stat.addBarChart(myCrawler.years, "Years");
 	}
 
 	public void crawl() {
@@ -53,7 +58,7 @@ public class CrawlerStefan {
 			e.printStackTrace();
 		}
 		try {
-			fw = new FileWriter("res/YouTubeLinks.txt");
+			fw = new FileWriter("YouTubeLinks.txt");
 		} catch (IOException e) {
 			System.err.println("Could not create file");
 		}
@@ -321,9 +326,9 @@ public class CrawlerStefan {
 			disLikesNew += s;
 		}
 		
-		int d = Integer.parseInt(disLikesNew);
-		if(d > 0) d-=1;
-		disLikesNew = Integer.toString(d);
+		//int d = Integer.parseInt(disLikesNew);
+	//	if(d > 0) d-=1;
+	//	disLikesNew = Integer.toString(d);
 		
 		return placeDotInNumber(disLikesNew);
 	}

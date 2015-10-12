@@ -2,27 +2,47 @@ package no.uio.ifi.guis;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
+import java.awt.FlowLayout;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.io.File;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
+import java.awt.Font;
+import java.awt.Graphics2D;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarPainter;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.util.SortOrder;
+import org.jfree.chart.renderer.*;
 
 public class Statistics extends JFrame {
 	//ChartFactory myChartFactory = new ChartFactory();
@@ -54,28 +74,14 @@ public class Statistics extends JFrame {
 	 */
 	public void addBarChart(Map<String, Integer> categoryMap, String chartTitle){
 		
-		createDataset(categoryMap);
-		JFreeChart barChart = ChartFactory.createBarChart(chartTitle, "Category", "%", createDataset(categoryMap), PlotOrientation.VERTICAL, false, false, false);
+		JFreeChart barChart = ChartFactory.createBarChart(chartTitle, "", "%", createDataset(categoryMap), PlotOrientation.HORIZONTAL, false, false, false);
 		barChart.getTitle().setFont(new Font("Areal", Font.PLAIN, 17));
 	
 		//Add the value above each bar
+		CategoryPlot plot=(CategoryPlot)barChart.getPlot();
 		BarRenderer renderer = (BarRenderer) barChart.getCategoryPlot().getRenderer();
 		renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
 		renderer.setSeriesItemLabelsVisible(0,true);
-		
-		Color barColor = new Color(255, 5,5, 128);
-		renderer.setSeriesPaint(0,barColor);
-	//	ChartFactory.setChartTheme(StandardChartTheme.createLegacyTheme());
-	
-
-//		final CategoryPlot plot = barChart.getCategoryPlot();
-//		((BarRenderer) plot.getRenderer().setBarPainter)(new StandardXYBarPainter());
-////		
-		
-//		final CategoryPlot plots = barChart.getCategoryPlot();
-//		BarRenderer.setDefaultBarPainter(new StandardBarPainter());
-//		((BarRenderer) plots.getRenderer()).setBarPainter(new StandardBarPainter());
-//		
 		ChartPanel panel = new ChartPanel(barChart);
 		panel.setPreferredSize(new Dimension(400,300));
 		chartFactory.put(chartTitle, panel);
@@ -86,10 +92,38 @@ public class Statistics extends JFrame {
 	private CategoryDataset createDataset(Map<String, Integer> dataContent){
 			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 			final String frequency = "Average disribution";
-			for(String key : dataContent.keySet()){
-				dataset.addValue(dataContent.get(key), frequency, key);
+			LinkedList<Map<String, Integer>> sortedQueue = sortByCategory(dataContent);
+			while(sortedQueue.size()>0){
+				Map<String, Integer> sortedMap = sortedQueue.removeFirst();
+				for(String key : sortedMap.keySet()){
+					
+					dataset.addValue(sortedMap.get(key),frequency, key );
+				}
 			}
 			return dataset;
+	}
+	
+	private LinkedList<Map<String,Integer>> sortByCategory(Map<String,Integer> dataMap){
+		LinkedList<Map<String,Integer>> sortedQueue = new LinkedList<Map<String, Integer>>();
+		System.out.println("Trying to sort the map");
+		String pointerToLargestValue = "";
+		int i = 0;
+		while(dataMap.size()>0){
+			Map<String, Integer> sortedMap = new HashMap<String, Integer>(1);
+			i++;
+			int largestValue = 0;
+			for(String key : dataMap.keySet()){
+				if(dataMap.get(key)>largestValue){
+					largestValue = dataMap.get(key);
+					pointerToLargestValue = key;
+				}
+			}
+			System.out.println("Value nb" + i + " has value " + pointerToLargestValue + " With "  +largestValue);
+			sortedMap.put(pointerToLargestValue, largestValue);
+			sortedQueue.add(sortedMap);
+			dataMap.remove(pointerToLargestValue);
+		}		
+		return sortedQueue;
 	}
 	private void saveChartAsPNG(String chartTitle, String fileName){
 		try {
@@ -120,7 +154,7 @@ public class Statistics extends JFrame {
 		third.put("Likes", 85);
 		third.put("dislike", 12);
 		categoryMap.put("Sport", 15);
-		categoryMap.put("Entertainment", 22);
+		categoryMap.put("Entertainment", 80);
 		categoryMap.put("GameShow", 40);
 		likes.put("Likes", 85);
 		likes.put("dislike", 12);
