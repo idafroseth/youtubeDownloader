@@ -234,9 +234,9 @@ public class FilteredSearch extends Search{
 		fs.getAvailableGuideCategories();
 		
 		FilteredSearchGui fsg = new FilteredSearchGui();
-		fsg.addFilterBox(fs.getVideoCategories(), "Category");
-		fsg.addFilterBox(fs.getAvailableLanguages(), "Language");
-		fsg.addFilterBox(fs.getAvailableRegions(), "Region");
+		fsg.addFilterBox(fs.getVideoCategories(), "Category", CATEGORYFILTER);
+		fsg.addFilterBox(fs.getAvailableLanguages(), "Language", LANGUAGEFILTER);
+		fsg.addFilterBox(fs.getAvailableRegions(), "Region", REGIONFILTER);
 		fsg.getSelectedFilters();
 	}
 }

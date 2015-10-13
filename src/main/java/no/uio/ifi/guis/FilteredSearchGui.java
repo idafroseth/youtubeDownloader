@@ -2,6 +2,7 @@ package no.uio.ifi.guis;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,15 +16,15 @@ public class FilteredSearchGui extends JFrame{
 		private JPanel resultPanel;
 		private SelectorListener filterListener = new SelectorListener();
 		//limited to 10 filters
-		private ArrayList<String> filters = new ArrayList<String>(10);
-		private HashMap<String, String> selectedFilters = new HashMap<String, String>(10);
+		private ArrayList<Integer> filters = new ArrayList<Integer>(10);
+		private HashMap<Integer, String> selectedFilters = new HashMap<Integer, String>(10);
 		
 		public FilteredSearchGui(){
 			this.add(filterPanel);
 			this.setTitle("Filtered Search");
 			this.setVisible(true);
 		}
-		public boolean addFilterBox(Map<String, String> filter, String filterName){
+		public boolean addFilterBox(Map<String, String> filter, String filterName, Integer filterType){
 			String[] dropDownList = new String[filter.size()+1];
 			dropDownList[0] = "No "+ filterName +" filter";
 			int i = 1;
@@ -37,10 +38,10 @@ public class FilteredSearchGui extends JFrame{
 					i++;
 				}
 				JComboBox categoryList = new JComboBox(dropDownList);
-				categoryList.setName(filterName);
+				categoryList.setName(filterType.toString());
 				categoryList.setSelectedIndex(0);
 				categoryList.addActionListener(filterListener);
-				filters.add(filterName);
+				filters.add(filterType);
 				JLabel filterLabel = new JLabel(filterName);
 				filterPanel.add(filterLabel);
 				filterPanel.add(categoryList);
@@ -49,6 +50,9 @@ public class FilteredSearchGui extends JFrame{
 			}
 		
 		}
+		public HashMap<Integer,String> getSelectedFilters(){
+			return this.selectedFilters;
+		}
 		private class SelectorListener implements ActionListener{
 
 			@Override
@@ -56,12 +60,13 @@ public class FilteredSearchGui extends JFrame{
 				// TODO Auto-generated method stub
 			
 				JComboBox comboBox = (JComboBox)e.getSource();
-				comboBox.getName();
+				System.out.println(comboBox.getName());
 		        String category = (String)comboBox.getSelectedItem();
-		    	if(selectedFilters.containsKey(category)){
-		    		selectedFilters.
+		    	if(selectedFilters.containsKey(comboBox.getName())){
+		    		selectedFilters.replace(Integer.parseInt(comboBox.getName()),category);
+		    	}else{
+		    		selectedFilters.put(Integer.parseInt(comboBox.getName()),category);
 		    	}
-		        System.out.println(category);
 			}
 			
 		}
