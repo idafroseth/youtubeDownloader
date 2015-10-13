@@ -200,23 +200,25 @@ public class FilteredSearch extends Search{
 				
 			}).setApplicationName("Get GuideCategories").build();
 			 search = youtube.search().list("id,snippet");
+			 System.out.println("Configure properties");
+			 String apiKey = properties.getProperty("youtube.apikey");
+			 search.setKey(apiKey);
+			 search.setType("video");
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
 
 	}
-	public List<SearchResult> search(String randomInput){
+	public List<SearchResult> searchBy(String randomInput){
 		try{
 			List<SearchResult> searchResultList = null;
 			
-			System.out.println("Configure properties");
-			String apiKey = properties.getProperty("youtube.apikey");
-			search.setKey(apiKey);
+
 			search.setQ(randomInput);
 	
 			// Restrict the search results to only include videos. See:
 			// https://developers.google.com/youtube/v3/docs/search/list#type
-			search.setType("video");
+			
 	
 			// To increase efficiency, only retrieve the fields that the
 			// application uses.
@@ -245,22 +247,24 @@ public class FilteredSearch extends Search{
 	
 	public void setFilter(int filterType, String id){
 
+		System.out.println("Filter type is:" + filterType);
 		switch (filterType){
 		
 			//You can only set one category filter
 			case CATEGORYFILTER:
-				search.setVideoCategoryId(id);
+				search.setVideoCategoryId(availableCategories.get(id));
+				System.out.println(id);
 				break;
 			case GUIDECATEGORYFILTER:
 				//I could not find a parameter to set this
 				//	search.set
 				break;
 			case LANGUAGEFILTER:
-				search.setRelevanceLanguage(id);
+				search.setRelevanceLanguage(availableLanguages.get(id));
 				break;
 			//Search in a specified country but only one
 			case REGIONFILTER:
-				search.setRegionCode(id);
+				search.setRegionCode(availableRegions.get(id));
 			//	search.setLocation(id);
 				break;
 			case TIMEFILTER:

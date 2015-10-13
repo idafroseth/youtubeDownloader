@@ -52,6 +52,11 @@ public class ManagementAllRandom {
 
 	FilteredSearch randSearch;
 	public ManagementAllRandom(FilteredSearch search) {
+		utilAPI = new UtilitiesAPI();
+		utilAPI.initialiazeCategories();
+		categoriesMap = utilAPI.getCategoriesMap();
+		likesStats.put("Likes",new BigInteger("0"));
+		likesStats.put("Dislikes", new BigInteger("0"));
 		this.randSearch = search;
 		likesStats.put("Likes",new BigInteger("0"));
 		likesStats.put("Dislikes", new BigInteger("0"));
@@ -98,7 +103,7 @@ public class ManagementAllRandom {
 		// get SerachList from the Youtube API
 	//	List<SearchResult> searchResults = search.getVideoLinkFromKeyWord(keyword);
 		
-		List<SearchResult> searchResults = randSearch.search(keyword);
+		List<SearchResult> searchResults = randSearch.searchBy(keyword);
 		ListIterator<SearchResult> iteratorSearchResults = searchResults.listIterator();
 		System.out.println("\n=============================================================");
 		System.out.println("   First " + FilteredSearch.NUMBER_OF_VIDEOS_RETURNED + " videos for search on " + keyword + ".");
@@ -129,7 +134,8 @@ public class ManagementAllRandom {
 			// get Comments from the Youtube API
 
 			// get VideoList from the Youtube API
-
+			
+			
 			List<Video> videoList = utilAPI.getVideoList(rId.getVideoId());
 			Iterator<Video> iteratorVideoResults = videoList.iterator();
 			if (!iteratorVideoResults.hasNext()) {

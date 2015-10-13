@@ -27,6 +27,8 @@ public class ManagementFilteredSearch {
 		}
 	//	filterSearch.search("hElik");
 		ManagementAllRandom mar = new ManagementAllRandom(this.filterSearch);
+		
+	//		mar.searchBaseOnRandomID(mar.randomUrlGenerator());
 		mar.numberOfThreads(1);
 //		
 	}
