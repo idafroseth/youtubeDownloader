@@ -2,18 +2,12 @@ package no.uio.ifi.guis;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.io.File;
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -21,28 +15,17 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
 import java.awt.Font;
-import java.awt.Graphics2D;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.DatasetRenderingOrder;
-import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.renderer.category.BarPainter;
 import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.category.StandardBarPainter;
-import org.jfree.chart.renderer.xy.StandardXYBarPainter;
-import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.ui.RectangleEdge;
-import org.jfree.util.SortOrder;
-import org.jfree.chart.renderer.*;
 
 public class Statistics extends JFrame {
 	//ChartFactory myChartFactory = new ChartFactory();
@@ -96,7 +79,6 @@ public class Statistics extends JFrame {
 			while(sortedQueue.size()>0){
 				Map<String, Integer> sortedMap = sortedQueue.removeFirst();
 				for(String key : sortedMap.keySet()){
-					
 					dataset.addValue(sortedMap.get(key),frequency, key );
 				}
 			}
@@ -106,6 +88,11 @@ public class Statistics extends JFrame {
 	private LinkedList<Map<String,Integer>> sortByCategory(Map<String,Integer> dataMap){
 		LinkedList<Map<String,Integer>> sortedQueue = new LinkedList<Map<String, Integer>>();
 		System.out.println("Trying to sort the map");
+		int totalNumberOfVideos = 0;
+		for(String key : dataMap.keySet()){
+			totalNumberOfVideos += dataMap.get(key);
+		}
+		System.out.println("Total number of Videos in the categorySet " + totalNumberOfVideos);
 		String pointerToLargestValue = "";
 		int i = 0;
 		while(dataMap.size()>0){
@@ -119,7 +106,7 @@ public class Statistics extends JFrame {
 				}
 			}
 			System.out.println("Value nb" + i + " has value " + pointerToLargestValue + " With "  +largestValue);
-			sortedMap.put(pointerToLargestValue, largestValue);
+			sortedMap.put(pointerToLargestValue, largestValue*100/totalNumberOfVideos);
 			sortedQueue.add(sortedMap);
 			dataMap.remove(pointerToLargestValue);
 		}		

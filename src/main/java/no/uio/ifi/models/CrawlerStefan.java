@@ -29,7 +29,7 @@ public class CrawlerStefan {
 	private Writer fw = null;
 	private long startTime;
 	private long endTime;
-	private static final int numberVideosToCrawl = 1000;
+	private static final int numberVideosToCrawl = 100000;
 	private ArrayList<String> arr;
 	private Map<String, Integer> genres = new HashMap<String, Integer>();
 	private Map<String, Integer> authors = new HashMap<String, Integer>();

@@ -33,16 +33,25 @@ public class ManagementAllRandom {
 	int counter;
 	ManagementAllRandom mng;
 
-	public static String FILEPATH = "/Users/randomVideos.txt";//"/Users/Richi/Desktop/randomVideos.txt";
+	public static String FILEPATH = "/randomVideos.txt";//"/Users/Richi/Desktop/randomVideos.txt";
 	public static int NUMBEROFTHREADS = 1;
 	public static final int NUMBER_TO_CRAWL = 1000;
 	public static int NUMBER_CRAWLED = 0;
+	public static boolean statIsDrawn = false;
 	HashMap<String, String> categoriesMap;
 	
+	//Different types of statistics
 	//A map with count of the number of categories
 	Map<String, Integer> categoryStats = new HashMap<String, Integer>();
+	Map<String, Integer> yearStats = new HashMap<String, Integer>();
+	HashMap<String, BigInteger> likesStats = new HashMap<String, BigInteger>(2);
+	BigInteger viewCount = new BigInteger("0");
+	BigInteger favouritesCount = new BigInteger("0");
+	BigInteger commentsCount = new BigInteger("0");
 
 	public ManagementAllRandom() {
+		likesStats.put("Likes",new BigInteger("0"));
+		likesStats.put("Dislikes", new BigInteger("0"));
 	}
 
 	/*
@@ -52,6 +61,8 @@ public class ManagementAllRandom {
 		utilAPI = new UtilitiesAPI();
 		utilAPI.initialiazeCategories();
 		categoriesMap = utilAPI.getCategoriesMap();
+		likesStats.put("Likes",new BigInteger("0"));
+		likesStats.put("Dislikes", new BigInteger("0"));
 
 	}
 
@@ -62,11 +73,6 @@ public class ManagementAllRandom {
 		mng.search = new Search(mng);
 		mng.numberOfThreads(NUMBEROFTHREADS, mng);
 		// mng.view = new YTDashGUI(mng);
-		//Just wanted the same amount of data as Stefans crawl stat so did a loop to check ,
-		//since I did now know how to limit the crawler
-	
-
-
 	}
 
 	public void numberOfThreads(int number, ManagementAllRandom mng) {
@@ -128,18 +134,15 @@ public class ManagementAllRandom {
 				description = singleVideoList.getSnippet().getDescription();
 				duration = singleVideoList.getContentDetails().getDuration();
 				views = singleVideoList.getStatistics().getViewCount();
+				//Counting the total number of views
+				
 				likes = singleVideoList.getStatistics().getLikeCount();
 				favourites = singleVideoList.getStatistics().getFavoriteCount();
 				dislikes = singleVideoList.getStatistics().getDislikeCount();
 				comments = singleVideoList.getStatistics().getCommentCount();
 				categoryId = singleVideoList.getSnippet().getCategoryId();
 				category = categoriesMap.get(categoryId);
-				if(categoryStats.containsKey(category)){
-					//We must update
-					categoryStats.replace(category,categoryStats.get(category)+1);
-				}else{
-					categoryStats.put(category,1);
-				}
+				
 				tags = singleVideoList.getSnippet().getTags();
 
 				DateTime publishedAT = singleVideoList.getSnippet().getPublishedAt();
@@ -148,6 +151,25 @@ public class ManagementAllRandom {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				SimpleDateFormat df = new SimpleDateFormat("yyyy");
 				year = df.format(d);
+				
+				//Doing statistics
+				addCategoryCount(category);
+				if(views != null){
+					viewCount = viewCount.add(views);
+				}
+				if(likes != null){
+					likesStats.replace("Likes", likesStats.get("Likes").add(likes));
+				}
+				if(dislikes != null){
+					likesStats.replace("Dislikes", likesStats.get("Dislikes").add(dislikes));
+				}
+				if(favourites != null){
+					favouritesCount = favouritesCount.add(favourites);
+				}
+				if(comments != null){
+					commentsCount = commentsCount.add(comments);
+				}
+				addYearCount(year);
 
 			}
 
@@ -306,6 +328,25 @@ public class ManagementAllRandom {
 			System.out.println();
 		}
 	}
+	
+	synchronized
+	private void addCategoryCount(String category){
+		if(categoryStats.containsKey(category)){
+			//We must update
+			categoryStats.replace(category,categoryStats.get(category)+1);
+		}else{
+			categoryStats.put(category,1);
+		}
+	}
+	synchronized
+	private void addYearCount(String year){
+		if(yearStats.containsKey(year)){
+			//We must update
+			yearStats.replace(year,yearStats.get(year)+1);
+		}else{
+			yearStats.put(year,1);
+		}
+	}
 
 	public String randomUrlGenerator() {
 		String alfabet = "0123456789_-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -328,18 +369,26 @@ public class ManagementAllRandom {
 
 		public void run() {
 			try {
-				for (int i = 0; i < 40; i++) {
+			//	for (int i = 0; i < 1000; i++) {
+				while(mng.counter<NUMBER_TO_CRAWL){
 					String rnd = mng.randomUrlGenerator();
 					mng.searchBaseOnRandomID("watch?v=" + rnd);
-					NUMBER_CRAWLED++;
+					System.out.println(mng.counter);
 				}
-				Thread.sleep(1);
-				
-				Statistics stat = new Statistics("Richards crawler");
-				stat.addBarChart(categoryStats, "Generes");
-
-				System.out.println("thread error.");
+				System.out.println("Num of threads " +activeCount());
+				if(!statIsDrawn){
+					System.out.println(NUMBER_CRAWLED);
+					Statistics stat = new Statistics("Richards crawler");
+					stat.addBarChart(categoryStats, "Categories");
+					stat.addBarChart(yearStats, "Years");
+			//		stat.addBarChart(likesStats, "Likes");
+					statIsDrawn = true;
+				}
+		  		Thread.sleep(1);
+		
+				System.out.println("thread stopped.");
 			} catch (InterruptedException v) {
+				System.out.println("Thread error");
 				System.out.println(v);
 			}
 		}
