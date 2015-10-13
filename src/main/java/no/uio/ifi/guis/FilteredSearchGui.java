@@ -27,6 +27,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import no.uio.ifi.management.ManagementFilteredSearch;
+
 public class FilteredSearchGui extends JFrame{
 		private JPanel contentPane = new JPanel();
 		private JPanel searchWindow = new JPanel();
@@ -49,11 +51,14 @@ public class FilteredSearchGui extends JFrame{
 		private JButton resultMenu = new JButton("Result");
 		private JButton statsMenu = new JButton("Statistics");
 		private final Dimension CONTENT_PANE_SIZE = new Dimension(1000,600);
-		private final Dimension MENU_BUTTON_SIZE = new Dimension(100,53);
+		private final Dimension MENU_BUTTON_SIZE = new Dimension(100,40);
 		
 		private JTextArea filtersAppliedText= new JTextArea("No filter");
 		
-		public FilteredSearchGui(){
+		private ManagementFilteredSearch mng;
+		
+		public FilteredSearchGui(ManagementFilteredSearch mng){
+			this.mng = mng;
 			initWindow();
 		}
 		/**
@@ -66,6 +71,10 @@ public class FilteredSearchGui extends JFrame{
 			contentPane.add(resultWindow, "RESULT");
 			contentPane.add(statsWindow, "STATS");
 			
+			searchButton.setActionCommand("SEARCHBUTTON");
+			searchButton.addActionListener(mouseListener);
+			searchButton.setPreferredSize(new Dimension(100,30));
+			
 			drawMenuBar();
 			drawFilterMenu();
 			
@@ -74,7 +83,7 @@ public class FilteredSearchGui extends JFrame{
 			searchWindow.add(searchButton, BorderLayout.PAGE_END);
 			searchWindow.add(filterPanel, BorderLayout.CENTER);
 			
-			this.setTitle("Filtered Search");
+			
 			this.setVisible(true);
 			this.setLayout(new BorderLayout());
 			this.add(contentPane, BorderLayout.CENTER);
@@ -93,7 +102,7 @@ public class FilteredSearchGui extends JFrame{
 			resultMenu.addActionListener(mouseListener);
 			statsMenu.addActionListener(mouseListener);
 			menuPanel.setPreferredSize(new Dimension(1000, 50));
-			menuPanel.setLayout(new BoxLayout(menuPanel,BoxLayout.LINE_AXIS ));
+			menuPanel.setLayout(new FlowLayout(FlowLayout.LEADING, -5, 0));
 			menuPanel.add(searchMenu);
 			menuPanel.add(resultMenu);
 			menuPanel.add(statsMenu);
@@ -105,9 +114,14 @@ public class FilteredSearchGui extends JFrame{
 			filterPanel.setLayout(new GridLayout(1, 2));
 			filterPanel.add(filterAddPanel);
 			filterPanel.add(filterActivePanel);
-			filterAddPanel.setLayout(new GridLayout(5, 3));
+			filterAddPanel.setLayout(new GridLayout(15, 1));
 			filterAddPanel.setPreferredSize(new Dimension(100, 500));
 			filterAddPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+//			JPanel numSearchPanel = new JPanel();
+//			numSearchPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 10));
+			filterAddPanel.add(new JLabel("# Videos to search"));
+			filterAddPanel.add(new JTextField("100 000"));
+			//filterAddPanel.add(numSearchPanel);
 			filterActivePanel.setBorder(BorderFactory.createTitledBorder("Applied filter"));
 			filterAddPanel.setPreferredSize(new Dimension(400, 500));
 			filtersAppliedText.setPreferredSize(new Dimension(450,500));
@@ -115,17 +129,17 @@ public class FilteredSearchGui extends JFrame{
 			
 		}
 		public void drawSearch(){
-			setTitle("Filtered search");
+			setTitle("YTDownloader ~ Filtered search");
 			((CardLayout) contentPane.getLayout()).show(contentPane, "SEARCH");
 			pack();
 		}
 		public void drawResult(){
-			setTitle("Result");
+			setTitle("YTDownloader ~ Result");
 			((CardLayout) contentPane.getLayout()).show(contentPane, "RESULT");
 			pack();
 		}
 		public void drawStatistics(){
-			setTitle("Statistics");
+			setTitle("YTDownloader ~ Statistics");
 			((CardLayout) contentPane.getLayout()).show(contentPane, "STATS");
 			pack();
 		}
@@ -149,8 +163,11 @@ public class FilteredSearchGui extends JFrame{
 				categoryList.addActionListener(filterListener);
 				filters.add(filterType);
 				JLabel filterLabel = new JLabel(filterName);
-				filterAddPanel.add(filterLabel);
-				filterAddPanel.add(categoryList);
+				JPanel filterRow = new JPanel();
+				filterRow.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 10));
+				filterRow.add(filterLabel);
+				filterRow.add(categoryList);
+				filterAddPanel.add(filterRow);
 				pack();
 				return true;
 			}
@@ -199,7 +216,10 @@ public class FilteredSearchGui extends JFrame{
 					case "RESULT":
 						drawResult();
 						break;
-						
+					case "SEARCHBUTTON":
+						mng.preformSearch();
+					//	System.out.println("PREFORM SEARCH");
+						break;
 				}
 
 			}

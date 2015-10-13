@@ -27,7 +27,7 @@ public class UtilitiesAPI {
 
 	public static final String PROPERTIES_FILENAME = "youtube.properties";
 	HashMap<String, String> categoriesMap;
-	private static YouTube youtube;
+	private YouTube youtube;
 	UtilitiesAPI categoryUT;
 
 	public UtilitiesAPI() {

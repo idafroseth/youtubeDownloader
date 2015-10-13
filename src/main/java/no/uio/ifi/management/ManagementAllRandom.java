@@ -24,12 +24,13 @@ import com.google.api.services.youtube.model.Video;
 import no.uio.ifi.guis.Statistics;
 import no.uio.ifi.guis.YTDashGUI;
 import no.uio.ifi.models.FilteredSearch;
+import no.uio.ifi.models.Search;
 import no.uio.ifi.models.UtilitiesAPI;
 
 public class ManagementAllRandom {
 	YTDashGUI view;
 	UtilitiesAPI utilAPI;
-	FilteredSearch search;
+//	Search search;
 	int counter;
 	ManagementAllRandom mng;
 
@@ -49,10 +50,17 @@ public class ManagementAllRandom {
 	BigInteger favouritesCount = new BigInteger("0");
 	BigInteger commentsCount = new BigInteger("0");
 
+	FilteredSearch randSearch;
+	public ManagementAllRandom(FilteredSearch search) {
+		this.randSearch = search;
+		likesStats.put("Likes",new BigInteger("0"));
+		likesStats.put("Dislikes", new BigInteger("0"));
+	}
+	
 	public ManagementAllRandom() {
 		likesStats.put("Likes",new BigInteger("0"));
 		likesStats.put("Dislikes", new BigInteger("0"));
-		search = new FilteredSearch();
+//		search = new FilteredSearch();
 	}
 
 	/*
@@ -71,13 +79,13 @@ public class ManagementAllRandom {
 		// ManagementAll mng = new ManagementAll();
 
 		ManagementAllRandom mng = new ManagementAllRandom("maxPower");
-		mng.numberOfThreads(NUMBEROFTHREADS, mng);
+	//	mng.numberOfThreads(NUMBEROFTHREADS, mng);
 		// mng.view = new YTDashGUI(mng);
 	}
 
-	public void numberOfThreads(int number, ManagementAllRandom mng) {
+	public void numberOfThreads(int number) {
 		for (int x = 0; x < number; x++) {
-			CrawlThread temp = new CrawlThread("Thread #" + x, mng);
+			CrawlThread temp = new CrawlThread("Thread #" + x);//, this);
 			temp.start();
 			System.out.println("Started Thread:" + x);
 		}
@@ -88,7 +96,9 @@ public class ManagementAllRandom {
 	public void searchBaseOnRandomID(String keyword) {
 
 		// get SerachList from the Youtube API
-		List<SearchResult> searchResults = search.getVideoLinkFromKeyWord(keyword);
+	//	List<SearchResult> searchResults = search.getVideoLinkFromKeyWord(keyword);
+		
+		List<SearchResult> searchResults = randSearch.search(keyword);
 		ListIterator<SearchResult> iteratorSearchResults = searchResults.listIterator();
 		System.out.println("\n=============================================================");
 		System.out.println("   First " + FilteredSearch.NUMBER_OF_VIDEOS_RETURNED + " videos for search on " + keyword + ".");
@@ -359,20 +369,20 @@ public class ManagementAllRandom {
 
 	class CrawlThread extends Thread {
 
-		ManagementAllRandom mng;
+		//ManagementAllRandom mng;
 
-		public CrawlThread(String s, ManagementAllRandom mng) {
+		public CrawlThread(String s){//, ManagementAllRandom mng) {
 			super(s);
-			this.mng = mng;
+			//this.mng = mng;
 		}
 
 		public void run() {
 			try {
 			//	for (int i = 0; i < 1000; i++) {
-				while(mng.counter<NUMBER_TO_CRAWL){
-					String rnd = mng.randomUrlGenerator();
-					mng.searchBaseOnRandomID("watch?v=" + rnd);
-					System.out.println(mng.counter);
+				while(counter<NUMBER_TO_CRAWL){
+					String rnd = randomUrlGenerator();
+					searchBaseOnRandomID("watch?v=" + rnd);
+					System.out.println(counter);
 				}
 				System.out.println("Num of threads " +activeCount());
 				if(!statIsDrawn){

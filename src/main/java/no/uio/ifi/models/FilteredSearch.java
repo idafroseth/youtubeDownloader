@@ -191,6 +191,57 @@ public class FilteredSearch extends Search{
 		availableDurations.put("Movie ", "movie");
 		return availableDurations;
 	}
+	public void init(){
+		configureProperties();
+		try {
+			youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, new HttpRequestInitializer() {
+				public void initialize(HttpRequest request) throws IOException {
+				}
+				
+			}).setApplicationName("Get GuideCategories").build();
+			 search = youtube.search().list("id,snippet");
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+
+	}
+	public List<SearchResult> search(String randomInput){
+		try{
+			List<SearchResult> searchResultList = null;
+			
+			System.out.println("Configure properties");
+			String apiKey = properties.getProperty("youtube.apikey");
+			search.setKey(apiKey);
+			search.setQ(randomInput);
+	
+			// Restrict the search results to only include videos. See:
+			// https://developers.google.com/youtube/v3/docs/search/list#type
+			search.setType("video");
+	
+			// To increase efficiency, only retrieve the fields that the
+			// application uses.
+			//search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
+			search.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
+	
+			// Call the API and print results.
+			SearchListResponse searchResponse = search.execute();
+			searchResultList = searchResponse.getItems();
+			for(int i = 0; i<searchResultList.size(); i++){
+				System.out.println(searchResultList.get(i));
+			}
+			return searchResultList;
+			
+		} catch (GoogleJsonResponseException e) {
+			System.err.println(
+					"There was a service error: " + e.getDetails().getCode() + " : " + e.getDetails().getMessage());
+		} catch (IOException e) {
+			System.err.println("There was an IO error: " + e.getCause() + " : " + e.getMessage());
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+		
+		return null;
+	}
 	
 	public void setFilter(int filterType, String id){
 
@@ -215,11 +266,13 @@ public class FilteredSearch extends Search{
 			case TIMEFILTER:
 				String year = id;
 				setTimeFilter(year);
+				break;
 			case VIDEODURATION:
 				search.setVideoDuration(id);
+				break;
 			case VIDEOTYPE:
 				search.setVideoType(id);
-//				
+				break;	
 		}
 	}
 	public void setTimeFilter(String year){
@@ -228,15 +281,5 @@ public class FilteredSearch extends Search{
 //		search.setPublishedBefore(after);
 	}
 	
-	
-	public static void main(String[] args){
-		FilteredSearch fs = new FilteredSearch();
-		fs.getAvailableGuideCategories();
-		
-		FilteredSearchGui fsg = new FilteredSearchGui();
-		fsg.addFilterBox(fs.getVideoCategories(), "Category", CATEGORYFILTER);
-		fsg.addFilterBox(fs.getAvailableLanguages(), "Language", LANGUAGEFILTER);
-		fsg.addFilterBox(fs.getAvailableRegions(), "Region", REGIONFILTER);
-		fsg.getSelectedFilters();
-	}
+
 }
