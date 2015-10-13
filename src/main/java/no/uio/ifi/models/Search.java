@@ -16,6 +16,7 @@ package no.uio.ifi.models;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -51,8 +52,14 @@ public class Search {
 	 * Define a global instance of a Youtube object, which will be used to make
 	 * YouTube Data API requests.
 	 */
-	private static YouTube youtube;
+	protected static YouTube youtube;
+	protected Properties properties;
+	protected YouTube.Search.List search;
 
+	public Search(){
+		
+	}
+	
 	public Search(ManagementAll mng) {
 		this.mng = mng;
 	}
@@ -61,10 +68,8 @@ public class Search {
 		this.mng2 = mng;
 	}
 
-	public List<SearchResult> getVideoLinkFromKeyWord(String queryTerm) {
-		// Read the developer key from the properties file.
-		Properties properties = new Properties();
-		List<SearchResult> searchResultList = null;
+	protected void configureProperties(){
+		properties = new Properties();
 		try {
 			InputStream in = Search.class.getResourceAsStream("/" + PROPERTIES_FILENAME);
 			properties.load(in);
@@ -75,6 +80,11 @@ public class Search {
 			System.exit(1);
 		}
 
+	}
+	public List<SearchResult> getVideoLinkFromKeyWord(String queryTerm) {
+		// Read the developer key from the properties file.
+		configureProperties();
+		List<SearchResult> searchResultList = null;
 		try {
 			// This object is used to make YouTube Data API requests. The last
 			// argument is required, but since we don't need anything
@@ -86,7 +96,7 @@ public class Search {
 			}).setApplicationName("youtube-cmdline-search-sample").build();
 
 			// Define the API request for retrieving search results.
-			YouTube.Search.List search = youtube.search().list("id,snippet");
+			 search = youtube.search().list("id,snippet");
 
 			// Set your developer key from the {{ Google Cloud Console }} for
 			// non-authenticated requests. See:

@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -71,6 +72,39 @@ public class Statistics extends JFrame {
 		contentPane.add(panel);
 		pack();
 	}
+	/**
+	 * 
+	 * @param categoryMap
+	 * @param chartTitle
+	 * @param totalNumberOfVideos should reflect the what to divide on to get the precentage
+	 */
+	public void addBarChart(Map<String, BigInteger> categoryMap, String chartTitle, BigInteger totalNumberOfVideos){
+		JFreeChart barChart = ChartFactory.createBarChart(chartTitle, "", "Average per video", createBigDataset(categoryMap, totalNumberOfVideos), PlotOrientation.HORIZONTAL, false, false, false);
+		barChart.getTitle().setFont(new Font("Areal", Font.PLAIN, 17));
+	
+		//Add the value above each bar
+		CategoryPlot plot=(CategoryPlot)barChart.getPlot();
+		BarRenderer renderer = (BarRenderer) barChart.getCategoryPlot().getRenderer();
+		renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+		renderer.setSeriesItemLabelsVisible(0,true);
+		ChartPanel panel = new ChartPanel(barChart);
+		panel.setPreferredSize(new Dimension(400,300));
+		chartFactory.put(chartTitle, panel);
+		contentPane.add(panel);
+		pack();
+	}
+	private CategoryDataset createBigDataset(Map<String, BigInteger> dataContent, BigInteger totalNumberOfVideos){
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		final String frequency = "Average disribution";
+		LinkedList<Map<String, BigInteger>> sortedQueue = sortBigByCategory(dataContent,totalNumberOfVideos);
+		while(sortedQueue.size()>0){
+			Map<String, BigInteger> sortedMap = sortedQueue.removeFirst();
+			for(String key : sortedMap.keySet()){
+				dataset.addValue(sortedMap.get(key),frequency, key );
+			}
+		}
+		return dataset;
+}
 	
 	private CategoryDataset createDataset(Map<String, Integer> dataContent){
 			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
@@ -107,6 +141,37 @@ public class Statistics extends JFrame {
 			}
 			System.out.println("Value nb" + i + " has value " + pointerToLargestValue + " With "  +largestValue);
 			sortedMap.put(pointerToLargestValue, largestValue*100/totalNumberOfVideos);
+			sortedQueue.add(sortedMap);
+			dataMap.remove(pointerToLargestValue);
+		}		
+		return sortedQueue;
+	}
+	
+	private LinkedList<Map<String,BigInteger>> sortBigByCategory(Map<String,BigInteger> dataMap, BigInteger totalNumberOfVideos){
+		LinkedList<Map<String,BigInteger>> sortedQueue = new LinkedList<Map<String, BigInteger>>();
+		System.out.println("Trying to sort the map");
+		System.out.println("TotalNUmberOfVideos: " + totalNumberOfVideos);
+		if(totalNumberOfVideos == null ){
+			totalNumberOfVideos = new BigInteger("0");
+			for(String key : dataMap.keySet()){
+				totalNumberOfVideos = totalNumberOfVideos.add(dataMap.get(key));
+			}
+		}
+		
+		System.out.println("Total number of Videos in the categorySet " + totalNumberOfVideos);
+		String pointerToLargestValue = "";
+		int i = 0;
+		while(dataMap.size()>0){
+			Map<String, BigInteger> sortedMap = new HashMap<String, BigInteger>(1);
+			i++;
+			BigInteger largestValue = new BigInteger("0");
+			for(String key : dataMap.keySet()){
+				if(dataMap.get(key).compareTo(largestValue)>0){
+					largestValue = dataMap.get(key);
+					pointerToLargestValue = key;
+				}
+			}
+			sortedMap.put(pointerToLargestValue, largestValue.divide(totalNumberOfVideos));
 			sortedQueue.add(sortedMap);
 			dataMap.remove(pointerToLargestValue);
 		}		

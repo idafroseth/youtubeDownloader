@@ -23,13 +23,13 @@ import com.google.api.services.youtube.model.Video;
 
 import no.uio.ifi.guis.Statistics;
 import no.uio.ifi.guis.YTDashGUI;
-import no.uio.ifi.models.Search;
+import no.uio.ifi.models.FilteredSearch;
 import no.uio.ifi.models.UtilitiesAPI;
 
 public class ManagementAllRandom {
 	YTDashGUI view;
 	UtilitiesAPI utilAPI;
-	Search search;
+	FilteredSearch search;
 	int counter;
 	ManagementAllRandom mng;
 
@@ -52,6 +52,7 @@ public class ManagementAllRandom {
 	public ManagementAllRandom() {
 		likesStats.put("Likes",new BigInteger("0"));
 		likesStats.put("Dislikes", new BigInteger("0"));
+		search = new FilteredSearch();
 	}
 
 	/*
@@ -70,7 +71,6 @@ public class ManagementAllRandom {
 		// ManagementAll mng = new ManagementAll();
 
 		ManagementAllRandom mng = new ManagementAllRandom("maxPower");
-		mng.search = new Search(mng);
 		mng.numberOfThreads(NUMBEROFTHREADS, mng);
 		// mng.view = new YTDashGUI(mng);
 	}
@@ -91,7 +91,7 @@ public class ManagementAllRandom {
 		List<SearchResult> searchResults = search.getVideoLinkFromKeyWord(keyword);
 		ListIterator<SearchResult> iteratorSearchResults = searchResults.listIterator();
 		System.out.println("\n=============================================================");
-		System.out.println("   First " + Search.NUMBER_OF_VIDEOS_RETURNED + " videos for search on " + keyword + ".");
+		System.out.println("   First " + FilteredSearch.NUMBER_OF_VIDEOS_RETURNED + " videos for search on " + keyword + ".");
 		System.out.println("=============================================================\n");
 
 		if (!iteratorSearchResults.hasNext()) {
@@ -332,7 +332,6 @@ public class ManagementAllRandom {
 	synchronized
 	private void addCategoryCount(String category){
 		if(categoryStats.containsKey(category)){
-			//We must update
 			categoryStats.replace(category,categoryStats.get(category)+1);
 		}else{
 			categoryStats.put(category,1);
@@ -381,7 +380,14 @@ public class ManagementAllRandom {
 					Statistics stat = new Statistics("Richards crawler");
 					stat.addBarChart(categoryStats, "Categories");
 					stat.addBarChart(yearStats, "Years");
-			//		stat.addBarChart(likesStats, "Likes");
+					HashMap<String, BigInteger> frequencyCount = new HashMap<String, BigInteger>();
+					
+				//	frequencyCount.putAll(likesStats);
+//					frequencyCount.put("Views", viewCount);
+//					frequencyCount.put("Comments", commentsCount);
+//					frequencyCount.put("Favourites", favouritesCount);
+					stat.addBarChart(likesStats, "Likes", new BigInteger(Integer.toString(counter)));
+					//stat.addBarChart(frequencyCount,"Frequency" , new BigInteger(Integer.toString(counter)));
 					statIsDrawn = true;
 				}
 		  		Thread.sleep(1);
