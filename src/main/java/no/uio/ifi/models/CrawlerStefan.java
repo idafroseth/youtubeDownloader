@@ -16,6 +16,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import no.uio.ifi.guis.Statistics;
+import no.uio.ifi.models.Export.ExportType;
 
 /**
  * 
@@ -29,7 +30,7 @@ public class CrawlerStefan {
 	private Writer fw = null;
 	private long startTime;
 	private long endTime;
-	private static final int numberVideosToCrawl = 100000;
+	private static final int numberVideosToCrawl = 5;
 	private ArrayList<String> arr;
 	private Map<String, Integer> genres = new HashMap<String, Integer>();
 	private Map<String, Integer> authors = new HashMap<String, Integer>();
@@ -50,6 +51,7 @@ public class CrawlerStefan {
 	}
 
 	public void crawl() {
+		Export.toXML();
 		Document webSite = null;
 		startTime = System.nanoTime();
 		try {
@@ -128,6 +130,7 @@ public class CrawlerStefan {
 				e.printStackTrace();
 			}
 		}
+		Export.closeXML();
 	}
 
 	private void crawlPage(String url) {
@@ -146,12 +149,12 @@ public class CrawlerStefan {
 				System.out.println("Thread sleep problem");
 			}
 		}while(connectionError);
-			
+		Page YTPage = new Page();
 //		List<String> linkedVideos = getLinkedVideos(webSite.select("a[href]"));
 		Elements linkedUrls = webSite.select("a[href]");
-		Elements keywords = webSite.select("meta[property=og:video:tag]");
+		List<String> keywords = convertKeywords(webSite.select("meta[property=og:video:tag]"));
 		String title = webSite.select("meta[itemprop=name]").attr("content");
-		String videoId = webSite.select("meta[itemprop=videoId]").attr("content");
+		String videoID = webSite.select("meta[itemprop=videoId]").attr("content");
 		boolean familyFriendly = (webSite.select("meta[itemprop=isFamilyFriendly]").attr("content").equals(true) ? true : false);
 		String regionsAllowed = webSite.select("meta[itemprop=regionsAllowed]").attr("content");
 		String views = placeDotInNumber(webSite.select("meta[itemprop=interactionCount]").attr("content"));
@@ -159,12 +162,12 @@ public class CrawlerStefan {
 		String genre = webSite.select("meta[itemprop=genre]").attr("content");
 		String linkPreviewImage = webSite.select("meta[property=og:image]").attr("content");
 		Elements likesRAW = webSite.select("button[class=yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-like-button like-button-renderer-like-button-unclicked yt-uix-clickcard-target   yt-uix-tooltip]");
-		String likes = "";
+		String likes = "0";
 		if(!likesRAW.isEmpty())
 			likes = likesRAW.get(0).childNode(0).childNode(0).toString();
 		//dislikes need -1
 		Elements dislikesRAW = webSite.select("button[class=yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-dislike-button like-button-renderer-dislike-button-clicked yt-uix-button-toggled  hid yt-uix-tooltip]");
-		String dislikes = "";
+		String dislikes = "0";
 		if(!dislikesRAW.isEmpty())
 			dislikes = disLikes(dislikesRAW.get(0).childNode(0).childNode(0).toString());
 		List<String> description = getDescription(webSite.select("p[id=eow-description]"));
@@ -180,6 +183,24 @@ public class CrawlerStefan {
 		//lengthSeconds -1
 //		String length = convertLength(findPattern("length_seconds\":\".*?\",", webSite.body().toString()));
 		String length = convertLength(webSite.select("meta[itemprop=duration]").attr("content"));
+		
+		YTPage.setAuthor(author);
+		YTPage.setDatePublished(datePublished);
+		YTPage.setDescription(description);//under construction
+		YTPage.setDislikes(dislikes);
+		YTPage.setFamilyFriendly(familyFriendly);
+		YTPage.setGenre(genre);
+		YTPage.setKeywords(keywords);
+		YTPage.setLength(length);
+		YTPage.setLikes(likes);
+		YTPage.setLinkedUrls(getLinkedVideos(linkedUrls));
+		YTPage.setLinkPreviewImage(linkPreviewImage);
+		YTPage.setRegionsAllowed(regionsAllowed);
+		YTPage.setTitle(title);
+		YTPage.setVideoID(videoID);
+		YTPage.setViews(views);
+		
+		writeToFile(YTPage, ExportType.XML);
 		
 		if(genres.containsKey(genre)){
 			genres.put(genre, genres.get(genre) + 1);
@@ -232,7 +253,7 @@ public class CrawlerStefan {
 			}
 		}
 	}
-	
+
 	private List<String> getLinkedVideos(Elements linkedUrls){
 		List<String> linkedVideos = new ArrayList<String>();
 		
@@ -343,6 +364,26 @@ public class CrawlerStefan {
 			j++;
 		}
 		return sb.toString();
+	}
+	
+	private List<String> convertKeywords(Elements keywordsElements){
+		List<String> keywords = new ArrayList<String>();
+		for(Element e : keywordsElements){
+			keywords.add(e.attr("content"));
+		}
+		return keywords;
+	}
+	
+	private void writeToFile(Page YTPage, Export.ExportType type){
+		switch (type){
+		case XML:
+			Export.write(YTPage);
+			break;
+		case CSV:
+			break;
+		case JASON:
+			break;
+		}
 	}
 	
 }
