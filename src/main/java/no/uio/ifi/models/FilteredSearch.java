@@ -31,8 +31,8 @@ public class FilteredSearch extends Search{
 	public static final int LANGUAGEFILTER = 3;
 	public static final int GUIDECATEGORYFILTER =4;
 	public static final int TIMEFILTER =5;
-	public static final int VIDEODURATION =6;
-	public static final int VIDEOTYPE = 7;
+	public static final int VIDEODURATIONFILTER =6;
+	public static final int VIDEOTYPEFILTER = 7;
 	
 	private Map<String, String> availableCategories = new HashMap<String, String>();
 	private Map<String, String> availableLanguages =  new HashMap<String, String>();
@@ -177,19 +177,23 @@ public class FilteredSearch extends Search{
 		}
 		return availableGuideCategories;
 	}
-	public  Map<String, String>  getVideoDuration(){
-		availableDurations.put("Any", "any");
-		availableDurations.put("More than 20min", "long");
-		availableDurations.put("4 to 20 min ", "medium");
-		availableDurations.put("Less then 4 min", "short");
+	public  Map<String, String>  getAvailableVideoDuration(){
+		if(availableDurations.size()<1){
+			availableDurations.put("Any", "any");
+			availableDurations.put("More than 20min", "long");
+			availableDurations.put("4 to 20 min ", "medium");
+			availableDurations.put("Less then 4 min", "short");
+		}
 		return availableDurations;
 	}
 	
-	public  Map<String, String>  getVideoTypes(){
-		availableDurations.put("Any", "any");
-		availableDurations.put("Episode of shows", "episode");
-		availableDurations.put("Movie ", "movie");
-		return availableDurations;
+	public  Map<String, String>  getAvailableVideoTypes(){
+		if(availableVideoTypes.size()<1){
+			availableVideoTypes.put("Any", "any");
+			availableVideoTypes.put("Episode of shows", "episode");
+			availableVideoTypes.put("Movie ", "movie");
+		}
+		return availableVideoTypes;
 	}
 	public void init(){
 		configureProperties();
@@ -271,10 +275,10 @@ public class FilteredSearch extends Search{
 				String year = id;
 				setTimeFilter(year);
 				break;
-			case VIDEODURATION:
+			case VIDEODURATIONFILTER:
 				search.setVideoDuration(id);
 				break;
-			case VIDEOTYPE:
+			case VIDEOTYPEFILTER:
 				search.setVideoType(id);
 				break;	
 		}

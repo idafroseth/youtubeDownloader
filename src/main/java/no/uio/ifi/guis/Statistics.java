@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -28,21 +29,23 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
-public class Statistics extends JFrame {
+public class Statistics extends JPanel {
 	//ChartFactory myChartFactory = new ChartFactory();
 	HashMap<String, ChartPanel> chartFactory = new HashMap<String, ChartPanel>();
 	JPanel contentPane = new JPanel();
 
 
-	public Statistics ( String applicationTitle){
-		super(applicationTitle);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+	public Statistics (){
+//		super(applicationTitle);
+//		setDefaultCloseOperation(EXIT_ON_CLOSE);
 //		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 		contentPane.setLayout(new GridLayout(2,2));
 		contentPane.setBackground(Color.WHITE);
+		JLabel noSearch = new JLabel("No search have been preformed");
 		JScrollPane scrollPane = new JScrollPane(contentPane);
 		scrollPane.setPreferredSize(new Dimension(1000,500));
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		contentPane.add(noSearch);
 		add(scrollPane);
 	    setVisible(true);
 		
@@ -70,7 +73,7 @@ public class Statistics extends JFrame {
 		panel.setPreferredSize(new Dimension(400,300));
 		chartFactory.put(chartTitle, panel);
 		contentPane.add(panel);
-		pack();
+//		pack();
 	}
 	/**
 	 * 
@@ -91,7 +94,7 @@ public class Statistics extends JFrame {
 		panel.setPreferredSize(new Dimension(400,300));
 		chartFactory.put(chartTitle, panel);
 		contentPane.add(panel);
-		pack();
+//		pack();
 	}
 	private CategoryDataset createBigDataset(Map<String, BigInteger> dataContent, BigInteger totalNumberOfVideos){
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
@@ -199,7 +202,9 @@ public class Statistics extends JFrame {
 	}
 	
 	public static void main(String[] args){
-		Statistics chart = new Statistics("YT Dataset Stats");
+		JFrame jf = new JFrame();
+		Statistics chart = new Statistics();
+		
 		Map<String, Integer> categoryMap = new HashMap<String, Integer>();
 		Map<String, Integer> likes = new HashMap<String, Integer>();
 		Map<String, Integer> third = new HashMap<String, Integer>();
@@ -213,6 +218,9 @@ public class Statistics extends JFrame {
 		chart.addBarChart(categoryMap, "Categories frequency");
 		chart.addBarChart(likes, "LIKES");
 		chart.addBarChart(third, "Third example");
+		jf.setVisible(true);
+		jf.add(chart);
+		jf.pack();
 //		chart.changeColor("LIKES");
 //		chart.changeColor("THIRD");
 //		chart.changeColor("Categories frequency");

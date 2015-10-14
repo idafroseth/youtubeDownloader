@@ -13,9 +13,15 @@ public class ManagementFilteredSearch {
 		HashMap<String, String> availableCategories = (HashMap<String, String>) filterSearch.getVideoCategories();
 		HashMap<String, String> availableLanguages = (HashMap<String, String>)  filterSearch.getAvailableLanguages();
 		HashMap<String, String> availableRegions = (HashMap<String, String>) filterSearch.getAvailableRegions();
+		HashMap<String, String> availableDuration = (HashMap<String, String>) filterSearch.getAvailableVideoDuration();
+		HashMap<String, String> availableVideoTypes = (HashMap<String, String>) filterSearch.getAvailableVideoTypes();
+
 		gui.addFilterBox(availableCategories, "Category", FilteredSearch.CATEGORYFILTER);
 		gui.addFilterBox(availableLanguages, "Language", FilteredSearch.LANGUAGEFILTER);
 		gui.addFilterBox(availableRegions, "Region", FilteredSearch.REGIONFILTER);
+		gui.addFilterBox(availableDuration, "Duration", FilteredSearch.VIDEODURATIONFILTER);
+		gui.addFilterBox(availableVideoTypes, "Video types", FilteredSearch.VIDEOTYPEFILTER);
+		gui.initWindow();
 	}
 	
 	public void preformSearch(){
@@ -25,6 +31,7 @@ public class ManagementFilteredSearch {
 			System.out.println("AddingFilters");
 			filterSearch.setFilter(key, filtersApplied.get(key) );
 		}
+		
 	//	filterSearch.search("hElik");
 		ManagementAllRandom mar = new ManagementAllRandom(this.filterSearch);
 		

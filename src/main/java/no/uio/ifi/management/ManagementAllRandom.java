@@ -393,7 +393,7 @@ public class ManagementAllRandom {
 				System.out.println("Num of threads " +activeCount());
 				if(!statIsDrawn){
 					System.out.println(NUMBER_CRAWLED);
-					Statistics stat = new Statistics("Richards crawler");
+					Statistics stat = new Statistics();
 					stat.addBarChart(categoryStats, "Categories");
 					stat.addBarChart(yearStats, "Years");
 					HashMap<String, BigInteger> frequencyCount = new HashMap<String, BigInteger>();
