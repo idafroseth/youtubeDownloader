@@ -31,7 +31,8 @@ public class CrawlerStefan {
 	private long startTime;
 	private long endTime;
 	private static final int numberVideosToCrawl = 5;
-	private ArrayList<String> arr;
+	private List<String> arr;
+	private List<Page> pages;
 	private Map<String, Integer> genres = new HashMap<String, Integer>();
 	private Map<String, Integer> authors = new HashMap<String, Integer>();
 	private Map<String, Integer> dates = new HashMap<String, Integer>();
@@ -40,6 +41,7 @@ public class CrawlerStefan {
 	public CrawlerStefan(String startUrl) {
 		this.startUrl = startUrl;
 		arr = new ArrayList<String>();
+		pages = new ArrayList<Page>();
 	}
 
 	public static void main(String[] args){
@@ -150,6 +152,7 @@ public class CrawlerStefan {
 			}
 		}while(connectionError);
 		Page YTPage = new Page();
+		pages.add(YTPage);
 //		List<String> linkedVideos = getLinkedVideos(webSite.select("a[href]"));
 		Elements linkedUrls = webSite.select("a[href]");
 		List<String> keywords = convertKeywords(webSite.select("meta[property=og:video:tag]"));
