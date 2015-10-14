@@ -99,7 +99,7 @@ public class FilterGui extends JPanel{
 			filterAddPanel.add(new JLabel("# Videos to search"));
 			filterAddPanel.add(new JTextField("100 000"));
 			//filterAddPanel.add(numSearchPanel);
-			filterActivePanel.setBorder(BorderFactory.createTitledBorder("Applied filter"));
+			filterActivePanel.setBorder(BorderFactory.createTitledBorder("Applied filters"));
 			filterAddPanel.setPreferredSize(new Dimension(400, 500));
 			filtersAppliedText.setPreferredSize(new Dimension(450,500));
 			filterActivePanel.add(filtersAppliedText);
