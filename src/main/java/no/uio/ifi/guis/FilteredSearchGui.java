@@ -69,6 +69,7 @@ public class FilteredSearchGui extends JFrame{
 			this.add(menuPanel, BorderLayout.PAGE_START);
 			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			drawSearch();	
+		//	pack();
 		}
 		
 		public void drawMenuBar(){
@@ -104,7 +105,9 @@ public class FilteredSearchGui extends JFrame{
 		}
 		
 		public boolean addFilterBox(Map<String, String> filter, String filterName, Integer filterType){
-			return (searchWindow.addFilterBox(filter, filterName, filterType));
+			boolean result =  (searchWindow.addFilterBox(filter, filterName, filterType));
+			pack();
+			return result;
 		}
 		public HashMap<Integer,String> getSelectedFilters(){
 			return searchWindow.getSelectedFilters();
