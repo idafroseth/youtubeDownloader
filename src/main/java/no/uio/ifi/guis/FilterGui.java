@@ -167,35 +167,7 @@ public class FilterGui extends JPanel {
 			// break;
 			// }
 
-			// We should move this into a separate class
-			JDialog progressDialog = new JDialog();
-			progressDialog.setTitle("Preforming search");
-			JProgressBar progressBar = new JProgressBar(0, 100);
-			progressBar.setValue(0);
-			progressBar.setStringPainted(true);
 
-			JButton cancelButton = new JButton("Cancel");
-			JPanel content = new JPanel();
-			JPanel buttonPanel = new JPanel();
-			JPanel progressPanel = new JPanel();
-			buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 3, 10));
-			progressPanel.setLayout(new FlowLayout());// (FlowLayout.CENTER, 3,
-														// 10));
-			content.setLayout(new BorderLayout());
-			progressBar.setPreferredSize(new Dimension(300, 50));
-			progressBar.setVisible(true);
-			progressBar.setValue(50);
-			progressBar.setBorderPainted(true);
-			content.setPreferredSize(new Dimension(500, 150));
-			buttonPanel.add(cancelButton);
-			content.add(buttonPanel, BorderLayout.PAGE_END);
-
-			progressPanel.add(progressBar);
-			content.add(progressPanel, BorderLayout.CENTER);
-			progressDialog.setPreferredSize(new Dimension(500, 150));
-			progressDialog.add(content);
-			progressDialog.setVisible(true);
-			progressDialog.pack();
 
 		}
 	}

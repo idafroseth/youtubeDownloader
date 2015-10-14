@@ -45,6 +45,7 @@ public class FilteredSearchGui extends JFrame{
 		public static final Dimension CONTENT_PANE_SIZE = new Dimension(1000,600);
 		public static final Dimension MENU_BUTTON_SIZE = new Dimension(100,40);
 
+		private JTextArea resultIdList = new JTextArea();
 		private ManagementFilteredSearch mng;
 		
 		public FilteredSearchGui(ManagementFilteredSearch mng){
@@ -68,10 +69,16 @@ public class FilteredSearchGui extends JFrame{
 			this.add(contentPane, BorderLayout.CENTER);
 			this.add(menuPanel, BorderLayout.PAGE_START);
 			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//	drawResultWindow();
 			drawSearch();	
-		//	pack();
-		}
 		
+			pack();
+		}
+		public void drawResultWindow(){
+			resultWindow.add(resultPanel);
+			resultPanel.add(resultIdList);
+			pack();
+		}
 		public void drawMenuBar(){
 			searchMenu.setPreferredSize(MENU_BUTTON_SIZE);
 			resultMenu.setPreferredSize(MENU_BUTTON_SIZE);
@@ -87,6 +94,7 @@ public class FilteredSearchGui extends JFrame{
 			menuPanel.add(searchMenu);
 			menuPanel.add(resultMenu);
 			menuPanel.add(statsMenu);
+			pack();
 		}
 		public void drawSearch(){
 			setTitle("YTDownloader ~ Filtered search");
@@ -111,6 +119,9 @@ public class FilteredSearchGui extends JFrame{
 		}
 		public HashMap<Integer,String> getSelectedFilters(){
 			return searchWindow.getSelectedFilters();
+		}
+		public void addVideoResult(String videoId){
+			resultIdList.append(videoId);
 		}
 
 		private class MouseListener implements ActionListener{

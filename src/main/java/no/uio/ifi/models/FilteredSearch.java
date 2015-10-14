@@ -10,6 +10,7 @@ import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.YouTube.I18nRegions;
+import com.google.api.services.youtube.YouTube.Videos;
 import com.google.api.services.youtube.model.GuideCategory;
 import com.google.api.services.youtube.model.GuideCategoryListResponse;
 import com.google.api.services.youtube.model.I18nLanguage;
@@ -29,7 +30,7 @@ import no.uio.ifi.guis.FilteredSearchGui;
  * @author Ida Marie Frøseth
  *
  */
-public class FilteredSearch extends Search {
+public class FilteredSearch extends Search{
 
 	public static final int REGIONFILTER = 1;
 	public static final int CATEGORYFILTER = 2;
@@ -46,6 +47,10 @@ public class FilteredSearch extends Search {
 	private Map<String, String> availableDurations = new HashMap<String, String>();
 	private Map<String, String> availableVideoTypes = new HashMap<String, String>();
 
+	private YouTube.Search.List search;
+
+	public static final long NUMBER_OF_VIDEOS_RETURNED = 25;
+	
 	/**
 	 * 
 	 * @return all the available categories in youtube
@@ -242,11 +247,16 @@ public class FilteredSearch extends Search {
 				}
 
 			}).setApplicationName("SERACH").build();
-			search = youtube.search().list("id,snippet");
-			System.out.println("Configure properties");
+			
+			
+			search = youtube.search().list("id");//, recordingDetails, contentDetails, statistics");
+			search.setFields("items(id/videoId)");
 			String apiKey = properties.getProperty("youtube.apikey");
-			search.setKey(apiKey);
 			search.setType("video");
+			System.out.println("Configure properties");
+			
+			search.setKey(apiKey);
+			
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
@@ -258,7 +268,7 @@ public class FilteredSearch extends Search {
 	 * @param randomInput
 	 * @return
 	 */
-	public List<SearchResult> searchBy(String randomInput) {
+	public List<SearchResult> searchBy(String randomInput){
 		try {
 			List<SearchResult> searchResultList = null;
 
@@ -269,15 +279,13 @@ public class FilteredSearch extends Search {
 
 			// To increase efficiency, only retrieve the fields that the
 			// application uses.
-			// search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
+		// search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
 			search.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
 
 			// Call the API and print results.
 			SearchListResponse searchResponse = search.execute();
 			searchResultList = searchResponse.getItems();
-			for (int i = 0; i < searchResultList.size(); i++) {
-				System.out.println(searchResultList.get(i));
-			}
+	
 			return searchResultList;
 
 		} catch (GoogleJsonResponseException e) {
@@ -291,6 +299,8 @@ public class FilteredSearch extends Search {
 
 		return null;
 	}
+	
+	
 
 	/**
 	 * Applying filters to the serachBy method, must be run before the search
@@ -324,10 +334,10 @@ public class FilteredSearch extends Search {
 			setTimeFilter(year);
 			break;
 		case VIDEODURATIONFILTER:
-			search.setVideoDuration(id);
+			search.setVideoDuration(availableDurations.get(id));
 			break;
 		case VIDEOTYPEFILTER:
-			search.setVideoType(id);
+			search.setVideoType(availableVideoTypes.get(id));
 			break;
 		}
 	}
