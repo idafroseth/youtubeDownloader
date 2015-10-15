@@ -21,7 +21,14 @@ elementFormDefault="qualified">
     <xs:element name="familyFriendly" type="xs:string"/>
     <xs:element name="regionsAllowed" type="xs:string"/>
     <xs:element name="keywords" type="keywordsType"/>
+    <xs:element name="views" type="xs:string"/>
+    <xs:element name="datePublished" type="xs:string"/>
+    <xs:element name="genre" type="xs:string"/>
+    <xs:element name="linkPreviewImage" type="xs:string"/>
+    <xs:element name="likes" type="xs:string"/>
+    <xs:element name="dislikes" type="xs:string"/>
     <xs:element name="description" type="xs:string"/>
+    <xs:element name="linkedVideos" type="linkedVideosType"/>
     <xs:element name="comments" type="commentsType"/>
   </xs:sequence>
 </xs:complexeType>
@@ -32,6 +39,11 @@ elementFormDefault="qualified">
   </xs:sequence>
 </xs:complexeType>
 
+<xs:complexType name="linkedVideosType"/>
+  <xs:sequence>
+    <xs:element name="linkedVideo" type="xs:string" minOccurs="0"/>
+  </xs:sequence>
+</xs:complexeType>
 
 <xs:complexType name="commentsType"/>
   <xs:sequence>
@@ -43,13 +55,7 @@ elementFormDefault="qualified">
   <xs:sequence>
     <xs:element name="author" type="xs:string"/>
     <xs:element name="body" type="xs:string"/>
-    <xs:element name="commentThread" type="commentThreadType"/>
-  </xs:sequence>
-</xs:complexeType>
-
-<xs:complexType name="commentThreadType"/>
-  <xs:sequence>
-    <xs:element name="comment" type="commentType" minOccurs="0"/>
+    <xs:element name="commentThread" type="commentType" minOccurs="0"/>
   </xs:sequence>
 </xs:complexeType>
 
