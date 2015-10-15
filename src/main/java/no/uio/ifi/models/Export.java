@@ -51,7 +51,7 @@ public class Export {
 		pw.println("<videoList>");
 	}
 
-	public static void write(PageYouTube YTPage) {
+	public static void writeXML(PageYouTube YTPage) {
 		pw.println("\t<video>");
 		pw.println("\t\t<ID>" + YTPage.getVideoID() + "</ID>");
 		pw.println("\t\t<title>" + YTPage.getTitle() + "</title>");

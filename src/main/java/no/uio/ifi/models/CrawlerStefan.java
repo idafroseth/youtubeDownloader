@@ -380,7 +380,7 @@ public class CrawlerStefan {
 	private void writeToFile(PageYouTube YTPage, Export.ExportType type){
 		switch (type){
 		case XML:
-			Export.write(YTPage);
+			Export.writeXML(YTPage);
 			break;
 		case CSV:
 			break;
