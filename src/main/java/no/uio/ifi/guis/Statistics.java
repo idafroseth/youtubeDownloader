@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,6 +35,7 @@ public class Statistics extends JPanel {
 	//ChartFactory myChartFactory = new ChartFactory();
 	HashMap<String, ChartPanel> chartFactory = new HashMap<String, ChartPanel>();
 	JPanel contentPane = new JPanel();
+	JPanel counterPanel = new JPanel();
 
 
 	public Statistics (){
@@ -42,11 +44,15 @@ public class Statistics extends JPanel {
 //		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 		contentPane.setLayout(new GridLayout(2,2));
 		contentPane.setBackground(Color.WHITE);
-		JLabel noSearch = new JLabel("No search have been preformed");
+	//	JLabel noSearch = new JLabel("No search have been preformed");
 		JScrollPane scrollPane = new JScrollPane(contentPane);
-		scrollPane.setPreferredSize(new Dimension(1000,500));
+	//	contentPane.setPreferredSize(new Dimension(1000,500));
+		scrollPane.setPreferredSize(new Dimension(1000,600));
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		contentPane.add(noSearch);
+	//	contentPane.add(noSearch);
+		counterPanel.setLayout(new BoxLayout(counterPanel, BoxLayout.PAGE_AXIS));
+		counterPanel.setBackground(Color.WHITE);
+		contentPane.add(counterPanel);
 		add(scrollPane);
 	    setVisible(true);
 		
@@ -54,7 +60,11 @@ public class Statistics extends JPanel {
 	private void changeBarColor(JFreeChart plot){
 	//	Plot plot.getPlot();
 	}
-	
+
+	public void addCount(BigInteger count, String countName){
+		JLabel counter = new JLabel("Average " +countName+ " per video is: " + count);
+		counterPanel.add(counter);
+	}
 	/**
 	 * Add a barChart to the GUI
 	 * @param categoryMap a MAP with the bar name and freq

@@ -122,7 +122,7 @@ public class ManagementFilteredSearch {
 		HashMap<String, BigInteger> likesStat = new HashMap<String, BigInteger>(2);
 		likesStat.put("Likes", new BigInteger("0"));
 		likesStat.put("Dislikes", new BigInteger("0"));
-		int likesVideos = 0;
+		Integer likesVideos = 0;
 		
 		Map<String, Integer> categoryStats = new HashMap<String, Integer>();
 		Map<String, Integer> yearStats = new HashMap<String, Integer>();
@@ -132,9 +132,8 @@ public class ManagementFilteredSearch {
 		//countStat.put("Favorite", new BigInteger("0"));
 		//countStat.put("Comments", new BigInteger("0"));
 		BigInteger viewCount = new BigInteger("0");
-		BigInteger favouritesCount = new BigInteger("0");
-		BigInteger commentsCount = new BigInteger("0");
-		int countStatVideos = 0;
+		BigInteger favoritesCount = new BigInteger("0");
+		BigInteger commentCount = new BigInteger("0");
 		
 		
 		for(Video video : videoInfoResult.values()){
@@ -143,17 +142,10 @@ public class ManagementFilteredSearch {
 				likesStat.replace("Likes", likesStat.get("Likes").add(video.getStatistics().getLikeCount()));
 				likesStat.replace("Dislikes", likesStat.get("Dislikes").add(video.getStatistics().getDislikeCount()));
 				likesVideos++;
-			}
-			if(video.getStatistics()!=null){
-				if(video.getStatistics().getViewCount() != null){
-					
-					countStat.replace("Views", countStat.get("Views").add(video.getStatistics().getViewCount()));
-				}if(video.getStatistics().getFavoriteCount() != null){
-		//		countStat.replace("Favorite", countStat.get("Favorite").add(video.getStatistics().getFavoriteCount()));
-				}if(video.getStatistics().getCommentCount() != null){
-		// 			countStat.replace("Comments", countStat.get("Comments").add(video.getStatistics().getCommentCount()));
-					countStatVideos++;
-				}
+				
+				viewCount = viewCount.add(video.getStatistics().getViewCount());
+				favoritesCount = favoritesCount.add(video.getStatistics().getFavoriteCount());
+				commentCount = commentCount.add(video.getStatistics().getCommentCount());
 			}
 			
 			
@@ -180,9 +172,12 @@ public class ManagementFilteredSearch {
 		}
 		Statistics stat = gui.getStatWindow();
 		stat.addBarChart(likesStat, "Likes", likesVideos);
-		stat.addBarChart(countStat, "Count", countStatVideos);
 		stat.addBarChart(categoryStats, "Categories");
 		stat.addBarChart(yearStats, "Years");
+		System.out.println(viewCount);
+		stat.addCount(viewCount.divide(new BigInteger(likesVideos.toString())), "views");
+		stat.addCount(favoritesCount.divide(new BigInteger(likesVideos.toString())), "favorites");
+		stat.addCount(commentCount.divide(new BigInteger(likesVideos.toString())), "comments");
 
 	}
 	/**
