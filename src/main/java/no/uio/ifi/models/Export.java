@@ -44,7 +44,7 @@ public class Export {
 		pw.println("\t<videoList>");
 	}
 
-	public static void write(Page YTPage) {
+	public static void write(PageYouTube YTPage) {
 		pw.println("\t\t<video>");
 		pw.println("\t\t\t<ID>" + YTPage.getVideoID() + "</ID>");
 		pw.println("\t\t\t<title>" + YTPage.getTitle() + "</title>");

@@ -7,10 +7,10 @@ import java.util.List;
  * This is the representation of a YouTube page containing all meta data.
  * 
  * @author Stefan Leicht
- * @version 0.1
+ * @version 0.11
  *
  */
-public class Page {
+public class PageYouTube {
 	private List<String> linkedUrls;
 	private String title;
 	private String videoID;

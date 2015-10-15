@@ -32,7 +32,7 @@ public class CrawlerStefan {
 	private long endTime;
 	private static final int numberVideosToCrawl = 5;
 	private List<String> arr;
-	private List<Page> pages;
+	private List<PageYouTube> pages;
 	private Map<String, Integer> genres = new HashMap<String, Integer>();
 	private Map<String, Integer> authors = new HashMap<String, Integer>();
 	private Map<String, Integer> dates = new HashMap<String, Integer>();
@@ -41,7 +41,7 @@ public class CrawlerStefan {
 	public CrawlerStefan(String startUrl) {
 		this.startUrl = startUrl;
 		arr = new ArrayList<String>();
-		pages = new ArrayList<Page>();
+		pages = new ArrayList<PageYouTube>();
 	}
 
 	public static void main(String[] args){
@@ -151,7 +151,7 @@ public class CrawlerStefan {
 				System.out.println("Thread sleep problem");
 			}
 		}while(connectionError);
-		Page YTPage = new Page();
+		PageYouTube YTPage = new PageYouTube();
 		pages.add(YTPage);
 //		List<String> linkedVideos = getLinkedVideos(webSite.select("a[href]"));
 		Elements linkedUrls = webSite.select("a[href]");
@@ -377,7 +377,7 @@ public class CrawlerStefan {
 		return keywords;
 	}
 	
-	private void writeToFile(Page YTPage, Export.ExportType type){
+	private void writeToFile(PageYouTube YTPage, Export.ExportType type){
 		switch (type){
 		case XML:
 			Export.write(YTPage);
