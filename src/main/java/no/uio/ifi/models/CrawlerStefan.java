@@ -191,7 +191,7 @@ public class CrawlerStefan {
 		
 		YTPage.setAuthor(author);
 		YTPage.setDatePublished(datePublished);
-		YTPage.setDescription(description);//under construction
+		YTPage.setDescription(description);
 		YTPage.setDislikes(dislikes);
 		YTPage.setFamilyFriendly(familyFriendly);
 		YTPage.setGenre(genre);
@@ -294,10 +294,11 @@ public class CrawlerStefan {
 		for(int i = 0; i < descriptionRAW.get(0).childNodes().size(); i++){
 			//to get only text in the description
 			if(!descriptionRAW.get(0).childNode(i).hasAttr("href")){
-				if(descriptionRAW.get(0).childNode(i).toString().equals("<br />")){
+				String child = descriptionRAW.get(0).childNode(i).toString();
+				if(child.equals("<br>") || child.equals("<br />")){
 					des.add(s);
 					s = new String("");
-				}else if(!descriptionRAW.get(0).childNode(i).toString().matches("\\p{Blank}+")){
+				}else if(!(child.matches("\\p{Blank}+") || child.equals("<wbr>") || child.equals("<wbr />"))){
 					s += descriptionRAW.get(0).childNode(i).toString();
 				}
 			//to get the hyperLinks in the description
