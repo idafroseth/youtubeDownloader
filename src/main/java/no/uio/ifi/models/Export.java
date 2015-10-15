@@ -85,4 +85,51 @@ public class Export {
 		pw.close();
 	}
 	
+	public static void toCSV() {
+		Writer fw = null;
+		try {
+			fw = new FileWriter("res/" + fileName + "." + ExportType.CSV.name().toLowerCase());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Writer bw = new BufferedWriter(fw);
+		pw = new PrintWriter(bw);
+		
+		pw.println("ID;title;author;length;familyFriendly;regionsAllowed;keywords;views;datePublished;genre;linkPreviewImage;likes;dislikes;description;linkedVideos");
+	}
+	
+	public static void writeCSV(PageYouTube YTPage) {
+		pw.print(YTPage.getVideoID() + ";");
+		pw.print("\"" + YTPage.getTitle().replace("\"", "\"\"") + "\";");
+		pw.print("\"" + YTPage.getAuthor().replace("\"", "\"\"") + "\";");
+		pw.print(YTPage.getLength() + ";");
+		pw.print(YTPage.getFamilyFriendly() + ";");
+		pw.print(YTPage.getRegionsAllowed() + ";");
+		pw.print("\"");
+		for(String k : YTPage.getKeywords())
+			if(YTPage.getKeywords().indexOf(k) != YTPage.getKeywords().size()-1) pw.print(k.replace("\"", "\"\"") + ";");
+			else pw.print(k.replace("\"", "\"\""));
+		pw.print("\";");
+		pw.print(YTPage.getViews() + ";");
+		pw.print(YTPage.getDatePublished() + ";");
+		pw.print(YTPage.getGenre() + ";");
+		pw.print(YTPage.getLinkPreviewImage() + ";");
+		pw.print(YTPage.getLikes() + ";");
+		pw.print(YTPage.getDislikes() + ";");
+		pw.print("\"");
+		for(String d : YTPage.getDescription())
+			pw.print(d);
+		pw.print("\";");
+		pw.print("\"");
+		for(String l : YTPage.getLinkedUrls())
+			if(YTPage.getLinkedUrls().indexOf(l) != YTPage.getLinkedUrls().size()-1) pw.print(l + ";");
+			else pw.print(l);
+		pw.print("\";");
+		pw.println();
+	}
+	
+	public static void closeCSV(){
+		pw.close();
+	}
+	
 }
