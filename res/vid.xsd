@@ -55,7 +55,7 @@ elementFormDefault="qualified">
   <xs:sequence>
     <xs:element name="author" type="xs:string"/>
     <xs:element name="body" type="xs:string"/>
-    <xs:element name="commentThread" type="commentType" minOccurs="0"/>
+    <xs:element name="commentThread" type="commentsType" minOccurs="0"/>
   </xs:sequence>
 </xs:complexeType>
 

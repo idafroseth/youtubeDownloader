@@ -10,7 +10,7 @@ import java.io.Writer;
  * Export of crawled YouTube pages in different formats. 
  * 
  * @author Stefan Leicht
- * @version 0.2
+ * @version 0.25
  *
  */
 public class Export {
@@ -69,13 +69,30 @@ public class Export {
 		pw.println("\t\t<linkPreviewImage>" + YTPage.getLinkPreviewImage() + "</linkPreviewImage>");
 		pw.println("\t\t<likes>" + YTPage.getLikes() + "</likes>");
 		pw.println("\t\t<dislikes>" + YTPage.getDislikes() + "</dislikes>");
-		pw.println("\t\t<description>" + YTPage.getDescription() + "</description>");
+		pw.print("\t\t<description>");
+		for(String d : YTPage.getDescription()) pw.print(d);
+		pw.println("</description>");
 		pw.println("\t\t<linkedVideos>");
 		for(String l : YTPage.getLinkedUrls())
 			pw.println("\t\t\t<linkedVideo>" + l + "</linkedVideo");
 		pw.println("\t\t</linkedVideos>");
 		pw.println("\t\t<comments>");
-//		pw.println("\t\t\t<comment>" + YTPage.getDescription() + "</description>");
+//		for(String c : YTPage.getComments){
+//			pw.println("\t\t\t<comment>");
+//			pw.println("\t\t\t\t<author>" + YTPage.getAuthor() + "</author>");
+//			pw.println("\t\t\t\t<body>" + YTPage.getAuthor() + "</body>");
+//			if(YTPage.CommenThread.size() != 0){
+//				pw.println("\t\t\t\t<commentThread>");
+//				for(String ct : YTPage.getCommentThread){
+//					pw.println("\t\t\t\t\t<comment>");
+//					pw.println("\t\t\t\t\t\t<author>" + YTPage.getAuthor() + "</author>");
+//					pw.println("\t\t\t\t\t\t<body>" + YTPage.getBody() + "</body>");
+//					pw.println("\t\t\t\t\t</comment>");
+//				}
+//				pw.println("\t\t\t\t</commentThread>");
+//			}
+//			pw.println("\t\t\t</comment>");
+//		}
 		pw.println("\t\t</comments>");
 		pw.println("\t</video>");
 	}
