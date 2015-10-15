@@ -21,8 +21,10 @@ public class DownloadProgressBar  implements PreformingSearchDialog{
 		// We should move this into a separate class
 		JDialog dialog = new JDialog();
 		dialog.setTitle(title);
+		
 		progressBar = new JProgressBar(0, max);
 		progressBar.setValue(0);
+		progressBar.setMaximum(max);
 		progressBar.setStringPainted(true);
 	
 		JButton cancelButton = new JButton("Cancel");
@@ -35,7 +37,7 @@ public class DownloadProgressBar  implements PreformingSearchDialog{
 		content.setLayout(new BorderLayout());
 		progressBar.setPreferredSize(new Dimension(300, 50));
 		progressBar.setVisible(true);
-		progressBar.setValue(1);
+		progressBar.setValue(40);
 		progressBar.setBorderPainted(true);
 		content.setPreferredSize(new Dimension(500, 150));
 		buttonPanel.add(cancelButton);
@@ -56,7 +58,6 @@ public class DownloadProgressBar  implements PreformingSearchDialog{
 
 	@Override
 	public void updateProgressBar(int numberOfVideosRetrived) {
-		// TODO Auto-generated method stub
 		progressBar.setValue(numberOfVideosRetrived);
 		
 	}

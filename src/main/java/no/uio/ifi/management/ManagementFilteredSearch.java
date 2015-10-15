@@ -44,10 +44,12 @@ import no.uio.ifi.models.VideoInfoExtracter;
 public class ManagementFilteredSearch {
 	FilteredSearch filterSearch = new FilteredSearch();
 	FilteredSearchGui gui = new FilteredSearchGui(this);
-	int NUMBER_OF_VIDEOS_TO_SERACH = 1000;
-	int NUMBER_OF_VIDEOS_RETRIVED = 0;
+	public int NUMBER_OF_VIDEOS_TO_SERACH = 10;
+	public int NUMBER_OF_VIDEOS_RETRIVED = 0;
+	int NUMBER_OF_THREADS=2;
 	LinkedList<String> resultCache = new LinkedList<String>();
-	CountDownLatch latch = new CountDownLatch(0);
+//	CountDownLatch latch = new CountDownLatch(0);
+	int threadCount = 0;
 	
 	/**
 	 * Counting the number of updates of the chache queue, if there isn´t recieved a new
@@ -80,7 +82,7 @@ public class ManagementFilteredSearch {
 	
 	
 	/**
-	 * Applying choseing filter and start the search. 
+	 * Applying choosing filter and start the search. 
 	 */
 	public void preformSearch() {
 //		Thread downloadBar = new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SERACH, "Crawling YouTube");
@@ -93,26 +95,47 @@ public class ManagementFilteredSearch {
 			System.out.println("AddingFilters");
 			filterSearch.setFilter(key, filtersApplied.get(key));
 		}
-		int NUMBER_OF_THREADS = 3;
-		latch = new CountDownLatch(NUMBER_OF_THREADS);
-		for(int i = 0;i<NUMBER_OF_THREADS; i++){
-			(new SearchThread("SearchThread_"+i)).run();
-		}
-		try {
-			latch.await();
-			System.out.println("Videos in cache " +resultCache.size());
-		} catch (InterruptedException e) {	
-			// TODO Auto-generated catch block
-			System.out.println("Somthing happend when waiting for thread");
-			e.printStackTrace();
-		}
 		
-		(new VideoInfoExtracter()).getVideoContent(resultCache);;
-
+//		new Thread(new Runnable(){
+			
+		DownloadProgressBar dpb = new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SERACH, "Crawling YouTube");
+		
+//			public void run(){
+//				while(NUMBER_OF_VIDEOS_TO_SERACH>NUMBER_OF_VIDEOS_RETRIVED){
+//					
+//					System.out.println(NUMBER_OF_VIDEOS_RETRIVED);
+//	
+////					try {
+////						Thread.sleep(1);
+////					} catch (InterruptedException e1) {
+////						// TODO Auto-generated catch block
+////						e1.printStackTrace();
+////					}
+//				}
+//			}
+//		});
+		//NUMBER_OF_THREADS = 3;
+		threadCount = NUMBER_OF_THREADS;
+//		latch = new CountDownLatch(NUMBER_OF_THREADS);
+		for(int i = 0;i<NUMBER_OF_THREADS; i++){
+			(new SearchThread("SearchThread_"+i,dpb)).run();
+		}
+//		try {
+////			latch.await();
+//			
+//		} catch (InterruptedException e) {	
+//			// TODO Auto-generated catch block
+//			System.out.println("Somthing happend when waiting for thread");
+//			e.printStackTrace();
+//		}
+		
 	}
-	
-	public static void main(String[] args) {
-		ManagementFilteredSearch fs = new ManagementFilteredSearch();
+	public void finishedSearch(){
+		System.out.println("Videos in cache " +resultCache.size());
+		(new VideoInfoExtracter()).getVideoContent(resultCache);
+	}
+	public void deadEnd(){
+		System.out.println("Dead END Videos in cache " +resultCache.size());
 	}
 	public int getDeadEndValue(){
 		return this.deadEndValue;
@@ -120,11 +143,17 @@ public class ManagementFilteredSearch {
 	public void setDeadEndValue(int newDeadEndValue){
 		this.deadEndValue = newDeadEndValue;
 	}
+	public static void main(String[] args) {
+		ManagementFilteredSearch fs = new ManagementFilteredSearch();
+	}
+	
 	class SearchThread extends Thread {
 
+		DownloadProgressBar progressBar;
 		//ManagementAllRandom mng;
-		public SearchThread(String s){//, ManagementAllRandom mng) {
+		public SearchThread(String s, DownloadProgressBar progressBar){//, ManagementAllRandom mng) {
 			super(s);
+			this.progressBar = progressBar;
 			//this.mng = mng;
 		}
 		
@@ -136,63 +165,70 @@ public class ManagementFilteredSearch {
 				
 				//Here one thread shoul handle the gui and another thread should handle the search, or multiple threads. 
 				
-				
+				NUMBER_OF_VIDEOS_RETRIVED = 0;
 				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SERACH){
 					List<SearchResult> result = filterSearch.searchBy(randomGenerator.getNextRandom());
 					System.out.println(result.size());
 					if(deadEndCount > deadEndValue){
 						System.out.println("DEAD END");
 						throw new DeadEndException();	
-//						break;
 					}
 					if( result.size() == 0){
-						System.out.println("LJKDSF");
 						deadEndCount++;
 						continue;
 					}
-		
+					
 					loop:
 					for(SearchResult res : result){
 						if(resultCache.contains(res.getId().getVideoId())){
 							deadEndCount++;
 							continue loop;
 						}
-						
 						deadEndCount = 0;
-				
 						System.out.print(NUMBER_OF_VIDEOS_RETRIVED + ": ");
 						System.out.println(res.getId());
 						System.out.println(res);
 						NUMBER_OF_VIDEOS_RETRIVED++;
 						resultCache.add(res.getId().getVideoId());
-					//	System.out.println("Likes: " + res.getStatistics().getCommentCount());
 						
-					//	System.out.println(res);
 					}
+					progressBar.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED);
 				}
 				
 		  		Thread.sleep(1);
-		  		latch.countDown();
+		  	//	latch.countDown();
 				System.out.println("thread stopped.");
+				
+				System.out.println("threadCount: " + threadCount);
+				if(threadCount==NUMBER_OF_THREADS){
+					threadCount--;
+					finishedSearch();
+				}
+				threadCount--;
+				System.out.println();	
 				this.interrupt();
 			} catch (InterruptedException v) {
 				System.out.println("Thread error");
 				System.out.println(v);
 			} catch (DeadEndException e) {
 				//Should change this
-				latch.countDown();
+//				latch.countDown();
 				new DownloadProgressBar(0, "DEAD END EXCEPTION" );
+				threadCount--;
+				if(threadCount<NUMBER_OF_THREADS){
+					deadEnd();
+				}
 				e.printStackTrace();
 				this.interrupt();
 			}
 		}
 	}
-	class BarThread extends Thread {
+	class BarThread implements Runnable {
 
 		//ManagementAllRandom mng;
 		DownloadProgressBar updateProgressBar = new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SERACH,"Crawling");
 		public BarThread(String s){//, ManagementAllRandom mng) {
-			super(s);
+	//		super(s);
 			//this.mng = mng;
 		}
 		@Override

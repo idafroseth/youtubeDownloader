@@ -253,8 +253,6 @@ public class FilteredSearch extends Search{
 			search.setFields("items(id/videoId)");
 			String apiKey = properties.getProperty("youtube.apikey");
 			search.setType("video");
-			System.out.println("Configure properties");
-			
 			search.setKey(apiKey);
 			
 		} catch (Throwable t) {

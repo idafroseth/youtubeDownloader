@@ -18,10 +18,12 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
 
 import no.uio.ifi.management.ManagementFilteredSearch;
 
@@ -39,6 +41,11 @@ public class FilterGui extends JPanel {
 	private JPanel filterAddPanel = new JPanel();
 	private JPanel filterActivePanel = new JPanel();
 	private JButton searchButton = new JButton("Search");
+	
+	private JTextField cityInput = new JTextField("City");
+	private JTextField radiusInput = new JTextField("Radius in km");
+	private JTextField numberOfVideosInput = new JTextField("100 000");
+	
 	// limited to 10 filters
 	private ArrayList<Integer> filters = new ArrayList<Integer>(10);
 	private SelectorListener filterListener = new SelectorListener();
@@ -65,13 +72,23 @@ public class FilterGui extends JPanel {
 		this.add(filterPanel, BorderLayout.CENTER);
 	}
 
+	public void init(){
+		cityInput.setColumns(20);
+		
+		radiusInput.setColumns(20);
+		
+		numberOfVideosInput.setColumns(20);
+	}
 	/**
 	 * Making the layout of the FilterGui
 	 */
 	public void drawFilterMenu() {
+	//	this.setBorder(LineBorder.createGrayLineBorder());
 		searchButton.setActionCommand("SEARCHBUTTON");
 		searchButton.addActionListener(mouseListener);
 		searchButton.setPreferredSize(new Dimension(100, 30));
+		
+		
 
 		filterPanel.setPreferredSize(new Dimension(1000, 500));
 		filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
@@ -84,7 +101,7 @@ public class FilterGui extends JPanel {
 		// JPanel numSearchPanel = new JPanel();
 		// numSearchPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 10));
 		filterAddPanel.add(new JLabel("# Videos to search"));
-		filterAddPanel.add(new JTextField("100 000"));
+		filterAddPanel.add(numberOfVideosInput);
 		// filterAddPanel.add(numSearchPanel);
 		filterActivePanel.setBorder(BorderFactory.createTitledBorder("Applied filters"));
 		filterAddPanel.setPreferredSize(new Dimension(400, 500));
@@ -165,10 +182,7 @@ public class FilterGui extends JPanel {
 			// case "SEARCHBUTTON":
 			// mng.preformSearch();
 			// break;
-			// }
-
-
-
+			// 
 		}
 	}
 
