@@ -21,7 +21,7 @@ import no.uio.ifi.models.Export.ExportType;
 /**
  * 
  * @author Stefan Leicht
- * @version 0.12
+ * @version 0.13
  *
  * 
  */
