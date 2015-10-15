@@ -36,6 +36,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 
+import com.google.api.services.youtube.model.Video;
+
 import no.uio.ifi.management.ManagementFilteredSearch;
 
 public class FilteredSearchGui extends JFrame{
@@ -88,6 +90,7 @@ public class FilteredSearchGui extends JFrame{
 		public JPanel getResultPanel(){
 			JPanel resultPanel = new JPanel();
 			resultPanel.add(resultIdList);
+	//		resultPanel.add();
 			return resultPanel;
 		}
 		public JPanel getMenuPanel(){
@@ -152,10 +155,30 @@ public class FilteredSearchGui extends JFrame{
 		public HashMap<Integer,String> getSelectedFilters(){
 			return searchWindow.getSelectedFilters();
 		}
-		public void addVideoResult(String videoId){
-			resultIdList.append(videoId);
+//		public void addVideoResult(String videoId){
+//			
+//		}
+		public void newResult(Map<String, Video> videoInfo){
+			//First add all the info in the result
+			int count = 0;
+			for(String videoId : videoInfo.keySet()){
+				count++;
+				resultIdList.append(count + ": " +videoId + "\n");
+			}
+			setButtonAsActive(resultMenu);
+			drawResult();
 		}
 		
+		private void setButtonAsActive(JLabel button){
+			activeButton.setBackground(menuColor);
+			activeButton.setFont(button.getFont().deriveFont(Font.PLAIN));
+			activeButton = button;
+			button.setBackground(new Color(238,238,238));
+			button.setFont(button.getFont().deriveFont(Font.BOLD));
+		}
+		public Statistics getStatWindow(){
+			return this.statsWindow;
+		}
 
 		private class MouseClickListener implements MouseListener{
 			JLabel hovered = new JLabel();
@@ -178,11 +201,7 @@ public class FilteredSearchGui extends JFrame{
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				JLabel button = (JLabel)e.getSource();
-				activeButton.setBackground(menuColor);
-				activeButton.setFont(button.getFont().deriveFont(Font.PLAIN));
-				activeButton = button;
-				button.setBackground(new Color(238,238,238));
-				button.setFont(button.getFont().deriveFont(Font.BOLD));
+				setButtonAsActive(button);
 				String action = button.getText();
 				switch (action){
 					case "SEARCH":

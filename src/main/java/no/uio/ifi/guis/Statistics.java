@@ -82,7 +82,7 @@ public class Statistics extends JPanel {
 	 * @param chartTitle
 	 * @param totalNumberOfVideos should reflect the what to divide on to get the precentage
 	 */
-	public void addBarChart(Map<String, BigInteger> categoryMap, String chartTitle, BigInteger totalNumberOfVideos){
+	public void addBarChart(Map<String, BigInteger> categoryMap, String chartTitle, Integer totalNumberOfVideos){
 		JFreeChart barChart = ChartFactory.createBarChart(chartTitle, "", "Average per video", createBigDataset(categoryMap, totalNumberOfVideos), PlotOrientation.HORIZONTAL, false, false, false);
 		barChart.getTitle().setFont(new Font("Areal", Font.PLAIN, 17));
 	
@@ -97,7 +97,7 @@ public class Statistics extends JPanel {
 		contentPane.add(panel);
 //		pack();
 	}
-	private CategoryDataset createBigDataset(Map<String, BigInteger> dataContent, BigInteger totalNumberOfVideos){
+	private CategoryDataset createBigDataset(Map<String, BigInteger> dataContent, Integer totalNumberOfVideos){
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		final String frequency = "Average disribution";
 		LinkedList<Map<String, BigInteger>> sortedQueue = sortBigByCategory(dataContent,totalNumberOfVideos);
@@ -151,16 +151,18 @@ public class Statistics extends JPanel {
 		return sortedQueue;
 	}
 	
-	private LinkedList<Map<String,BigInteger>> sortBigByCategory(Map<String,BigInteger> dataMap, BigInteger totalNumberOfVideos){
+	private LinkedList<Map<String,BigInteger>> sortBigByCategory(Map<String,BigInteger> dataMap, Integer numVideo){
 		LinkedList<Map<String,BigInteger>> sortedQueue = new LinkedList<Map<String, BigInteger>>();
 		System.out.println("Trying to sort the map");
+		BigInteger totalNumberOfVideos = new BigInteger(numVideo.toString());
 		System.out.println("TotalNUmberOfVideos: " + totalNumberOfVideos);
-		if(totalNumberOfVideos == null ){
-			totalNumberOfVideos = new BigInteger("0");
-			for(String key : dataMap.keySet()){
-				totalNumberOfVideos = totalNumberOfVideos.add(dataMap.get(key));
-			}
-		}
+	
+//		if(totalNumberOfVideos.compareTo(new BigInteger("0") == 0){
+//			totalNumberOfVideos = new BigInteger("0");
+//			for(String key : dataMap.keySet()){
+//				totalNumberOfVideos = totalNumberOfVideos.add(dataMap.get(key));
+//			}
+//		}
 		
 		System.out.println("Total number of Videos in the categorySet " + totalNumberOfVideos);
 		String pointerToLargestValue = "";
@@ -222,11 +224,6 @@ public class Statistics extends JPanel {
 		jf.setVisible(true);
 		jf.add(chart);
 		jf.pack();
-//		chart.changeColor("LIKES");
-//		chart.changeColor("THIRD");
-//		chart.changeColor("Categories frequency");
-		
-		//chart.saveChartAsPNG("Categories frequency", "secondChart");
 	}
 }
 /**

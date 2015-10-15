@@ -402,7 +402,7 @@ public class ManagementAllRandom {
 //					frequencyCount.put("Views", viewCount);
 //					frequencyCount.put("Comments", commentsCount);
 //					frequencyCount.put("Favourites", favouritesCount);
-					stat.addBarChart(likesStats, "Likes", new BigInteger(Integer.toString(counter)));
+				//	stat.addBarChart(likesStats, "Likes", new BigInteger(Integer.toString(counter)));
 					//stat.addBarChart(frequencyCount,"Frequency" , new BigInteger(Integer.toString(counter)));
 					statIsDrawn = true;
 				}

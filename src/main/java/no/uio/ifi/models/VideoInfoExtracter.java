@@ -1,8 +1,13 @@
 package no.uio.ifi.models;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import org.json.JSONObject;
+import org.json.XML;
 
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -40,7 +45,8 @@ public class VideoInfoExtracter extends Search{
 		}
 
 	}
-	public void getVideoContent(LinkedList<String> videoIdsQueue){
+	public	Map<String, Video> getVideoContent(LinkedList<String> videoIdsQueue){
+		Map<String, Video> videoJSON = new HashMap<String, Video>();
 		try {
 			initDataContent();
 			List<Video> videoList;
@@ -50,13 +56,21 @@ public class VideoInfoExtracter extends Search{
 				listResponse = searchContent.execute();
 				videoList = listResponse.getItems();
 				for(Video v : videoList){
-					System.out.println(v.getStatistics());
+					System.out.println("{\"video\":" + v + "}");//.getSnippet() +""+  v.getStatistics() + "" + v.getContentDetails() + "" + v.getStatus());
+					String videoJson = "{\"video\":" + v + "}";
+					videoJSON.put(v.getId(), v);
+		
+					//Demo how to convert to xml
+					JSONObject json  = new JSONObject( videoJson );  
+					String xml = XML.toString(json);
+					System.out.println(xml);
 				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return videoJSON;
 		
 	}
 }

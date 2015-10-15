@@ -1,6 +1,7 @@
 package no.uio.ifi.guis;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -103,11 +104,12 @@ public class FilterGui extends JPanel {
 		filterAddPanel.add(new JLabel("# Videos to search"));
 		filterAddPanel.add(numberOfVideosInput);
 		// filterAddPanel.add(numSearchPanel);
-		filterActivePanel.setBorder(BorderFactory.createTitledBorder("Applied filters"));
+	//	filterActivePanel.setBorder(BorderFactory.createTitledBorder("Applied filters"));
 		filterAddPanel.setPreferredSize(new Dimension(400, 500));
 		filtersAppliedText.setPreferredSize(new Dimension(450, 500));
+		filtersAppliedText.setBorder(BorderFactory.createTitledBorder("Applied filters"));
 		filterActivePanel.add(filtersAppliedText);
-
+		filtersAppliedText.setBackground(new Color(238,238,238));
 	}
 
 	/**

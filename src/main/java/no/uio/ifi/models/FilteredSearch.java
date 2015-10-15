@@ -27,7 +27,7 @@ import no.uio.ifi.guis.FilteredSearchGui;
 
 /**
  * 
- * @author Ida Marie Frøseth
+ * @author Ida Marie Frøseth and Richard Reimer
  *
  */
 public class FilteredSearch extends Search{
@@ -47,6 +47,9 @@ public class FilteredSearch extends Search{
 	private Map<String, String> availableDurations = new HashMap<String, String>();
 	private Map<String, String> availableVideoTypes = new HashMap<String, String>();
 
+	
+	private Map<String, String> availableCategoriesReverse =  new HashMap<String, String>();
+
 	private YouTube.Search.List search;
 
 	public static final long NUMBER_OF_VIDEOS_RETURNED = 25;
@@ -58,6 +61,7 @@ public class FilteredSearch extends Search{
 	public Map<String, String> getVideoCategories() {
 		configureProperties();
 		availableCategories = new HashMap<String, String>();
+		availableCategoriesReverse = new HashMap<String, String>();
 		try {
 			youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, new HttpRequestInitializer() {
 				public void initialize(HttpRequest request) throws IOException {
@@ -74,6 +78,7 @@ public class FilteredSearch extends Search{
 			List<VideoCategory> categories = searchResponse.getItems();
 			for (VideoCategory vc : categories) {
 				availableCategories.put(vc.getSnippet().getTitle(), vc.getId());
+				availableCategoriesReverse.put(vc.getId(),vc.getSnippet().getTitle());
 				System.out.println("Adding to language: (" + vc.getSnippet().getTitle() + ", " + vc.getId() + ")");
 			}
 
@@ -86,6 +91,12 @@ public class FilteredSearch extends Search{
 			t.printStackTrace();
 		}
 		return availableCategories;
+	}
+	public Map<String,String> getAvailableCategoriesReverse(){
+		if(availableCategoriesReverse.size() < 1){
+			availableCategoriesReverse = getVideoCategories();
+		}
+		return this.availableCategoriesReverse;
 	}
 
 	/**

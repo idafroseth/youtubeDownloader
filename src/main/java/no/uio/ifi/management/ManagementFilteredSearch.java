@@ -1,27 +1,19 @@
 package no.uio.ifi.management;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Toolkit;
 import java.math.BigInteger;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import org.json.JSONObject;
+import org.json.XML;
 
 import java.awt.Toolkit;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.Map;
 
-import com.google.api.client.util.DateTime;
-import com.google.api.services.youtube.model.CommentSnippet;
-import com.google.api.services.youtube.model.CommentThread;
-import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
@@ -50,7 +42,11 @@ public class ManagementFilteredSearch {
 	LinkedList<String> resultCache = new LinkedList<String>();
 //	CountDownLatch latch = new CountDownLatch(0);
 	int threadCount = 0;
-	
+	HashMap<String, String> availableCategories;
+	HashMap<String, String> availableLanguages;
+	HashMap<String, String> availableRegions;
+	HashMap<String, String> availableDuration;
+	HashMap<String, String> availableVideoTypes;
 	/**
 	 * Counting the number of updates of the chache queue, if there isn´t recieved a new
 	 * video in the last 100 search, it will terminate and give a feedback to the user.  
@@ -100,21 +96,6 @@ public class ManagementFilteredSearch {
 			
 		DownloadProgressBar dpb = new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SERACH, "Crawling YouTube");
 		
-//			public void run(){
-//				while(NUMBER_OF_VIDEOS_TO_SERACH>NUMBER_OF_VIDEOS_RETRIVED){
-//					
-//					System.out.println(NUMBER_OF_VIDEOS_RETRIVED);
-//	
-////					try {
-////						Thread.sleep(1);
-////					} catch (InterruptedException e1) {
-////						// TODO Auto-generated catch block
-////						e1.printStackTrace();
-////					}
-//				}
-//			}
-//		});
-		//NUMBER_OF_THREADS = 3;
 		threadCount = NUMBER_OF_THREADS;
 //		latch = new CountDownLatch(NUMBER_OF_THREADS);
 		for(int i = 0;i<NUMBER_OF_THREADS; i++){
@@ -132,7 +113,85 @@ public class ManagementFilteredSearch {
 	}
 	public void finishedSearch(){
 		System.out.println("Videos in cache " +resultCache.size());
-		(new VideoInfoExtracter()).getVideoContent(resultCache);
+		Map<String, Video> videoInfoResult = (new VideoInfoExtracter()).getVideoContent(resultCache);
+		gui.newResult(videoInfoResult);
+		getStatistics(videoInfoResult);		
+	}
+	public void getStatistics(Map<String, Video> videoInfoResult){
+		//Likes values 
+		HashMap<String, BigInteger> likesStat = new HashMap<String, BigInteger>(2);
+		likesStat.put("Likes", new BigInteger("0"));
+		likesStat.put("Dislikes", new BigInteger("0"));
+		int likesVideos = 0;
+		
+		Map<String, Integer> categoryStats = new HashMap<String, Integer>();
+		Map<String, Integer> yearStats = new HashMap<String, Integer>();
+		
+		HashMap<String, BigInteger> countStat = new HashMap<String, BigInteger>(2);
+		countStat.put("Views", new BigInteger("0"));
+		//countStat.put("Favorite", new BigInteger("0"));
+		//countStat.put("Comments", new BigInteger("0"));
+		BigInteger viewCount = new BigInteger("0");
+		BigInteger favouritesCount = new BigInteger("0");
+		BigInteger commentsCount = new BigInteger("0");
+		int countStatVideos = 0;
+		
+		
+		for(Video video : videoInfoResult.values()){
+			//Like statistics
+			if(video.getStatistics()!=null && video.getStatistics().getLikeCount()!= null){
+				likesStat.replace("Likes", likesStat.get("Likes").add(video.getStatistics().getLikeCount()));
+				likesStat.replace("Dislikes", likesStat.get("Dislikes").add(video.getStatistics().getDislikeCount()));
+				likesVideos++;
+			}
+			if(video.getStatistics()!=null){
+				if(video.getStatistics().getViewCount() != null){
+					
+					countStat.replace("Views", countStat.get("Views").add(video.getStatistics().getViewCount()));
+				}if(video.getStatistics().getFavoriteCount() != null){
+		//		countStat.replace("Favorite", countStat.get("Favorite").add(video.getStatistics().getFavoriteCount()));
+				}if(video.getStatistics().getCommentCount() != null){
+		// 			countStat.replace("Comments", countStat.get("Comments").add(video.getStatistics().getCommentCount()));
+					countStatVideos++;
+				}
+			}
+			
+			
+			//Category statistics
+			String category =  filterSearch.getAvailableCategoriesReverse().get(video.getSnippet().getCategoryId());
+			if(categoryStats.containsKey(category)){
+				categoryStats.replace(category,categoryStats.get(category)+1);
+			}else{
+				categoryStats.put(category,1);
+			}
+			
+			//Year statistics
+			SimpleDateFormat df = new SimpleDateFormat("yyyy");
+			String year =df.format(new Date(video.getSnippet().getPublishedAt().getValue()));
+			if(yearStats.containsKey(year)){
+				//We must update
+				yearStats.replace(year,yearStats.get(year)+1);
+			}else{
+				yearStats.put(year,1);
+			}
+		
+			
+			video.getStatistics().getLikeCount();
+		}
+		Statistics stat = gui.getStatWindow();
+		stat.addBarChart(likesStat, "Likes", likesVideos);
+		stat.addBarChart(countStat, "Count", countStatVideos);
+		stat.addBarChart(categoryStats, "Categories");
+		stat.addBarChart(yearStats, "Years");
+
+	}
+	/**
+	 * This convert a video to xml format
+	 * @param video one object of YouTube video
+	 * @return the video in xml formats
+	 */
+	public String convertToXML(Video video){
+		return XML.toString(new JSONObject(video));
 	}
 	public void deadEnd(){
 		System.out.println("Dead END Videos in cache " +resultCache.size());
@@ -224,7 +283,6 @@ public class ManagementFilteredSearch {
 		}
 	}
 	class BarThread implements Runnable {
-
 		//ManagementAllRandom mng;
 		DownloadProgressBar updateProgressBar = new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SERACH,"Crawling");
 		public BarThread(String s){//, ManagementAllRandom mng) {
