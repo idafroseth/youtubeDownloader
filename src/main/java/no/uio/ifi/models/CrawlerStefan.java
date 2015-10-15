@@ -21,7 +21,7 @@ import no.uio.ifi.models.Export.ExportType;
 /**
  * 
  * @author Stefan Leicht
- * @version 0.11
+ * @version 0.12
  *
  * 
  */
@@ -30,7 +30,7 @@ public class CrawlerStefan {
 	private Writer fw = null;
 	private long startTime;
 	private long endTime;
-	private static final int numberVideosToCrawl = 5;
+	private static final int numberVideosToCrawl = 10;
 	private List<String> arr;
 	private List<PageYouTube> pages;
 	private Map<String, Integer> genres = new HashMap<String, Integer>();
@@ -54,6 +54,7 @@ public class CrawlerStefan {
 
 	public void crawl() {
 		Export.toXML();
+//		Export.toCSV();
 		Document webSite = null;
 		startTime = System.nanoTime();
 		try {
@@ -133,6 +134,7 @@ public class CrawlerStefan {
 			}
 		}
 		Export.closeXML();
+//		Export.closeCSV();
 	}
 
 	private void crawlPage(String url) {
@@ -204,6 +206,7 @@ public class CrawlerStefan {
 		YTPage.setViews(views);
 		
 		writeToFile(YTPage, ExportType.XML);
+//		writeToFile(YTPage, ExportType.CSV);
 		
 		if(genres.containsKey(genre)){
 			genres.put(genre, genres.get(genre) + 1);
@@ -383,6 +386,7 @@ public class CrawlerStefan {
 			Export.writeXML(YTPage);
 			break;
 		case CSV:
+			Export.writeCSV(YTPage);
 			break;
 		case JASON:
 			break;
