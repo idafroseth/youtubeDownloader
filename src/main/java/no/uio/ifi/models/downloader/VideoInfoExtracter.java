@@ -1,4 +1,4 @@
-package no.uio.ifi.models;
+package no.uio.ifi.models.downloader;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,6 +16,7 @@ import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoListResponse;
 
 import no.uio.ifi.Auth;
+import no.uio.ifi.models.search.Search;
 
 public class VideoInfoExtracter extends Search{
 	private YouTube.Videos.List searchContent;

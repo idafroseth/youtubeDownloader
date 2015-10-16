@@ -31,9 +31,9 @@ import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
 import no.uio.ifi.management.ManagementAll;
-import no.uio.ifi.models.DownloadThread;
 import no.uio.ifi.models.SingleVideoINFO;
-import no.uio.ifi.models.YoutubeDownloader;
+import no.uio.ifi.models.downloader.DownloadThread;
+import no.uio.ifi.models.downloader.YoutubeDownloader;
 
 public class MainGUI extends JFrame{
 	

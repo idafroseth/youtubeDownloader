@@ -26,7 +26,7 @@
 
 //WE MODIFIED THE SAMPLE CODE FROM GOOGLE API EXAMPLE TO FIXED OUR ASSIGMENT
 
-package no.uio.ifi.models;
+package no.uio.ifi.models.search;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -56,8 +56,12 @@ import no.uio.ifi.Auth;
 
 
 public class GeolocationSearch {
+	public GeolocationSearch(){
+	 	FindGPSOnName g = new FindGPSOnName();
+	 	System.out.println(g.getGeolocationCity("Oslo"));
+	}
 	
-	class FindGPSOnName{
+	public class FindGPSOnName{
 		//https://maps.googleapis.com/maps/api/geocode/json?address=Toledo&key=
 		
 		public String getGeolocationCity(String city){
@@ -202,6 +206,10 @@ public class GeolocationSearch {
         }
         
         return videoList;
+    }
+    public static void main(String[] args){
+    	GeolocationSearch geo = new GeolocationSearch();
+  
     }
 }
 

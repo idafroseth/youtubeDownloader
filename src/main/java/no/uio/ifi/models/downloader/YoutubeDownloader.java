@@ -1,4 +1,4 @@
-package no.uio.ifi.models;
+package no.uio.ifi.models.downloader;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import no.uio.ifi.models.SingleVideoINFO;
 
  public class YoutubeDownloader{
 

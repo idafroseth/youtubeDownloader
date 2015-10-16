@@ -1,4 +1,4 @@
-package no.uio.ifi.models;
+package no.uio.ifi.models.search;
 
 import java.io.FileWriter;
 import java.io.IOException;

@@ -21,10 +21,11 @@ import no.uio.ifi.guis.DownloadProgressBar;
 import no.uio.ifi.guis.FilteredSearchGui;
 import no.uio.ifi.guis.Statistics;
 import no.uio.ifi.guis.WaitDialog;
-import no.uio.ifi.models.DeadEndException;
-import no.uio.ifi.models.FilteredSearch;
-import no.uio.ifi.models.RandomVideoIdGenerator;
-import no.uio.ifi.models.VideoInfoExtracter;
+import no.uio.ifi.models.downloader.VideoInfoExtracter;
+import no.uio.ifi.models.geo.GPSLocator;
+import no.uio.ifi.models.search.DeadEndException;
+import no.uio.ifi.models.search.FilteredSearch;
+import no.uio.ifi.models.search.RandomVideoIdGenerator;
 
 /**
  * Management for the filtered search Displaying a gui and handling the dialog
@@ -36,9 +37,9 @@ import no.uio.ifi.models.VideoInfoExtracter;
 public class ManagementFilteredSearch {
 	FilteredSearch filterSearch = new FilteredSearch();
 	FilteredSearchGui gui = new FilteredSearchGui(this);
-	public int NUMBER_OF_VIDEOS_TO_SERACH = 10;
+	public int NUMBER_OF_VIDEOS_TO_SERACH = 10000;
 	public int NUMBER_OF_VIDEOS_RETRIVED = 0;
-	int NUMBER_OF_THREADS=2;
+	int NUMBER_OF_THREADS=3;
 	LinkedList<String> resultCache = new LinkedList<String>();
 //	CountDownLatch latch = new CountDownLatch(0);
 	int threadCount = 0;
@@ -60,7 +61,7 @@ public class ManagementFilteredSearch {
 	public ManagementFilteredSearch() {
 		
 		gui.initWindow();
-		WaitDialog wait = new WaitDialog();
+		WaitDialog wait = new WaitDialog("Downloading available filters from YouTube");
 		HashMap<String, String> availableCategories = (HashMap<String, String>) filterSearch.getVideoCategories();
 		HashMap<String, String> availableLanguages = (HashMap<String, String>) filterSearch.getAvailableLanguages();
 		HashMap<String, String> availableRegions = (HashMap<String, String>) filterSearch.getAvailableRegions();
@@ -80,7 +81,8 @@ public class ManagementFilteredSearch {
 	/**
 	 * Applying choosing filter and start the search. 
 	 */
-	public void preformSearch() {
+	public void preformSearch(String videoInfo,  String videoQuality){
+		//We have to enable the download function based on the selected videoInfo and videoQuality
 //		Thread downloadBar = new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SERACH, "Crawling YouTube");
 //		downloadBar.run();
 //		(new BarThread("Crawler")).run();
@@ -95,7 +97,7 @@ public class ManagementFilteredSearch {
 //		new Thread(new Runnable(){
 			
 		DownloadProgressBar dpb = new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SERACH, "Crawling YouTube");
-		
+		WaitDialog wait = new WaitDialog("Crawling YouTube");
 		threadCount = NUMBER_OF_THREADS;
 //		latch = new CountDownLatch(NUMBER_OF_THREADS);
 		for(int i = 0;i<NUMBER_OF_THREADS; i++){
@@ -115,71 +117,9 @@ public class ManagementFilteredSearch {
 		System.out.println("Videos in cache " +resultCache.size());
 		Map<String, Video> videoInfoResult = (new VideoInfoExtracter()).getVideoContent(resultCache);
 		gui.newResult(videoInfoResult);
-		getStatistics(videoInfoResult);		
+		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
 	}
-	public void getStatistics(Map<String, Video> videoInfoResult){
-		//Likes values 
-		HashMap<String, BigInteger> likesStat = new HashMap<String, BigInteger>(2);
-		likesStat.put("Likes", new BigInteger("0"));
-		likesStat.put("Dislikes", new BigInteger("0"));
-		Integer likesVideos = 0;
-		
-		Map<String, Integer> categoryStats = new HashMap<String, Integer>();
-		Map<String, Integer> yearStats = new HashMap<String, Integer>();
-		
-		HashMap<String, BigInteger> countStat = new HashMap<String, BigInteger>(2);
-		countStat.put("Views", new BigInteger("0"));
-		//countStat.put("Favorite", new BigInteger("0"));
-		//countStat.put("Comments", new BigInteger("0"));
-		BigInteger viewCount = new BigInteger("0");
-		BigInteger favoritesCount = new BigInteger("0");
-		BigInteger commentCount = new BigInteger("0");
-		
-		
-		for(Video video : videoInfoResult.values()){
-			//Like statistics
-			if(video.getStatistics()!=null && video.getStatistics().getLikeCount()!= null){
-				likesStat.replace("Likes", likesStat.get("Likes").add(video.getStatistics().getLikeCount()));
-				likesStat.replace("Dislikes", likesStat.get("Dislikes").add(video.getStatistics().getDislikeCount()));
-				likesVideos++;
-				
-				viewCount = viewCount.add(video.getStatistics().getViewCount());
-				favoritesCount = favoritesCount.add(video.getStatistics().getFavoriteCount());
-				commentCount = commentCount.add(video.getStatistics().getCommentCount());
-			}
-			
-			
-			//Category statistics
-			String category =  filterSearch.getAvailableCategoriesReverse().get(video.getSnippet().getCategoryId());
-			if(categoryStats.containsKey(category)){
-				categoryStats.replace(category,categoryStats.get(category)+1);
-			}else{
-				categoryStats.put(category,1);
-			}
-			
-			//Year statistics
-			SimpleDateFormat df = new SimpleDateFormat("yyyy");
-			String year =df.format(new Date(video.getSnippet().getPublishedAt().getValue()));
-			if(yearStats.containsKey(year)){
-				//We must update
-				yearStats.replace(year,yearStats.get(year)+1);
-			}else{
-				yearStats.put(year,1);
-			}
-		
-			
-			video.getStatistics().getLikeCount();
-		}
-		Statistics stat = gui.getStatWindow();
-		stat.addBarChart(likesStat, "Likes", likesVideos);
-		stat.addBarChart(categoryStats, "Categories");
-		stat.addBarChart(yearStats, "Years");
-		System.out.println(viewCount);
-		stat.addCount(viewCount.divide(new BigInteger(likesVideos.toString())), "views");
-		stat.addCount(favoritesCount.divide(new BigInteger(likesVideos.toString())), "favorites");
-		stat.addCount(commentCount.divide(new BigInteger(likesVideos.toString())), "comments");
 
-	}
 	/**
 	 * This convert a video to xml format
 	 * @param video one object of YouTube video

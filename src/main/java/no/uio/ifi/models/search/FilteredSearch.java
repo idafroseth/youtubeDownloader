@@ -1,4 +1,4 @@
-package no.uio.ifi.models;
+package no.uio.ifi.models.search;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +52,7 @@ public class FilteredSearch extends Search{
 
 	private YouTube.Search.List search;
 
-	public static final long NUMBER_OF_VIDEOS_RETURNED = 25;
+	//public static final long NUMBER_OF_VIDEOS_RETURNED = 25;
 	
 	/**
 	 * 
@@ -283,12 +283,6 @@ public class FilteredSearch extends Search{
 
 			search.setQ(randomInput);
 
-			// Restrict the search results to only include videos. See:
-			// https://developers.google.com/youtube/v3/docs/search/list#type
-
-			// To increase efficiency, only retrieve the fields that the
-			// application uses.
-		// search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
 			search.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
 
 			// Call the API and print results.
@@ -350,6 +344,7 @@ public class FilteredSearch extends Search{
 			break;
 		}
 	}
+	
 
 	public void setTimeFilter(String year) {
 		// Convert string to dateformat from the first of jan to last of dec.

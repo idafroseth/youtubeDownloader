@@ -1,4 +1,4 @@
-package no.uio.ifi.models;
+package no.uio.ifi.models.downloader;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -7,6 +7,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.swing.JFrame;
+
+import no.uio.ifi.models.SingleVideoINFO;
 
 public class DownloadThread implements Runnable{
 	SingleVideoINFO urlStream;

@@ -6,6 +6,8 @@ import java.awt.GridLayout;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -31,6 +33,8 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import com.google.api.services.youtube.model.Video;
+
 public class Statistics extends JPanel {
 	//ChartFactory myChartFactory = new ChartFactory();
 	HashMap<String, ChartPanel> chartFactory = new HashMap<String, ChartPanel>();
@@ -43,7 +47,7 @@ public class Statistics extends JPanel {
 //		setDefaultCloseOperation(EXIT_ON_CLOSE);
 //		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 		contentPane.setLayout(new GridLayout(2,2));
-		contentPane.setBackground(Color.WHITE);
+	//	contentPane.setBackground(Color.WHITE);
 	//	JLabel noSearch = new JLabel("No search have been preformed");
 		JScrollPane scrollPane = new JScrollPane(contentPane);
 	//	contentPane.setPreferredSize(new Dimension(1000,500));
@@ -51,7 +55,7 @@ public class Statistics extends JPanel {
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 	//	contentPane.add(noSearch);
 		counterPanel.setLayout(new BoxLayout(counterPanel, BoxLayout.PAGE_AXIS));
-		counterPanel.setBackground(Color.WHITE);
+//		counterPanel.setBackground(Color.WHITE);
 		contentPane.add(counterPanel);
 		add(scrollPane);
 	    setVisible(true);
@@ -212,6 +216,74 @@ public class Statistics extends JPanel {
 		}catch(NullPointerException e){
 			System.out.println("Could not set the color because there is not any chart with that title in the chartFactory");
 		}
+	}
+	/**
+	 * This calculated different types of statistics for the dataset so the user can display the dataset
+	 * 
+	 * @param videoInfoResult
+	 */
+	public void computeStatistics(Map<String, Video> videoInfoResult, Map<String, String> availableCategoriesReverse ){
+		//Likes values 
+		HashMap<String, BigInteger> likesStat = new HashMap<String, BigInteger>(2);
+		likesStat.put("Likes", new BigInteger("0"));
+		likesStat.put("Dislikes", new BigInteger("0"));
+		Integer likesVideos = 0;
+		
+		Map<String, Integer> categoryStats = new HashMap<String, Integer>();
+		Map<String, Integer> yearStats = new HashMap<String, Integer>();
+		
+		HashMap<String, BigInteger> countStat = new HashMap<String, BigInteger>(2);
+		countStat.put("Views", new BigInteger("0"));
+		//countStat.put("Favorite", new BigInteger("0"));
+		//countStat.put("Comments", new BigInteger("0"));
+		BigInteger viewCount = new BigInteger("0");
+		BigInteger favoritesCount = new BigInteger("0");
+		BigInteger commentCount = new BigInteger("0");
+	
+		
+		for(Video video : videoInfoResult.values() ){
+			//Like statistics
+			if(video.getStatistics()!=null && video.getStatistics().getLikeCount()!= null){
+				likesStat.replace("Likes", likesStat.get("Likes").add(video.getStatistics().getLikeCount()));
+				likesStat.replace("Dislikes", likesStat.get("Dislikes").add(video.getStatistics().getDislikeCount()));
+				likesVideos++;
+				
+				viewCount = viewCount.add(video.getStatistics().getViewCount());
+				favoritesCount = favoritesCount.add(video.getStatistics().getFavoriteCount());
+				commentCount = commentCount.add(video.getStatistics().getCommentCount());
+			}
+			
+			
+			//Category statistics
+			String category = availableCategoriesReverse.get(video.getSnippet().getCategoryId());
+			if(categoryStats.containsKey(category)){
+				categoryStats.replace(category,categoryStats.get(category)+1);
+			}else{
+				categoryStats.put(category,1);
+			}
+			
+			//Year statistics
+			SimpleDateFormat df = new SimpleDateFormat("yyyy");
+			String year =df.format(new Date(video.getSnippet().getPublishedAt().getValue()));
+			if(yearStats.containsKey(year)){
+				//We must update
+				yearStats.replace(year,yearStats.get(year)+1);
+			}else{
+				yearStats.put(year,1);
+			}
+		
+			
+			video.getStatistics().getLikeCount();
+		}
+	//	Statistics stat = gui.getStatWindow();
+		addBarChart(likesStat, "Likes", likesVideos);
+		addBarChart(categoryStats, "Categories");
+		addBarChart(yearStats, "Years");
+		System.out.println(viewCount);
+		addCount(viewCount.divide(new BigInteger(likesVideos.toString())), "views");
+		addCount(favoritesCount.divide(new BigInteger(likesVideos.toString())), "favorites");
+		addCount(commentCount.divide(new BigInteger(likesVideos.toString())), "comments");
+
 	}
 	
 	public static void main(String[] args){

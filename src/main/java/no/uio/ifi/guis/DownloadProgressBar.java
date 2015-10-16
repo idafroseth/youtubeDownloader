@@ -13,7 +13,7 @@ import javax.swing.JProgressBar;
 import com.google.api.services.youtube.model.SearchResult;
 
 import no.uio.ifi.management.ManagementFilteredSearch;
-import no.uio.ifi.models.RandomVideoIdGenerator;
+import no.uio.ifi.models.search.RandomVideoIdGenerator;
 
 public class DownloadProgressBar  implements PreformingSearchDialog{
 	JProgressBar progressBar;

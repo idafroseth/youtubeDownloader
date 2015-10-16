@@ -19,6 +19,7 @@ import com.google.api.services.youtube.model.VideoCategoryListResponse;
 import com.google.api.services.youtube.model.VideoListResponse;
 
 import no.uio.ifi.Auth;
+import no.uio.ifi.models.search.Search;
 
 
 

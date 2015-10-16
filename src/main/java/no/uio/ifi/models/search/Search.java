@@ -12,7 +12,7 @@
  * the License.
  */
 
-package no.uio.ifi.models;
+package no.uio.ifi.models.search;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +45,7 @@ public class Search {
 	 */
 	public static final String PROPERTIES_FILENAME = "youtube.properties";
 
-	public static final long NUMBER_OF_VIDEOS_RETURNED = 25;
+	public static final long NUMBER_OF_VIDEOS_RETURNED = 50;
 
 	/**
 	 * Define a global instance of a Youtube object, which will be used to make

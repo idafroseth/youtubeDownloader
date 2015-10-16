@@ -10,14 +10,17 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -27,6 +30,7 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
 import no.uio.ifi.management.ManagementFilteredSearch;
+import no.uio.ifi.models.geo.GPSLocator;
 
 /**
  * This Class display a JPanel with three content panes. one contentpane hold
@@ -42,6 +46,14 @@ public class FilterGui extends JPanel {
 	private JPanel filterAddPanel = new JPanel();
 	private JPanel filterActivePanel = new JPanel();
 	private JButton searchButton = new JButton("Search");
+	private JCheckBox videoInfoDL = new JCheckBox();
+	private JCheckBox videoDownload  = new JCheckBox();
+
+	private JComboBox videoInfoFormats = new JComboBox(new String[]{"JSON", "XML", "CSV"});
+	private JComboBox videoFormats = new JComboBox(new String[]{"Smallest available", "Best available"});
+	private JButton fileChooserButton = new JButton("Choose path");
+	private JFileChooser fileChooser = new JFileChooser();
+
 	
 	private JTextField cityInput = new JTextField("City");
 	private JTextField radiusInput = new JTextField("Radius in km");
@@ -52,11 +64,43 @@ public class FilterGui extends JPanel {
 	private SelectorListener filterListener = new SelectorListener();
 	private ButtonListener mouseListener = new ButtonListener();
 	private ManagementFilteredSearch mng;
-
+//	private final String VIDEO_INFO_DOWNLOAD_CHECK = "100";
+//	private final String VIDEO_INFO_DOWNLOAD_CHOISE = "200";
+//	private final String VIDEO_DOWNLOAD_CHECK = "300";
+//	private final String VIDEO_DOWNLOAD_CHOISE = "400";
+	public File filePath = null;
+//	
 	private HashMap<Integer, String> selectedFilters = new HashMap<Integer, String>(10);
 
 	private JTextArea filtersAppliedText = new JTextArea("No filter");
 
+	public JPanel drawSearchMenu(){
+		JPanel searchPanel = new JPanel(new FlowLayout());
+//		videoInfoDL.setActionCommand(VIDEO_INFO_DOWNLOAD_CHECK);
+//		videoDownload.setActionCommand(VIDEO_DOWNLOAD_CHOISE);
+//		videoInfoFormats.setActionCommand(VIDEO_INFO_DOWNLOAD_CHOISE);
+//		VideoFormats.setActionCommand(VIDEO_DOWNLOAD_CHOISE);
+		fileChooserButton.setActionCommand("FILECHOOSER");
+		fileChooserButton.addActionListener(mouseListener);
+		
+		
+		JPanel videoInfo = new JPanel(new FlowLayout());
+		JPanel videoDL = new JPanel(new FlowLayout());
+		videoInfo.add(new JLabel("Download video info?"));
+		videoInfo.add(videoInfoDL);
+		videoInfo.add(videoInfoFormats);
+		videoDL.add(new JLabel("Download video?"));
+		videoDL.add(videoDownload);
+		videoDL.add(videoFormats);
+		searchPanel.add(videoInfo);
+		searchPanel.add(videoDL);
+		searchPanel.add(fileChooserButton);
+		searchPanel.add(searchButton);//, FlowLayout.TRAILING);
+		
+	//	videoFormats.
+		return searchPanel;
+		
+	}
 	/**
 	 * Contructor
 	 * 
@@ -69,7 +113,7 @@ public class FilterGui extends JPanel {
 		this.drawFilterMenu();
 		this.setPreferredSize(FilteredSearchGui.CONTENT_PANE_SIZE);
 		this.setLayout(new BorderLayout());
-		this.add(searchButton, BorderLayout.PAGE_END);
+		this.add(drawSearchMenu(), BorderLayout.PAGE_END);
 		this.add(filterPanel, BorderLayout.CENTER);
 	}
 
@@ -177,14 +221,39 @@ public class FilterGui extends JPanel {
 		 */
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			mng.preformSearch();
-			// JButton button = (JButton)e.getSource();
-			// String action = button.getActionCommand();
-			// switch (action){
-			// case "SEARCHBUTTON":
-			// mng.preformSearch();
-			// break;
-			// 
+			//get the choise
+			String action = e.getActionCommand();
+			switch(action){
+			case "SEARCHBUTTON":
+				String videoInfo = null;
+				String videoQuality = null;
+				if(videoInfoDL.isSelected()){
+					videoInfo = (String) videoInfoFormats.getSelectedItem();
+					System.out.println(videoInfo);
+					if(filePath == null){
+						new WaitDialog("If you like to download the video info, you have to select a path");
+						return;
+					}
+				}
+				if(videoDownload.isSelected()){
+					videoQuality = (String) videoFormats.getSelectedItem();
+					System.out.println(videoInfo);
+					if(filePath == null){
+						new WaitDialog("If you like to download the video, you have to select a path");
+						return;
+					}
+				}
+				mng.preformSearch( videoInfo,  videoQuality);//, filePath);
+				break;
+			case "FILECHOOSER":
+				final JFileChooser fc = new JFileChooser();
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int returnVal = fc.showOpenDialog(FilterGui.this);
+				filePath = fc.getSelectedFile();
+				System.out.println(returnVal);
+				System.out.println(fc.getSelectedFile());
+
+			}
 		}
 	}
 
