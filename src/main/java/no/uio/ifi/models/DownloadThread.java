@@ -9,15 +9,15 @@ import java.net.URL;
 import javax.swing.JFrame;
 
 public class DownloadThread implements Runnable{
-	SingleVideoINFO urlStream;
+	SingleVideoINFO urlStreamObj;
 	String videoTittle;
-	public DownloadThread(SingleVideoINFO urlStream, String videoTittle){
-		this.urlStream = urlStream;
+	public DownloadThread(SingleVideoINFO urlStreamObj, String videoTittle){
+		this.urlStreamObj = urlStreamObj;
 		this.videoTittle = videoTittle;
 	}
 
 	public void run(){
-		downloadStream(urlStream.downloadLink);
+		downloadStream(urlStreamObj.downloadLink);
 	}
 	
 	public void downloadStream(String urlStream){
@@ -28,7 +28,7 @@ public class DownloadThread implements Runnable{
             connect.setConnectTimeout(20000);
             connect.setReadTimeout(20000);
 
-            File f = new File(System.getProperty("user.dir")+"/"+videoTittle);
+            File f = new File(System.getProperty("user.dir")+"/"+videoTittle+urlStreamObj.type);
 
             RandomAccessFile fileOutputStream = new RandomAccessFile(f,"rw");
             BufferedInputStream breader = new BufferedInputStream(connect.getInputStream());
