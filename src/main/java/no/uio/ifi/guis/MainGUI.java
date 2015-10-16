@@ -1,39 +1,25 @@
 package no.uio.ifi.guis;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import no.uio.ifi.management.ManagementAll;
+import no.uio.ifi.models.DownloadThread;
+import no.uio.ifi.models.SingleVideoINFO;
+import no.uio.ifi.models.YoutubeDownloader;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+
+import com.google.api.services.youtube.model.ResourceId;
+import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Video;
+
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
-
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-
-import com.google.api.services.youtube.model.ResourceId;
-import com.google.api.services.youtube.model.SearchResult;
-import com.google.api.services.youtube.model.Video;
-
-import no.uio.ifi.management.ManagementAll;
-import no.uio.ifi.models.DownloadThread;
-import no.uio.ifi.models.SingleVideoINFO;
-import no.uio.ifi.models.YoutubeDownloader;
 
 public class MainGUI extends JFrame{
 	
@@ -48,6 +34,7 @@ public class MainGUI extends JFrame{
 	SingleVideoINFO dataVideoLink;
 	JLabel thumbnailPic_Down;
 	JPanel mainPanelDownload;
+	JPanel subPanelDownloadTail;
 	String videoTittle;
 	
 	public ManagementAll mng;
@@ -155,6 +142,7 @@ public class MainGUI extends JFrame{
 					mainwindow = false;
 				}else{
 					getContentPane().remove(mainPanelDownload);
+					if(subPanelDownloadTail!=null)mainPanelDownload.remove(subPanelDownloadTail);
 				}
 				
 				mainwindow = false;
@@ -173,7 +161,10 @@ public class MainGUI extends JFrame{
 					System.out.println("HAS BUILD DL MODULE");
 					getContentPane().add(tmp,BorderLayout.CENTER);
 					revalidate();
+					if(mainPanelDownload != null) mainPanelDownload.revalidate();
+					if(subPanelDownloadTail != null) subPanelDownloadTail.revalidate();
 					pack();
+					//setSize(700, 700);
 				}else{
 					if (dist.equals("")) dist = "100km";
 					resultGeo = mng.searchOnGeolocation(key, city, dist);
@@ -306,11 +297,14 @@ public class MainGUI extends JFrame{
 			jjtitle.setFont(new Font("Serif", Font.BOLD, 21));
 			jjLink.setFont(new Font("Serif", Font.ROMAN_BASELINE, 19));
 			jp_tail.setBackground(Color.PINK);
-			JPanel pjn = createTailPanel_DL_Module(this);
-			mainPanelDownload.add(pjn, BorderLayout.PAGE_END);
+			if(subPanelDownloadTail != null) mainPanelDownload.remove(subPanelDownloadTail);
+			subPanelDownloadTail = createTailPanel_DL_Module(this);
+			
+			mainPanelDownload.add(subPanelDownloadTail, BorderLayout.PAGE_END);
 			mainPanelDownload.revalidate();
-			revalidate(); setSize(500, 500);
-			//pack();
+			subPanelDownloadTail.revalidate();
+			revalidate(); //setSize(500, 500);
+			pack();
 		}
 		
 		public void mouseEntered(MouseEvent e){
