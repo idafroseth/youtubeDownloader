@@ -21,7 +21,7 @@ import no.uio.ifi.models.Export.ExportType;
 /**
  * 
  * @author Stefan Leicht
- * @version 0.13
+ * @version 0.131
  *
  * 
  */
@@ -32,7 +32,7 @@ public class CrawlerStefan {
 	private long endTime;
 	private static final int numberVideosToCrawl = 10;
 	private List<String> arr;
-	private List<PageYouTube> pages;
+	private Map<String, PageYouTube> crawledPages;
 	private Map<String, Integer> genres = new HashMap<String, Integer>();
 	private Map<String, Integer> authors = new HashMap<String, Integer>();
 	private Map<String, Integer> dates = new HashMap<String, Integer>();
@@ -41,7 +41,7 @@ public class CrawlerStefan {
 	public CrawlerStefan(String startUrl) {
 		this.startUrl = startUrl;
 		arr = new ArrayList<String>();
-		pages = new ArrayList<PageYouTube>();
+		crawledPages = new HashMap<String, PageYouTube>();
 	}
 
 	public static void main(String[] args){
@@ -153,81 +153,88 @@ public class CrawlerStefan {
 				System.out.println("Thread sleep problem");
 			}
 		}while(connectionError);
-		PageYouTube YTPage = new PageYouTube();
-		pages.add(YTPage);
+		
+		String videoID = webSite.select("meta[itemprop=videoId]").attr("content");
 //		List<String> linkedVideos = getLinkedVideos(webSite.select("a[href]"));
 		Elements linkedUrls = webSite.select("a[href]");
-		List<String> keywords = convertKeywords(webSite.select("meta[property=og:video:tag]"));
-		String title = webSite.select("meta[itemprop=name]").attr("content");
-		String videoID = webSite.select("meta[itemprop=videoId]").attr("content");
-		boolean familyFriendly = (webSite.select("meta[itemprop=isFamilyFriendly]").attr("content").equals(true) ? true : false);
-		String regionsAllowed = webSite.select("meta[itemprop=regionsAllowed]").attr("content");
-		String views = placeDotInNumber(webSite.select("meta[itemprop=interactionCount]").attr("content"));
-		String datePublished = webSite.select("meta[itemprop=datePublished]").attr("content");
-		String genre = webSite.select("meta[itemprop=genre]").attr("content");
-		String linkPreviewImage = webSite.select("meta[property=og:image]").attr("content");
-		Elements likesRAW = webSite.select("button[class=yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-like-button like-button-renderer-like-button-unclicked yt-uix-clickcard-target   yt-uix-tooltip]");
-		String likes = "0";
-		if(!likesRAW.isEmpty())
-			likes = likesRAW.get(0).childNode(0).childNode(0).toString();
-		//dislikes need -1
-		Elements dislikesRAW = webSite.select("button[class=yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-dislike-button like-button-renderer-dislike-button-clicked yt-uix-button-toggled  hid yt-uix-tooltip]");
-		String dislikes = "0";
-		if(!dislikesRAW.isEmpty())
-			dislikes = disLikes(dislikesRAW.get(0).childNode(0).childNode(0).toString());
-		List<String> description = getDescription(webSite.select("p[id=eow-description]"));
-		String author = null;
-		try{
-		author = findPattern("author\":\".*?\",", webSite.body().toString());
-		author = author.substring(9, author.length()-2);
-		}catch(IllegalStateException e){
-			author = findPattern("<a href=\"[[/user/]|[/channel/]].*?alt=\".*?\"", webSite.body().toString());
-			author = findPattern("alt=\".*?\"", author);
-			author = author.substring(5, author.length()-1);
-		}
-		//lengthSeconds -1
-//		String length = convertLength(findPattern("length_seconds\":\".*?\",", webSite.body().toString()));
-		String length = convertLength(webSite.select("meta[itemprop=duration]").attr("content"));
 		
-		YTPage.setAuthor(author);
-		YTPage.setDatePublished(datePublished);
-		YTPage.setDescription(description);
-		YTPage.setDislikes(dislikes);
-		YTPage.setFamilyFriendly(familyFriendly);
-		YTPage.setGenre(genre);
-		YTPage.setKeywords(keywords);
-		YTPage.setLength(length);
-		YTPage.setLikes(likes);
-		YTPage.setLinkedUrls(getLinkedVideos(linkedUrls));
-		YTPage.setLinkPreviewImage(linkPreviewImage);
-		YTPage.setRegionsAllowed(regionsAllowed);
-		YTPage.setTitle(title);
-		YTPage.setVideoID(videoID);
-		YTPage.setViews(views);
-		
-		writeToFile(YTPage, ExportType.XML);
-//		writeToFile(YTPage, ExportType.CSV);
-		
-		if(genres.containsKey(genre)){
-			genres.put(genre, genres.get(genre) + 1);
-		}else{
-			genres.put(genre, 1);
-		}
-		if(authors.containsKey(author)){
-			authors.put(author, authors.get(author) + 1);
-		}else{
-			authors.put(author, 1);
-		}
-		if(dates.containsKey(datePublished)){
-			dates.put(datePublished, dates.get(datePublished) + 1);
-		}else{
-			dates.put(datePublished, 1);
-		}
-		String y = findPattern("\\d+", datePublished);
-		if(years.containsKey(y)){
-			years.put(y, years.get(y) + 1);
-		}else{
-			years.put(y, 1);
+		if(!crawledPages.containsKey(videoID)){
+			PageYouTube YTPage = new PageYouTube();
+			crawledPages.put(videoID, YTPage);
+			
+			List<String> keywords = convertKeywords(webSite.select("meta[property=og:video:tag]"));
+			String title = webSite.select("meta[itemprop=name]").attr("content");
+			boolean familyFriendly = (webSite.select("meta[itemprop=isFamilyFriendly]").attr("content").equals(true) ? true : false);
+			String regionsAllowed = webSite.select("meta[itemprop=regionsAllowed]").attr("content");
+			String views = placeDotInNumber(webSite.select("meta[itemprop=interactionCount]").attr("content"));
+			String datePublished = webSite.select("meta[itemprop=datePublished]").attr("content");
+			String genre = webSite.select("meta[itemprop=genre]").attr("content");
+			String linkPreviewImage = webSite.select("meta[property=og:image]").attr("content");
+			Elements likesRAW = webSite.select("button[class=yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-like-button like-button-renderer-like-button-unclicked yt-uix-clickcard-target   yt-uix-tooltip]");
+			String likes = "0";
+			if(!likesRAW.isEmpty())
+				likes = likesRAW.get(0).childNode(0).childNode(0).toString();
+			//dislikes need -1
+			Elements dislikesRAW = webSite.select("button[class=yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-dislike-button like-button-renderer-dislike-button-clicked yt-uix-button-toggled  hid yt-uix-tooltip]");
+			String dislikes = "0";
+			if(!dislikesRAW.isEmpty())
+				dislikes = disLikes(dislikesRAW.get(0).childNode(0).childNode(0).toString());
+			List<String> description = getDescription(webSite.select("p[id=eow-description]"));
+			String author = null;
+			try{
+			author = findPattern("author\":\".*?\",", webSite.body().toString());
+			author = author.substring(9, author.length()-2);
+			}catch(IllegalStateException e){
+				author = findPattern("<a href=\"[[/user/]|[/channel/]].*?alt=\".*?\"", webSite.body().toString());
+				author = findPattern("alt=\".*?\"", author);
+				author = author.substring(5, author.length()-1);
+			}
+			//lengthSeconds -1
+//			String length = convertLength(findPattern("length_seconds\":\".*?\",", webSite.body().toString()));
+			String length = convertLength(webSite.select("meta[itemprop=duration]").attr("content"));
+			
+			YTPage.setAuthor(author);
+			YTPage.setDatePublished(datePublished);
+			YTPage.setDescription(description);
+			YTPage.setDislikes(dislikes);
+			YTPage.setFamilyFriendly(familyFriendly);
+			YTPage.setGenre(genre);
+			YTPage.setKeywords(keywords);
+			YTPage.setLength(length);
+			YTPage.setLikes(likes);
+			YTPage.setLinkedUrls(getLinkedVideos(linkedUrls));
+			YTPage.setLinkPreviewImage(linkPreviewImage);
+			YTPage.setRegionsAllowed(regionsAllowed);
+			YTPage.setTitle(title);
+			YTPage.setVideoID(videoID);
+			YTPage.setViews(views);
+			
+			writeToFile(YTPage, ExportType.XML);
+//			writeToFile(YTPage, ExportType.CSV);
+			
+			
+			if(genres.containsKey(genre)){
+				genres.put(genre, genres.get(genre) + 1);
+			}else{
+				genres.put(genre, 1);
+			}
+			if(authors.containsKey(author)){
+				authors.put(author, authors.get(author) + 1);
+			}else{
+				authors.put(author, 1);
+			}
+			if(dates.containsKey(datePublished)){
+				dates.put(datePublished, dates.get(datePublished) + 1);
+			}else{
+				dates.put(datePublished, 1);
+			}
+			String y = findPattern("\\d+", datePublished);
+			if(years.containsKey(y)){
+				years.put(y, years.get(y) + 1);
+			}else{
+				years.put(y, 1);
+			}
+			
 		}
 		
 		for (Element link : linkedUrls) {
