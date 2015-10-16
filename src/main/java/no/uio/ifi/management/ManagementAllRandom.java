@@ -22,12 +22,10 @@ import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
 import no.uio.ifi.guis.Statistics;
-import no.uio.ifi.guis.YTDashGUI;
 import no.uio.ifi.models.FilteredSearch;
 import no.uio.ifi.models.UtilitiesAPI;
 
 public class ManagementAllRandom {
-	YTDashGUI view;
 	UtilitiesAPI utilAPI;
 	FilteredSearch search;
 	int counter;
