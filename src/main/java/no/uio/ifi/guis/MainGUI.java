@@ -180,7 +180,7 @@ public class MainGUI extends JFrame{
 					//System.out.println(v.downloadLink);
 				}
 				
-				new Thread(new DownloadThread(set_of_sglVideoinfo)).start();
+				new Thread(new DownloadThread(set_of_sglVideoinfo,videoTittle)).start();
 				
 			}else if(event == crawlerButton){
 				
