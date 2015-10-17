@@ -36,6 +36,7 @@ public class MainGUI extends JFrame{
 	JPanel mainPanelDownload;
 	JPanel subPanelDownloadTail;
 	String videoTittle;
+	HashMap<String,SingleVideoINFO> set_of_sglVideoinfo;
 	
 	public ManagementAll mng;
 	public JTextField search_Key = null;
@@ -117,7 +118,7 @@ public class MainGUI extends JFrame{
 	private JPanel functionButtons(ButtonsListen button_listen){
 		JPanel funcs = new JPanel(new FlowLayout());
 		
-		downloadButton = new JButton("Download");
+		downloadButton = new JButton("Download All Streams");
 		downloadButton.setEnabled(false);
 		crawlerButton = new JButton("Crawler");
 		crawlerButton.setEnabled(false);
@@ -171,10 +172,16 @@ public class MainGUI extends JFrame{
 					
 				}
 			} else if(event == downloadButton){
-				System.out.println("DOWNLOAD CLICKED.");
-				System.out.println(dataVideoLink.downloadLink);
+				System.out.println("DOWNLOAD CLICKED."+	videoTittle);
 				downloadButton.setEnabled(false);
-				new Thread(new DownloadThread(dataVideoLink,videoTittle)).start();
+				//new Thread(new DownloadThread(dataVideoLink,videoTittle)).start();
+				for(SingleVideoINFO v: set_of_sglVideoinfo.values()){
+					v.videoTitle = videoTittle;
+					//System.out.println(v.downloadLink);
+				}
+				
+				new Thread(new DownloadThread(set_of_sglVideoinfo)).start();
+				
 			}else if(event == crawlerButton){
 				
 			}else if(event == statisticButton){
@@ -290,7 +297,7 @@ public class MainGUI extends JFrame{
 					outerScope[i].jjtitle.setFont(new Font("Serif", Font.BOLD, 18));
 					outerScope[i].jjLink.setFont(new Font("Serif", Font.ROMAN_BASELINE, 16));
 					outerScope[i].selected = false;
-					break;
+					//break;
 				}
 			}
 			selected = true;
@@ -301,10 +308,10 @@ public class MainGUI extends JFrame{
 			subPanelDownloadTail = createTailPanel_DL_Module(this);
 			
 			mainPanelDownload.add(subPanelDownloadTail, BorderLayout.PAGE_END);
-			mainPanelDownload.revalidate();
 			subPanelDownloadTail.revalidate();
-			revalidate(); //setSize(500, 500);
-			pack();
+			mainPanelDownload.revalidate();
+			revalidate(); setSize(500, 500);
+			//pack();
 		}
 		
 		public void mouseEntered(MouseEvent e){
@@ -348,9 +355,10 @@ public class MainGUI extends JFrame{
 		jpanelR_DOWN_R.setLayout(new BoxLayout(jpanelR_DOWN_R, BoxLayout.PAGE_AXIS));
 		if(relem != null){
 			YoutubeDownloader yt_dl = new YoutubeDownloader(relem.videoLink);
-			HashMap<String,SingleVideoINFO> sglVideoinfo = yt_dl.get_single_video_info();
+			set_of_sglVideoinfo = yt_dl.get_single_video_info();
+			downloadButton.setEnabled(true);
 			ArrayList<SingleVideoElemInfo> outerscope = new ArrayList<SingleVideoElemInfo>();
-			for(SingleVideoINFO s : sglVideoinfo.values()){
+			for(SingleVideoINFO s : set_of_sglVideoinfo.values()){
 				SingleVideoElemInfo svei = new SingleVideoElemInfo(s,outerscope);
 				outerscope.add(svei);
 				jpanelR_DOWN_R.add(svei);
@@ -381,7 +389,6 @@ public class MainGUI extends JFrame{
 				}
 			}
 			dataVideoLink = sglVideoinfo;
-			downloadButton.setEnabled(true);
 			setBackground(Color.PINK);
 		}
 		

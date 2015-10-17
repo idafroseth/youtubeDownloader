@@ -9,6 +9,7 @@ public class SingleVideoINFO{
 	public String size;
 	public String quality_label;
 	public String infoVideo;
+	public String videoTitle;
 	
 	public SingleVideoINFO(String downloadLink ,String itag, String type, String dur, String len, String size, String quality_label){
 		this.downloadLink = downloadLink;
