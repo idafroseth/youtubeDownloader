@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -64,8 +65,8 @@ public class GeolocationSearch {
 			String s = "";
 			
 			try{
-				
-				URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address="+city);
+				//http://maps.googleapis.com/maps/api/geocode/json?address=nhatrang&sensor=true
+				URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address="+URLEncoder.encode(city, "UTF-8"));
 				
 				URLConnection conn = url.openConnection();
 				InputStreamReader istr = new InputStreamReader(conn.getInputStream());
@@ -78,8 +79,9 @@ public class GeolocationSearch {
 	            br.close();
 				
 			}catch (Exception e){
-				
+				System.out.println("FEIL WITH GET LOCATION"+e);
 			}
+			//System.out.println(s);
 			
 			JSONParser parser = new JSONParser();
 			try{
@@ -90,6 +92,7 @@ public class GeolocationSearch {
 				JSONObject location = (JSONObject)geometry.get("location");
 				//System.out.println(location.get("lat")+":"+location.get("lng"));
 				s = ""+ location.get("lat")+","+location.get("lng");
+				System.out.println(s);;
 			}catch(Exception e){
 				System.out.println("FEIL MED FINN LOCATION"+e);
 			}
