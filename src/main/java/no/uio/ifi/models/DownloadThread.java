@@ -3,6 +3,7 @@ package no.uio.ifi.models;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -23,7 +24,7 @@ public class DownloadThread extends JFrame implements Runnable{
 		super("DOWNLOAD VIDEO "+videoTittle);
 		this.set_of_sglVideoinfo = set_of_sglVideoinfo;
 		this.videoTittle = videoTittle;
-		this.setBackground(Color.WHITE);
+		
 	}
 	
 	public void run(){
@@ -38,19 +39,23 @@ public class DownloadThread extends JFrame implements Runnable{
 		
 	}
 	
-	JPanel createInnhold(){
+	JScrollPane createInnhold(){
 		JPanel mainPanel = new JPanel(new FlowLayout());
+		mainPanel.setBackground(Color.WHITE);
 		JScrollPane listScroller = new JScrollPane(mainPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 		int i = 0;
 		for(SingleVideoINFO v :set_of_sglVideoinfo.values()){
 			elem[i] = new JLabel(v.toString());
+			elem[i].setFont(new Font("Serif", Font.ROMAN_BASELINE, 12));
 			status[i] = new JLabel("0/"+((v.len=="") ? "unknown" : v.len));
-			mainPanel.add(elem[i]);mainPanel.add(status[i]);
+			status[i] .setFont(new Font("Serif", Font.BOLD, 12));
+			mainPanel.add(elem[i]);
+			mainPanel.add(status[i]);
 			i++;
 		}
 		
-		return mainPanel;
+		return listScroller;
 	}
 	
 	void beginDownload(){
@@ -113,6 +118,7 @@ class StatusDownload implements Runnable{
 	}
 	
 	public void downloadStream(String urlStream){
+		File f = null;
         try{
             URL url = new URL(urlStream);
             HttpURLConnection connect = (HttpURLConnection)url.openConnection();
@@ -120,12 +126,12 @@ class StatusDownload implements Runnable{
             connect.setConnectTimeout(20000);
             connect.setReadTimeout(20000);
 
-            File f = new File(System.getProperty("user.dir")+"/VideoDownloadFiles/"+urlStreamObj.videoTitle+"/"+urlStreamObj.itag+" "+urlStreamObj.videoTitle+urlStreamObj.type);
+            f = new File(System.getProperty("user.dir")+"/VideoDownloadFiles/"+urlStreamObj.videoTitle+"/"+urlStreamObj.itag+" "+urlStreamObj.videoTitle+urlStreamObj.type);
 
             RandomAccessFile fileOutputStream = new RandomAccessFile(f,"rw");
             BufferedInputStream breader = new BufferedInputStream(connect.getInputStream());
             int readedbytes = 0;
-            byte[] bytesBuffRead = new byte[102400];
+            byte[] bytesBuffRead = new byte[9192];
             int nrBytesRead  = breader.read(bytesBuffRead);
             System.out.println("DOWNLOADDING.....");
             while(nrBytesRead > 0){
@@ -142,6 +148,7 @@ class StatusDownload implements Runnable{
         }catch(Exception e){
         	dlThrd.status[this.threadnr].setText("FEIL TO DOWNLOAD THIS STREAM!!!");
             System.out.println("CAN NOT SAVE FILE "+e);
+            if(f != null) f.delete();
         }
 
     }
