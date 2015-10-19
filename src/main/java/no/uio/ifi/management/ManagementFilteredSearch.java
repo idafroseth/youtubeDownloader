@@ -11,6 +11,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
 import com.google.api.client.util.DateTime;
@@ -23,7 +24,9 @@ import no.uio.ifi.guis.WaitDialog;
 import no.uio.ifi.models.downloader.VideoInfoExtracter;
 import no.uio.ifi.models.search.DeadEndException;
 import no.uio.ifi.models.search.FilteredSearch;
+import no.uio.ifi.models.search.GeolocationSearch;
 import no.uio.ifi.models.search.RandomVideoIdGenerator;
+import no.uio.ifi.models.search.Search;
 
 /**
  * Management for the filtered search Displaying a gui and handling the dialog
@@ -118,6 +121,7 @@ public class ManagementFilteredSearch {
 
 
 	}
+	
 	private void search(){
 		RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();
 		
@@ -165,19 +169,30 @@ public class ManagementFilteredSearch {
 		threadCount--;
 		System.out.println();	
 	}
+	
 	/**
 	 * This method should take a keyword and preform a search in a loop until we get the number of videos the user want. 
 	 */
-	public void preformKeywordSearch(){
-		
+	public List<Video> preformKeywordSearch(String keyword){
+		return (new Search()).getVideoLinkFromKeyWord(keyword);
 	}
+	
+	public void displayresultFromKeySearch(JPanel resultcontain){
+		gui.displayResult(resultcontain);
+	}
+	
+	public List<Video> performKeywordSearchWithGeolocation(String keyword, String address, String distance){
+		return (new GeolocationSearch()).searchVideoBaseOnLocation(keyword, address, distance);
+	}
+	
+	
 	/**
 	 * When the thread is finished Searching the videos are saved and statistics are displayed
 	 */
 	public void finishedSearch(){
 		System.out.println("Videos in cache " +resultCache.size());
 		Map<String, Video> videoInfoResult = (new VideoInfoExtracter()).getVideoContent(resultCache);
-		gui.newResult(videoInfoResult);
+		//gui.newResult(videoInfoResult);
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
 	}
 

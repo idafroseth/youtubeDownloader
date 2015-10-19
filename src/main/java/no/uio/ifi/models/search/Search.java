@@ -23,13 +23,16 @@ import java.util.Properties;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.util.Joiner;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Video;
+import com.google.api.services.youtube.model.VideoListResponse;
 
 import no.uio.ifi.Auth;
-import no.uio.ifi.management.ManagementAll;
 import no.uio.ifi.management.ManagementAllRandom;
+import no.uio.ifi.management.ManagementFilteredSearch;
 
 /**
  * Print a list of videos matching a search term.
@@ -37,8 +40,6 @@ import no.uio.ifi.management.ManagementAllRandom;
  * @author Jeremy Walker
  */
 public class Search {
-	ManagementAll mng;
-	ManagementAllRandom mng2;
 	/**
 	 * Define a global variable that identifies the name of a file that contains
 	 * the developer's API key.
@@ -59,16 +60,10 @@ public class Search {
 		
 	}
 	
-	public Search(ManagementAll mng) {
-		this.mng = mng;
-	}
 
-	public Search(ManagementAllRandom mng) {
-		this.mng2 = mng;
-	}
-
-	public List<SearchResult> getVideoLinkFromKeyWord(String queryTerm) {
+	public List<Video> getVideoLinkFromKeyWord(String queryTerm) {
 		// Read the developer key from the properties file.
+		List<Video> videoList = null;
 		configureProperties();
 		List<SearchResult> searchResultList = null;
 		try {
@@ -103,6 +98,28 @@ public class Search {
 			// Call the API and print results.
 			SearchListResponse searchResponse = search.execute();
 			searchResultList = searchResponse.getItems();
+			
+			List<String> videoIds = new ArrayList<String>();
+
+            if (searchResultList != null) {
+
+                // Merge video IDs
+                for (SearchResult searchResult : searchResultList) {
+                    videoIds.add(searchResult.getId().getVideoId());
+                }
+                Joiner stringJoiner = Joiner.on(',');
+                String videoId = stringJoiner.join(videoIds);
+
+                // Call the YouTube Data API's youtube.videos.list method to
+                // retrieve the resources that represent the specified videos.
+                YouTube.Videos.List listVideosRequest = youtube.videos().list("snippet, recordingDetails").setId(videoId);
+                
+                // Set your developer key
+                listVideosRequest.setKey(apiKey);
+                
+                VideoListResponse listResponse = listVideosRequest.execute();
+                videoList = listResponse.getItems();
+            }
 
 		} catch (GoogleJsonResponseException e) {
 			System.err.println(
@@ -112,7 +129,7 @@ public class Search {
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
-		return searchResultList;
+		return videoList;
 	}
 	protected void configureProperties(){
 		properties = new Properties();
