@@ -226,6 +226,10 @@ public class FilteredSearchGui extends JFrame{
 		public Statistics getStatWindow(){
 			return this.statsWindow;
 		}
+		public void wipeStatWindow(){
+			this.statsWindow = new Statistics();
+			contentPane.add(statsWindow, "STATS");
+		}
 
 		private class MouseClickListener implements MouseListener{
 			JLabel hovered = new JLabel();

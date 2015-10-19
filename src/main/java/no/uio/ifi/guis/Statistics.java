@@ -51,7 +51,7 @@ public class Statistics extends JPanel {
 	//	JLabel noSearch = new JLabel("No search have been preformed");
 		JScrollPane scrollPane = new JScrollPane(contentPane);
 	//	contentPane.setPreferredSize(new Dimension(1000,500));
-		scrollPane.setPreferredSize(new Dimension(1000,600));
+		scrollPane.setPreferredSize(FilteredSearchGui.CONTENT_PANE_SIZE);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 	//	contentPane.add(noSearch);
 		counterPanel.setLayout(new BoxLayout(counterPanel, BoxLayout.PAGE_AXIS));

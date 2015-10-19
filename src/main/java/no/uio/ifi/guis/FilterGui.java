@@ -159,9 +159,9 @@ public class FilterGui extends JPanel {
 		
 		searchButton.setActionCommand("SEARCHBUTTON");
 		searchButton.addActionListener(mouseListener);
-		searchButton.setPreferredSize(new Dimension(SEARCH_HEIGHT, 30));
+		searchButton.setPreferredSize(new Dimension(100, 30));
 		panel.add(getNumberOfVideosPanel());
-		filterPanel.setPreferredSize(new Dimension(FilteredSearchGui.WINDOW_WIDTH, FilteredSearchGui.WINDOW_HEIGHT -SEARCH_HEIGHT));
+		filterPanel.setPreferredSize(new Dimension(FilteredSearchGui.WINDOW_WIDTH, FilteredSearchGui.WINDOW_HEIGHT -100));
 		filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
 		filterPanel.setLayout(new GridLayout(1, 2));
 		filterPanel.add(filterAddPanel);
@@ -174,7 +174,7 @@ public class FilterGui extends JPanel {
 		filterAddPanel.add(getPeriodPanel());
 		filterAddPanel.setPreferredSize(new Dimension(400, 500));
 		filterAddPanel.add(getGelocationPanel());
-		filtersAppliedText.setPreferredSize(new Dimension(450, 500));
+		filtersAppliedText.setPreferredSize(new Dimension(450, 450));
 		filtersAppliedText.setBorder(BorderFactory.createTitledBorder("Applied filters"));
 		filterActivePanel.add(filtersAppliedText);
 		filtersAppliedText.setBackground(new Color(238,238,238));
@@ -316,8 +316,8 @@ public class FilterGui extends JPanel {
 				break;
 			
 			case "SEARCHBUTTON":
-				String videoInfo = null;
-				String videoQuality = null;
+				String videoInfo = "";
+				String videoQuality = "";
 				if(videoInfoDL.isSelected()){
 					videoInfo = (String) videoInfoFormats.getSelectedItem();
 					System.out.println(videoInfo);
@@ -334,24 +334,8 @@ public class FilterGui extends JPanel {
 						return;
 					}
 				}
-				SwingWorker worker = new SwingWorker<Integer, Void>(){
 
-					WaitDialog wait =new WaitDialog("Crawling YouTube");
-			
-					@Override
-					protected Integer doInBackground() throws Exception {
-						// TODO Auto-generated method stub
-				
-						while(mng.NUMBER_OF_VIDEOS_RETRIVED< mng.NUMBER_OF_VIDEOS_TO_SEARCH){
-							wait.appendText(100);
-							Thread.sleep(1000);
-						}
-						return null;
-					}
-					
-				};
-				mng.preformFilteredSearch( videoInfo,  videoQuality, filePath);//, numberOfVideosInput);//, filePath);
-				worker.execute();
+				mng.preformFilteredSearch( videoInfo,  videoQuality, filePath);
 				break;
 			case "FILECHOOSER":
 				final JFileChooser fc = new JFileChooser();
