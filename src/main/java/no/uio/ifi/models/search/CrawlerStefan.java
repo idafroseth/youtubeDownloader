@@ -1,4 +1,4 @@
-package no.uio.ifi.models;
+package no.uio.ifi.models.search;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class CrawlerStefan {
 	public static void main(String[] args){
 		CrawlerStefan myCrawler = new CrawlerStefan("https://www.youtube.com");
 		myCrawler.crawl();
-		Statistics stat = new Statistics("Stefans Crawler");
+		Statistics stat = new Statistics();
 		stat.addBarChart(myCrawler.genres, "Generes");
 		stat.addBarChart(myCrawler.years, "Years");
 	}

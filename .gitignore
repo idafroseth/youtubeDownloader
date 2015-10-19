@@ -33,6 +33,7 @@ local.properties
 .png
 .jpg
 .classpath
+.idea
 <<<<<<< HEAD
 =======
 .DS_Store

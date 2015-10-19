@@ -7,8 +7,8 @@ import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
 import no.uio.ifi.guis.MainGUI;
-import no.uio.ifi.models.GeolocationSearch;
-import no.uio.ifi.models.Search;
+import no.uio.ifi.models.search.GeolocationSearch;
+import no.uio.ifi.models.search.Search;
 
 public class ManagementAll {
 	MainGUI view;
@@ -25,7 +25,7 @@ public class ManagementAll {
 	public ListIterator<SearchResult> searchBaseOnKeyWord(String keyword){
 		List<SearchResult> searchResults = search.getVideoLinkFromKeyWord(keyword);
 		ListIterator<SearchResult> iteratorSearchResults = searchResults.listIterator();
-        return iteratorSearchResults;
+		return iteratorSearchResults;
 	}
 	
 	

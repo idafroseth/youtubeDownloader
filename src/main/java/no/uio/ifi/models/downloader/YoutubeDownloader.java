@@ -1,10 +1,12 @@
-package no.uio.ifi.models;
+package no.uio.ifi.models.downloader;
 
 import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.net.*;
 import java.util.*;
+
+import no.uio.ifi.models.SingleVideoINFO;
 
  public class YoutubeDownloader{
 

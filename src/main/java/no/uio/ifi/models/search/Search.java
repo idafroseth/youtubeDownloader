@@ -12,7 +12,7 @@
  * the License.
  */
 
-package no.uio.ifi.models;
+package no.uio.ifi.models.search;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,14 +39,13 @@ import no.uio.ifi.management.ManagementAllRandom;
 public class Search {
 	ManagementAll mng;
 	ManagementAllRandom mng2;
-
 	/**
 	 * Define a global variable that identifies the name of a file that contains
 	 * the developer's API key.
 	 */
 	public static final String PROPERTIES_FILENAME = "youtube.properties";
 
-	public static final long NUMBER_OF_VIDEOS_RETURNED = 25;
+	public static final long NUMBER_OF_VIDEOS_RETURNED = 50;
 
 	/**
 	 * Define a global instance of a Youtube object, which will be used to make
@@ -54,7 +53,7 @@ public class Search {
 	 */
 	protected static YouTube youtube;
 	protected Properties properties;
-	protected YouTube.Search.List search;
+	private YouTube.Search.List search;
 
 	public Search(){
 		
@@ -68,19 +67,6 @@ public class Search {
 		this.mng2 = mng;
 	}
 
-	protected void configureProperties(){
-		properties = new Properties();
-		try {
-			InputStream in = Search.class.getResourceAsStream("/" + PROPERTIES_FILENAME);
-			properties.load(in);
-
-		} catch (IOException e) {
-			System.err.println(
-					"There was an error reading " + PROPERTIES_FILENAME + ": " + e.getCause() + " : " + e.getMessage());
-			System.exit(1);
-		}
-
-	}
 	public List<SearchResult> getVideoLinkFromKeyWord(String queryTerm) {
 		// Read the developer key from the properties file.
 		configureProperties();
@@ -127,6 +113,19 @@ public class Search {
 			t.printStackTrace();
 		}
 		return searchResultList;
+	}
+	protected void configureProperties(){
+		properties = new Properties();
+		try {
+			InputStream in = Search.class.getResourceAsStream("/" + PROPERTIES_FILENAME);
+			properties.load(in);
+
+		} catch (IOException e) {
+			System.err.println(
+					"There was an error reading " + PROPERTIES_FILENAME + ": " + e.getCause() + " : " + e.getMessage());
+			System.exit(1);
+		}
+
 	}
 
 }

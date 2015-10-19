@@ -19,6 +19,7 @@ import com.google.api.services.youtube.model.VideoCategoryListResponse;
 import com.google.api.services.youtube.model.VideoListResponse;
 
 import no.uio.ifi.Auth;
+import no.uio.ifi.models.search.Search;
 
 
 
@@ -27,7 +28,7 @@ public class UtilitiesAPI {
 
 	public static final String PROPERTIES_FILENAME = "youtube.properties";
 	HashMap<String, String> categoriesMap;
-	private static YouTube youtube;
+	private YouTube youtube;
 	UtilitiesAPI categoryUT;
 
 	public UtilitiesAPI() {

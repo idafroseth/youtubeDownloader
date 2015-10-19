@@ -4,12 +4,16 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,35 +30,41 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.LineBorder;
+
+import com.google.api.services.youtube.model.Video;
+
+import no.uio.ifi.management.ManagementFilteredSearch;
 
 public class FilteredSearchGui extends JFrame{
 		private JPanel contentPane = new JPanel();
-		private JPanel searchWindow = new JPanel();
-		private JPanel resultWindow = new JPanel();
-		private JPanel statsWindow = new JPanel();
-		private JPanel filterPanel = new JPanel();
-		private JPanel filterAddPanel = new JPanel();
-		private JPanel filterActivePanel = new JPanel();
 		
-		private JPanel menuPanel = new JPanel();
-		private JPanel resultPanel = new JPanel();
+		private FilterGui searchWindow;
+		private Statistics statsWindow;
 		
-		private SelectorListener filterListener = new SelectorListener();
-		private MouseListener mouseListener = new MouseListener ();
-		//limited to 10 filters
-		private ArrayList<Integer> filters = new ArrayList<Integer>(10);
-		private HashMap<Integer, String> selectedFilters = new HashMap<Integer, String>(10);
-		private JButton searchButton = new JButton("Search");
-		private JButton searchMenu = new JButton("Search"); 
-		private JButton resultMenu = new JButton("Result");
-		private JButton statsMenu = new JButton("Statistics");
-		private final Dimension CONTENT_PANE_SIZE = new Dimension(1000,600);
-		private final Dimension MENU_BUTTON_SIZE = new Dimension(100,53);
+		private MouseClickListener mouseListener = new MouseClickListener();
+		private JLabel searchMenu = new JLabel("SEARCH",SwingConstants.CENTER); 
+		private JLabel resultMenu = new JLabel("RESULT",SwingConstants.CENTER);
+		private JLabel statsMenu = new JLabel("STATISTICS",SwingConstants.CENTER);
+		public static final Dimension CONTENT_PANE_SIZE = new Dimension(1000,600);
+		public static final Dimension MENU_BUTTON_SIZE = new Dimension(150,30);
+		Color menuColor = Color.LIGHT_GRAY;
+		JLabel activeButton;
+		Font menuButtonFont =   new Font("Areal", Font.PLAIN, 8);
 		
-		private JTextArea filtersAppliedText= new JTextArea("No filter");
+		Border border = LineBorder.createGrayLineBorder();// BorderFactory.createRaisedBevelBorder();
+
+		private JTextArea resultIdList = new JTextArea();
+		private ManagementFilteredSearch mng;
 		
-		public FilteredSearchGui(){
-			initWindow();
+		public FilteredSearchGui(ManagementFilteredSearch mng){
+			this.mng = mng;
+			this.searchWindow = new FilterGui(this.mng);
+			this.statsWindow = new Statistics();
 		}
 		/**
 		 * Configure the layout of the window and starts at the search card
@@ -63,148 +73,170 @@ public class FilteredSearchGui extends JFrame{
 			contentPane.setLayout(new CardLayout());
 			contentPane.setPreferredSize(CONTENT_PANE_SIZE);
 			contentPane.add(searchWindow, "SEARCH");
-			contentPane.add(resultWindow, "RESULT");
+			contentPane.add(getResultPanel(), "RESULT");
 			contentPane.add(statsWindow, "STATS");
 			
-			drawMenuBar();
-			drawFilterMenu();
-			
-			searchWindow.setPreferredSize(CONTENT_PANE_SIZE);
-			searchWindow.setLayout(new BorderLayout());
-			searchWindow.add(searchButton, BorderLayout.PAGE_END);
-			searchWindow.add(filterPanel, BorderLayout.CENTER);
-			
-			this.setTitle("Filtered Search");
 			this.setVisible(true);
 			this.setLayout(new BorderLayout());
-			this.add(contentPane, BorderLayout.CENTER);
-			this.add(menuPanel, BorderLayout.PAGE_START);
+			this.getContentPane().add(contentPane, BorderLayout.CENTER);
+			this.getContentPane().add(getMenuPanel(), BorderLayout.PAGE_START);
 			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			drawSearch();
+
+//			changeFont(this, new Font("Courier New", Font.PLAIN, 15));
+		
+			pack();
 		}
-		public void drawMenuBar(){
+		public JPanel getResultPanel(){
+			JPanel resultPanel = new JPanel();
+			resultPanel.add(resultIdList);
+	//		resultPanel.add();
+			return resultPanel;
+		}
+		public JPanel getMenuPanel(){
+			JPanel menuPanel = new JPanel();
+			menuPanel.setBackground(menuColor);
+			System.out.println(searchMenu.getBackground());
+//			searchMenu.setBorder(border);
+//			resultMenu.setBorder(border);
+//			statsMenu.setBorder(border);
+			
 			searchMenu.setPreferredSize(MENU_BUTTON_SIZE);
 			resultMenu.setPreferredSize(MENU_BUTTON_SIZE);
 			statsMenu.setPreferredSize(MENU_BUTTON_SIZE);
-			searchMenu.setActionCommand("SEARCH");
-			resultMenu.setActionCommand("RESULT");
-			statsMenu.setActionCommand("STATS");
-			searchMenu.addActionListener(mouseListener);
-			resultMenu.addActionListener(mouseListener);
-			statsMenu.addActionListener(mouseListener);
-			menuPanel.setPreferredSize(new Dimension(1000, 50));
-			menuPanel.setLayout(new BoxLayout(menuPanel,BoxLayout.LINE_AXIS ));
+			
+			searchMenu.addMouseListener(mouseListener);
+			resultMenu.addMouseListener(mouseListener);
+			statsMenu.addMouseListener(mouseListener);
+			
+			searchMenu.setOpaque(true);
+			resultMenu.setOpaque(true);
+			statsMenu.setOpaque(true);
+			
+//			FontFactory.changeFont(menuPanel, menuButtonFont);
+			
+			searchMenu.setBackground(new Color(238,238,238));
+			searchMenu.setFont(searchMenu.getFont().deriveFont(Font.BOLD));
+			activeButton = searchMenu;
+			resultMenu.setBackground(Color.LIGHT_GRAY);
+			statsMenu.setBackground(Color.LIGHT_GRAY);
+			
+			menuPanel.setPreferredSize(new Dimension(1000, 30));
+			menuPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));
 			menuPanel.add(searchMenu);
 			menuPanel.add(resultMenu);
 			menuPanel.add(statsMenu);
-		}
-		public void drawFilterMenu(){
 			
-			filterPanel.setPreferredSize(new Dimension(1000, 500));
-			filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
-			filterPanel.setLayout(new GridLayout(1, 2));
-			filterPanel.add(filterAddPanel);
-			filterPanel.add(filterActivePanel);
-			filterAddPanel.setLayout(new GridLayout(5, 3));
-			filterAddPanel.setPreferredSize(new Dimension(100, 500));
-			filterAddPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-			filterActivePanel.setBorder(BorderFactory.createTitledBorder("Applied filter"));
-			filterAddPanel.setPreferredSize(new Dimension(400, 500));
-			filtersAppliedText.setPreferredSize(new Dimension(450,500));
-			filterActivePanel.add(filtersAppliedText);
 			
-		}
-		public void drawSearch(){
-			setTitle("Filtered search");
-			((CardLayout) contentPane.getLayout()).show(contentPane, "SEARCH");
+			
 			pack();
+			return menuPanel;
+		}
+		
+		public void drawSearch(){
+			setTitle("YTDownloader ~ Filtered search");
+			((CardLayout) contentPane.getLayout()).show(contentPane, "SEARCH");
+	//		
 		}
 		public void drawResult(){
-			setTitle("Result");
+			setTitle("YTDownloader ~ Result");
 			((CardLayout) contentPane.getLayout()).show(contentPane, "RESULT");
-			pack();
 		}
 		public void drawStatistics(){
-			setTitle("Statistics");
+			setTitle("YTDownloader ~ Statistics");
 			((CardLayout) contentPane.getLayout()).show(contentPane, "STATS");
-			pack();
+
 		}
 		
 		public boolean addFilterBox(Map<String, String> filter, String filterName, Integer filterType){
-			String[] dropDownList = new String[filter.size()+1];
-			dropDownList[0] = "No "+ filterName +" filter";
-			int i = 1;
-			if(filters.contains(filterName)){
-				System.out.println("A filter with this name is already defined!");
-				return false;
-			}else{
-				
-				for(String key : filter.keySet()){
-					dropDownList[i] = key;
-					i++;
-				}
-				JComboBox categoryList = new JComboBox(dropDownList);
-				categoryList.setName(filterType.toString());
-				categoryList.setSelectedIndex(0);
-				categoryList.addActionListener(filterListener);
-				filters.add(filterType);
-				JLabel filterLabel = new JLabel(filterName);
-				filterAddPanel.add(filterLabel);
-				filterAddPanel.add(categoryList);
-				pack();
-				return true;
-			}
-		
+			boolean result =  (searchWindow.addFilterBox(filter, filterName, filterType));
+			return result;
 		}
 		public HashMap<Integer,String> getSelectedFilters(){
-			return this.selectedFilters;
+			return searchWindow.getSelectedFilters();
 		}
-		private class SelectorListener implements ActionListener{
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-			
-				JComboBox comboBox = (JComboBox)e.getSource();
-				System.out.println(comboBox.getName());
-		        String category = (String)comboBox.getSelectedItem();
-		    	if(selectedFilters.containsKey(comboBox.getName())){
-		    		selectedFilters.replace(Integer.parseInt(comboBox.getName()),category);
-		    	}else{
-		    		selectedFilters.put(Integer.parseInt(comboBox.getName()),category);
-		    	}
-		    	String outputText = "";
-		    	for(String filter : selectedFilters.values()){
-		    		outputText += filter + "; \n";
-		    	}
-		    	
-		    	filtersAppliedText.setText(outputText);
+//		public void addVideoResult(String videoId){
+//			
+//		}
+		public void newResult(Map<String, Video> videoInfo){
+			//First add all the info in the result
+			int count = 0;
+			for(String videoId : videoInfo.keySet()){
+				count++;
+				resultIdList.append(count + ": " +videoId + "\n");
 			}
+			setButtonAsActive(resultMenu);
+			drawResult();
 		}
-		private class MouseListener implements ActionListener{
+		
+		private void setButtonAsActive(JLabel button){
+			activeButton.setBackground(menuColor);
+			activeButton.setFont(button.getFont().deriveFont(Font.PLAIN));
+			activeButton = button;
+			button.setBackground(new Color(238,238,238));
+			button.setFont(button.getFont().deriveFont(Font.BOLD));
+		}
+		public Statistics getStatWindow(){
+			return this.statsWindow;
+		}
+
+		private class MouseClickListener implements MouseListener{
+			JLabel hovered = new JLabel();
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void mouseClicked(MouseEvent e) {
 				// TODO Auto-generated method stub
-			
-				JButton button = (JButton)e.getSource();
-				String action = button.getActionCommand();
+				JLabel button = (JLabel)e.getSource();
+			//BorderFactory.createLoweredBevelBorder());
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				JLabel button = (JLabel)e.getSource();
+				setButtonAsActive(button);
+				String action = button.getText();
 				switch (action){
 					case "SEARCH":
 						drawSearch();
 						break;
-					case "STATS":
+					case "STATISTICS":
 						drawStatistics();
 						break;
 					case "RESULT":
 						drawResult();
 						break;
-						
 				}
+				
+			}
 
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				JLabel button = (JLabel)e.getSource();	
+				button.setBackground(new Color(238,238,238));
+				hovered = button; 
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				JLabel button = (JLabel)e.getSource();
+				if(hovered != null && button != activeButton){
+					button.setBackground(menuColor);
+					hovered = null;
+				}
+				
+				//button.setForeground(Color.GREEN);
+				// TODO Auto-generated method stub
+//				button.setBackground(new Color(238,238,238));
+				
 			}
 		}
-//		public static void main(String[] args){
-//
-//		}
 }

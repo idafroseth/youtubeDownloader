@@ -1,4 +1,4 @@
-package no.uio.ifi.models;
+package no.uio.ifi.models.downloader;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -13,7 +13,7 @@ import java.net.URL;
 import java.util.HashMap;
 
 import javax.swing.*;
-
+import no.uio.ifi.models.SingleVideoINFO;
 public class DownloadThread extends JFrame implements Runnable{
 	private static final String JPanel = null;
 	HashMap<String,SingleVideoINFO> set_of_sglVideoinfo;

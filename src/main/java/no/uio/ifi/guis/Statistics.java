@@ -6,13 +6,18 @@ import java.awt.GridLayout;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 
 import java.awt.Font;
@@ -28,21 +33,30 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
-public class Statistics extends JFrame {
+import com.google.api.services.youtube.model.Video;
+
+public class Statistics extends JPanel {
 	//ChartFactory myChartFactory = new ChartFactory();
 	HashMap<String, ChartPanel> chartFactory = new HashMap<String, ChartPanel>();
 	JPanel contentPane = new JPanel();
+	JPanel counterPanel = new JPanel();
 
 
-	public Statistics ( String applicationTitle){
-		super(applicationTitle);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+	public Statistics (){
+//		super(applicationTitle);
+//		setDefaultCloseOperation(EXIT_ON_CLOSE);
 //		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 		contentPane.setLayout(new GridLayout(2,2));
-		contentPane.setBackground(Color.WHITE);
+	//	contentPane.setBackground(Color.WHITE);
+	//	JLabel noSearch = new JLabel("No search have been preformed");
 		JScrollPane scrollPane = new JScrollPane(contentPane);
-		scrollPane.setPreferredSize(new Dimension(1000,500));
+	//	contentPane.setPreferredSize(new Dimension(1000,500));
+		scrollPane.setPreferredSize(new Dimension(1000,600));
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+	//	contentPane.add(noSearch);
+		counterPanel.setLayout(new BoxLayout(counterPanel, BoxLayout.PAGE_AXIS));
+//		counterPanel.setBackground(Color.WHITE);
+		contentPane.add(counterPanel);
 		add(scrollPane);
 	    setVisible(true);
 		
@@ -50,7 +64,11 @@ public class Statistics extends JFrame {
 	private void changeBarColor(JFreeChart plot){
 	//	Plot plot.getPlot();
 	}
-	
+
+	public void addCount(BigInteger count, String countName){
+		JLabel counter = new JLabel("Average " +countName+ " per video is: " + count);
+		counterPanel.add(counter);
+	}
 	/**
 	 * Add a barChart to the GUI
 	 * @param categoryMap a MAP with the bar name and freq
@@ -70,7 +88,7 @@ public class Statistics extends JFrame {
 		panel.setPreferredSize(new Dimension(400,300));
 		chartFactory.put(chartTitle, panel);
 		contentPane.add(panel);
-		pack();
+//		pack();
 	}
 	/**
 	 * 
@@ -78,7 +96,7 @@ public class Statistics extends JFrame {
 	 * @param chartTitle
 	 * @param totalNumberOfVideos should reflect the what to divide on to get the precentage
 	 */
-	public void addBarChart(Map<String, BigInteger> categoryMap, String chartTitle, BigInteger totalNumberOfVideos){
+	public void addBarChart(Map<String, BigInteger> categoryMap, String chartTitle, Integer totalNumberOfVideos){
 		JFreeChart barChart = ChartFactory.createBarChart(chartTitle, "", "Average per video", createBigDataset(categoryMap, totalNumberOfVideos), PlotOrientation.HORIZONTAL, false, false, false);
 		barChart.getTitle().setFont(new Font("Areal", Font.PLAIN, 17));
 	
@@ -91,9 +109,9 @@ public class Statistics extends JFrame {
 		panel.setPreferredSize(new Dimension(400,300));
 		chartFactory.put(chartTitle, panel);
 		contentPane.add(panel);
-		pack();
+//		pack();
 	}
-	private CategoryDataset createBigDataset(Map<String, BigInteger> dataContent, BigInteger totalNumberOfVideos){
+	private CategoryDataset createBigDataset(Map<String, BigInteger> dataContent, Integer totalNumberOfVideos){
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		final String frequency = "Average disribution";
 		LinkedList<Map<String, BigInteger>> sortedQueue = sortBigByCategory(dataContent,totalNumberOfVideos);
@@ -147,16 +165,18 @@ public class Statistics extends JFrame {
 		return sortedQueue;
 	}
 	
-	private LinkedList<Map<String,BigInteger>> sortBigByCategory(Map<String,BigInteger> dataMap, BigInteger totalNumberOfVideos){
+	private LinkedList<Map<String,BigInteger>> sortBigByCategory(Map<String,BigInteger> dataMap, Integer numVideo){
 		LinkedList<Map<String,BigInteger>> sortedQueue = new LinkedList<Map<String, BigInteger>>();
 		System.out.println("Trying to sort the map");
+		BigInteger totalNumberOfVideos = new BigInteger(numVideo.toString());
 		System.out.println("TotalNUmberOfVideos: " + totalNumberOfVideos);
-		if(totalNumberOfVideos == null ){
-			totalNumberOfVideos = new BigInteger("0");
-			for(String key : dataMap.keySet()){
-				totalNumberOfVideos = totalNumberOfVideos.add(dataMap.get(key));
-			}
-		}
+	
+//		if(totalNumberOfVideos.compareTo(new BigInteger("0") == 0){
+//			totalNumberOfVideos = new BigInteger("0");
+//			for(String key : dataMap.keySet()){
+//				totalNumberOfVideos = totalNumberOfVideos.add(dataMap.get(key));
+//			}
+//		}
 		
 		System.out.println("Total number of Videos in the categorySet " + totalNumberOfVideos);
 		String pointerToLargestValue = "";
@@ -197,9 +217,79 @@ public class Statistics extends JFrame {
 			System.out.println("Could not set the color because there is not any chart with that title in the chartFactory");
 		}
 	}
+	/**
+	 * This calculated different types of statistics for the dataset so the user can display the dataset
+	 * 
+	 * @param videoInfoResult
+	 */
+	public void computeStatistics(Map<String, Video> videoInfoResult, Map<String, String> availableCategoriesReverse ){
+		//Likes values 
+		HashMap<String, BigInteger> likesStat = new HashMap<String, BigInteger>(2);
+		likesStat.put("Likes", new BigInteger("0"));
+		likesStat.put("Dislikes", new BigInteger("0"));
+		Integer likesVideos = 0;
+		
+		Map<String, Integer> categoryStats = new HashMap<String, Integer>();
+		Map<String, Integer> yearStats = new HashMap<String, Integer>();
+		
+		HashMap<String, BigInteger> countStat = new HashMap<String, BigInteger>(2);
+		countStat.put("Views", new BigInteger("0"));
+		//countStat.put("Favorite", new BigInteger("0"));
+		//countStat.put("Comments", new BigInteger("0"));
+		BigInteger viewCount = new BigInteger("0");
+		BigInteger favoritesCount = new BigInteger("0");
+		BigInteger commentCount = new BigInteger("0");
+	
+		
+		for(Video video : videoInfoResult.values() ){
+			//Like statistics
+			if(video.getStatistics()!=null && video.getStatistics().getLikeCount()!= null){
+				likesStat.replace("Likes", likesStat.get("Likes").add(video.getStatistics().getLikeCount()));
+				likesStat.replace("Dislikes", likesStat.get("Dislikes").add(video.getStatistics().getDislikeCount()));
+				likesVideos++;
+				
+				viewCount = viewCount.add(video.getStatistics().getViewCount());
+				favoritesCount = favoritesCount.add(video.getStatistics().getFavoriteCount());
+				commentCount = commentCount.add(video.getStatistics().getCommentCount());
+			}
+			
+			
+			//Category statistics
+			String category = availableCategoriesReverse.get(video.getSnippet().getCategoryId());
+			if(categoryStats.containsKey(category)){
+				categoryStats.replace(category,categoryStats.get(category)+1);
+			}else{
+				categoryStats.put(category,1);
+			}
+			
+			//Year statistics
+			SimpleDateFormat df = new SimpleDateFormat("yyyy");
+			String year =df.format(new Date(video.getSnippet().getPublishedAt().getValue()));
+			if(yearStats.containsKey(year)){
+				//We must update
+				yearStats.replace(year,yearStats.get(year)+1);
+			}else{
+				yearStats.put(year,1);
+			}
+		
+			
+			video.getStatistics().getLikeCount();
+		}
+	//	Statistics stat = gui.getStatWindow();
+		addBarChart(likesStat, "Likes", likesVideos);
+		addBarChart(categoryStats, "Categories");
+		addBarChart(yearStats, "Years");
+		System.out.println(viewCount);
+		addCount(viewCount.divide(new BigInteger(likesVideos.toString())), "views");
+		addCount(favoritesCount.divide(new BigInteger(likesVideos.toString())), "favorites");
+		addCount(commentCount.divide(new BigInteger(likesVideos.toString())), "comments");
+
+	}
 	
 	public static void main(String[] args){
-		Statistics chart = new Statistics("YT Dataset Stats");
+		JFrame jf = new JFrame();
+		Statistics chart = new Statistics();
+		
 		Map<String, Integer> categoryMap = new HashMap<String, Integer>();
 		Map<String, Integer> likes = new HashMap<String, Integer>();
 		Map<String, Integer> third = new HashMap<String, Integer>();
@@ -213,11 +303,9 @@ public class Statistics extends JFrame {
 		chart.addBarChart(categoryMap, "Categories frequency");
 		chart.addBarChart(likes, "LIKES");
 		chart.addBarChart(third, "Third example");
-//		chart.changeColor("LIKES");
-//		chart.changeColor("THIRD");
-//		chart.changeColor("Categories frequency");
-		
-		//chart.saveChartAsPNG("Categories frequency", "secondChart");
+		jf.setVisible(true);
+		jf.add(chart);
+		jf.pack();
 	}
 }
 /**
