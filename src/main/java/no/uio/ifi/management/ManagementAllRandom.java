@@ -22,8 +22,7 @@ import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
 import no.uio.ifi.guis.Statistics;
-import no.uio.ifi.models.FilteredSearch;
-import no.uio.ifi.guis.YTDashGUI;
+import no.uio.ifi.models.search.FilteredSearch;
 import no.uio.ifi.models.UtilitiesAPI;
 import no.uio.ifi.models.search.FilteredSearch;
 import no.uio.ifi.models.search.Search;

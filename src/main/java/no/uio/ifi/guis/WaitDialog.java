@@ -33,7 +33,7 @@ public class WaitDialog extends JDialog{
 	
 		this.pack();
 	}
-	public void changeText(String newText){
+	public void setText(String newText){
 		updating.setText(newText);
 	}
 	public void appendText(Integer newText){

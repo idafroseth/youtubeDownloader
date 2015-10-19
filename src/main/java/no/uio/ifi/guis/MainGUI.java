@@ -1,9 +1,9 @@
 package no.uio.ifi.guis;
 
 import no.uio.ifi.management.ManagementAll;
-import no.uio.ifi.models.DownloadThread;
+import no.uio.ifi.models.downloader.DownloadThread;
 import no.uio.ifi.models.SingleVideoINFO;
-import no.uio.ifi.models.YoutubeDownloader;
+import no.uio.ifi.models.downloader.YoutubeDownloader;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -12,7 +12,6 @@ import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
-<<<<<<< HEAD
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -21,12 +20,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
-=======
+
 import no.uio.ifi.management.ManagementAll;
 import no.uio.ifi.models.SingleVideoINFO;
 import no.uio.ifi.models.downloader.DownloadThread;
 import no.uio.ifi.models.downloader.YoutubeDownloader;
->>>>>>> fixingFilters
 
 public class MainGUI extends JFrame{
 	

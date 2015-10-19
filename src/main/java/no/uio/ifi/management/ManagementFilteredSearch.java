@@ -32,7 +32,7 @@ import no.uio.ifi.models.search.RandomVideoIdGenerator;
 public class ManagementFilteredSearch {
 	FilteredSearch filterSearch = new FilteredSearch();
 	FilteredSearchGui gui = new FilteredSearchGui(this);
-	public int NUMBER_OF_VIDEOS_TO_SERACH = 200;
+	public int NUMBER_OF_VIDEOS_TO_SEARCH = 200;
 	public int NUMBER_OF_VIDEOS_RETRIVED = 0;
 	int NUMBER_OF_THREADS=3;
 	LinkedList<String> resultCache = new LinkedList<String>();
@@ -70,6 +70,7 @@ public class ManagementFilteredSearch {
 		gui.addFilterBox(availableVideoTypes, "Video types", FilteredSearch.VIDEOTYPEFILTER);
 		wait.setVisible(false);
 		gui.pack();
+
 	}
 	
 	
@@ -85,22 +86,16 @@ public class ManagementFilteredSearch {
 			filterSearch.setFilter(key, filtersApplied.get(key));
 		}
 		
-		WaitDialog wait = new WaitDialog("Crawling YouTube");
-		threadCount = NUMBER_OF_THREADS;
-//		latch = new CountDownLatch(NUMBER_OF_THREADS);
+	 	WaitDialog wait = new WaitDialog("Crawling YouTube");
+
+	 	threadCount = NUMBER_OF_THREADS;
 		for(int i = 0;i<NUMBER_OF_THREADS; i++){
-			(new SearchThread("SearchThread_"+i,wait)).run();
+			(new SearchThread("SearchThread_"+i)).run();
 		}
-//		try {
-////			latch.await();
-//			
-//		} catch (InterruptedException e) {	
-//			// TODO Auto-generated catch block
-//			System.out.println("Somthing happend when waiting for thread");
-//			e.printStackTrace();
-//		}
-		
 	}
+	/**
+	 * When the thread is finished Searching the videos are saved and statistics are displayed
+	 */
 	public void finishedSearch(){
 		System.out.println("Videos in cache " +resultCache.size());
 		Map<String, Video> videoInfoResult = (new VideoInfoExtracter()).getVideoContent(resultCache);
@@ -129,14 +124,9 @@ public class ManagementFilteredSearch {
 		ManagementFilteredSearch fs = new ManagementFilteredSearch();
 	}
 	
-	class SearchThread extends Thread {
-
-		WaitDialog progressBar;
-		//ManagementAllRandom mng;
-		public SearchThread(String s, WaitDialog progressBar){//, ManagementAllRandom mng) {
+	class SearchThread extends Thread{
+		public SearchThread(String s){
 			super(s);
-			this.progressBar = progressBar;
-			//this.mng = mng;
 		}
 		
 		@Override
@@ -148,7 +138,7 @@ public class ManagementFilteredSearch {
 				//Here one thread shoul handle the gui and another thread should handle the search, or multiple threads. 
 				
 			
-				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SERACH){
+				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
 					List<SearchResult> result = filterSearch.searchBy(randomGenerator.getNextRandom());
 					System.out.println(result.size());
 					if(deadEndCount > deadEndValue){
@@ -174,11 +164,8 @@ public class ManagementFilteredSearch {
 						resultCache.add(res.getId().getVideoId());
 						
 					}
-					progressBar.appendText(NUMBER_OF_VIDEOS_RETRIVED);
 				}
-				
-		  		Thread.sleep(1);
-		  	//	latch.countDown();
+				Thread.sleep(100);
 				System.out.println("thread stopped.");
 				
 				System.out.println("threadCount: " + threadCount);
@@ -204,27 +191,28 @@ public class ManagementFilteredSearch {
 				this.interrupt();
 			}
 		}
+
 	}
-	class BarThread implements Runnable {
-		//ManagementAllRandom mng;
-		DownloadProgressBar updateProgressBar = new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SERACH,"Crawling");
-		public BarThread(String s){//, ManagementAllRandom mng) {
-	//		super(s);
-			//this.mng = mng;
-		}
-		@Override
-		public void run() {
-			try {
-				while(NUMBER_OF_VIDEOS_RETRIVED < NUMBER_OF_VIDEOS_TO_SERACH ){
-					updateProgressBar.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED);
-				}
-				Thread.sleep(1);
-				System.out.println("thread stopped.");
-				} catch (InterruptedException v) {
-					System.out.println("Thread error");
-					System.out.println(v);
-				}
-		}
-	}
+//	class BarThread implements Runnable {
+//		//ManagementAllRandom mng;
+//		DownloadProgressBar updateProgressBar = new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SEARCH,"Crawling");
+//		public BarThread(String s){//, ManagementAllRandom mng) {
+//	//		super(s);
+//			//this.mng = mng;
+//		}
+//		@Override
+//		public void run() {
+//			try {
+//				while(NUMBER_OF_VIDEOS_RETRIVED < NUMBER_OF_VIDEOS_TO_SEARCH ){
+//					updateProgressBar.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED);
+//				}
+//				Thread.sleep(1);
+//				System.out.println("thread stopped.");
+//				} catch (InterruptedException v) {
+//					System.out.println("Thread error");
+//					System.out.println(v);
+//				}
+//		}
+//	}
 	
 }
