@@ -6,8 +6,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -19,18 +17,15 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.LineBorder;
 
 import no.uio.ifi.management.ManagementFilteredSearch;
 import no.uio.ifi.models.geo.GPSLocator;
+import no.uio.ifi.models.search.FilteredSearch;
 
 /**
  * This Class display a JPanel with three content panes. one contentpane hold
@@ -42,6 +37,7 @@ import no.uio.ifi.models.geo.GPSLocator;
  */
 public class FilterGui extends JPanel {
 
+	private static final long serialVersionUID = -7018213359683528690L;
 	private JPanel filterPanel = new JPanel();
 	private JPanel filterAddPanel = new JPanel();
 	private JPanel filterActivePanel = new JPanel();
@@ -55,10 +51,11 @@ public class FilterGui extends JPanel {
 	private JFileChooser fileChooser = new JFileChooser();
 
 	
-	private JTextField cityInput = new JTextField("City");
-	private JTextField radiusInput = new JTextField("Radius in km");
-	private JTextField numberOfVideosInput = new JTextField("100 000");
+	private JTextField cityInput = new JTextField();
+	private JTextField radiusInput = new JTextField();
+	private JButton applyGeoFilter = new JButton("Set geofilter");
 	
+	private JTextField numberOfVideosInput = new JTextField("100 000");
 	// limited to 10 filters
 	private ArrayList<Integer> filters = new ArrayList<Integer>(10);
 	private SelectorListener filterListener = new SelectorListener();
@@ -74,6 +71,29 @@ public class FilterGui extends JPanel {
 
 	private JTextArea filtersAppliedText = new JTextArea("No filter");
 
+	/**
+	 * Contructor
+	 * 
+	 * @param mng
+	 *            the Managment that has to be alerted when the search button is
+	 *            hit.
+	 */
+	public FilterGui(ManagementFilteredSearch mng) {
+		this.mng = mng;
+		init();
+	}
+
+	public void init(){
+		cityInput.setColumns(15);
+		radiusInput.setColumns(5);
+		numberOfVideosInput.setColumns(20);
+		this.drawFilterMenu();
+		this.setPreferredSize(FilteredSearchGui.CONTENT_PANE_SIZE);
+		this.setLayout(new BorderLayout());
+		this.add(drawSearchMenu(), BorderLayout.PAGE_END);
+		this.add(filterPanel, BorderLayout.CENTER);
+		selectedFilters.replace(FilteredSearch.GEOFILTER, "No City");
+	}
 	public JPanel drawSearchMenu(){
 		JPanel searchPanel = new JPanel(new FlowLayout());
 //		videoInfoDL.setActionCommand(VIDEO_INFO_DOWNLOAD_CHECK);
@@ -101,29 +121,8 @@ public class FilterGui extends JPanel {
 		return searchPanel;
 		
 	}
-	/**
-	 * Contructor
-	 * 
-	 * @param mng
-	 *            the Managment that has to be alerted when the search button is
-	 *            hit.
-	 */
-	public FilterGui(ManagementFilteredSearch mng) {
-		this.mng = mng;
-		this.drawFilterMenu();
-		this.setPreferredSize(FilteredSearchGui.CONTENT_PANE_SIZE);
-		this.setLayout(new BorderLayout());
-		this.add(drawSearchMenu(), BorderLayout.PAGE_END);
-		this.add(filterPanel, BorderLayout.CENTER);
-	}
 
-	public void init(){
-		cityInput.setColumns(20);
-		
-		radiusInput.setColumns(20);
-		
-		numberOfVideosInput.setColumns(20);
-	}
+
 	/**
 	 * Making the layout of the FilterGui
 	 */
@@ -140,20 +139,31 @@ public class FilterGui extends JPanel {
 		filterPanel.setLayout(new GridLayout(1, 2));
 		filterPanel.add(filterAddPanel);
 		filterPanel.add(filterActivePanel);
+		filtersAppliedText.setBackground(Color.WHITE);
 		filterAddPanel.setLayout(new GridLayout(15, 1));
 		filterAddPanel.setPreferredSize(new Dimension(100, 500));
 		filterAddPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		// JPanel numSearchPanel = new JPanel();
-		// numSearchPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 10));
 		filterAddPanel.add(new JLabel("# Videos to search"));
 		filterAddPanel.add(numberOfVideosInput);
-		// filterAddPanel.add(numSearchPanel);
-	//	filterActivePanel.setBorder(BorderFactory.createTitledBorder("Applied filters"));
 		filterAddPanel.setPreferredSize(new Dimension(400, 500));
+		filterAddPanel.add(getGelocationPanel());
 		filtersAppliedText.setPreferredSize(new Dimension(450, 500));
 		filtersAppliedText.setBorder(BorderFactory.createTitledBorder("Applied filters"));
 		filterActivePanel.add(filtersAppliedText);
 		filtersAppliedText.setBackground(new Color(238,238,238));
+	}
+	public JPanel getGelocationPanel(){
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 10));
+		applyGeoFilter.setActionCommand("APPLYGEOFILTER");
+		applyGeoFilter.addActionListener(mouseListener);
+
+		panel.add(new JLabel("City:"));
+		panel.add(cityInput);
+		panel.add(new JLabel("Radius:"));
+		panel.add(radiusInput);
+		panel.add(applyGeoFilter);
+		return panel;
+		
 	}
 
 	/**
@@ -243,7 +253,7 @@ public class FilterGui extends JPanel {
 						return;
 					}
 				}
-				mng.preformSearch( videoInfo,  videoQuality);//, filePath);
+				mng.preformSearch( videoInfo,  videoQuality, filePath);//, filePath);
 				break;
 			case "FILECHOOSER":
 				final JFileChooser fc = new JFileChooser();
@@ -252,6 +262,25 @@ public class FilterGui extends JPanel {
 				filePath = fc.getSelectedFile();
 				System.out.println(returnVal);
 				System.out.println(fc.getSelectedFile());
+				break;
+			case "APPLYGEOFILTER":
+				//First we must check if the location is valid
+				String gps = GPSLocator.getGeolocationCity(cityInput.getText());
+				if(gps == null){
+					selectedFilters.put(FilteredSearch.GEOFILTER, "Could not find city: " + cityInput.getText() );
+				}else{
+					if(gps.length()<30 ){
+						selectedFilters.put(FilteredSearch.GEOFILTER, gps + " - " + cityInput.getText() + " - " + radiusInput.getText());					
+					}else{
+						selectedFilters.replace(FilteredSearch.GEOFILTER, "Could not find city: " + cityInput.getText() );
+					}
+				}
+				String outputText = "";
+				for (String filter : selectedFilters.values()) {
+					outputText += filter + "; \n";
+				}
+
+				filtersAppliedText.setText(outputText);
 
 			}
 		}

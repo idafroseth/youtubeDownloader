@@ -1,6 +1,5 @@
 package no.uio.ifi.management;
 
-import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -8,9 +7,7 @@ import java.util.LinkedList;
 
 import org.json.JSONObject;
 import org.json.XML;
-
-import java.awt.Toolkit;
-
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -19,10 +16,8 @@ import com.google.api.services.youtube.model.Video;
 
 import no.uio.ifi.guis.DownloadProgressBar;
 import no.uio.ifi.guis.FilteredSearchGui;
-import no.uio.ifi.guis.Statistics;
 import no.uio.ifi.guis.WaitDialog;
 import no.uio.ifi.models.downloader.VideoInfoExtracter;
-import no.uio.ifi.models.geo.GPSLocator;
 import no.uio.ifi.models.search.DeadEndException;
 import no.uio.ifi.models.search.FilteredSearch;
 import no.uio.ifi.models.search.RandomVideoIdGenerator;
@@ -37,7 +32,7 @@ import no.uio.ifi.models.search.RandomVideoIdGenerator;
 public class ManagementFilteredSearch {
 	FilteredSearch filterSearch = new FilteredSearch();
 	FilteredSearchGui gui = new FilteredSearchGui(this);
-	public int NUMBER_OF_VIDEOS_TO_SERACH = 10000;
+	public int NUMBER_OF_VIDEOS_TO_SERACH = 200;
 	public int NUMBER_OF_VIDEOS_RETRIVED = 0;
 	int NUMBER_OF_THREADS=3;
 	LinkedList<String> resultCache = new LinkedList<String>();
@@ -81,12 +76,8 @@ public class ManagementFilteredSearch {
 	/**
 	 * Applying choosing filter and start the search. 
 	 */
-	public void preformSearch(String videoInfo,  String videoQuality){
-		//We have to enable the download function based on the selected videoInfo and videoQuality
-//		Thread downloadBar = new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SERACH, "Crawling YouTube");
-//		downloadBar.run();
-//		(new BarThread("Crawler")).run();
-		
+	public void preformSearch(String videoInfo,  String videoQuality, File filepath){
+		NUMBER_OF_VIDEOS_RETRIVED = 0;
 		HashMap<Integer, String> filtersApplied = gui.getSelectedFilters();
 		filterSearch.init();
 		for (Integer key : filtersApplied.keySet()) {
@@ -94,14 +85,11 @@ public class ManagementFilteredSearch {
 			filterSearch.setFilter(key, filtersApplied.get(key));
 		}
 		
-//		new Thread(new Runnable(){
-			
-		DownloadProgressBar dpb = new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SERACH, "Crawling YouTube");
 		WaitDialog wait = new WaitDialog("Crawling YouTube");
 		threadCount = NUMBER_OF_THREADS;
 //		latch = new CountDownLatch(NUMBER_OF_THREADS);
 		for(int i = 0;i<NUMBER_OF_THREADS; i++){
-			(new SearchThread("SearchThread_"+i,dpb)).run();
+			(new SearchThread("SearchThread_"+i,wait)).run();
 		}
 //		try {
 ////			latch.await();
@@ -143,9 +131,9 @@ public class ManagementFilteredSearch {
 	
 	class SearchThread extends Thread {
 
-		DownloadProgressBar progressBar;
+		WaitDialog progressBar;
 		//ManagementAllRandom mng;
-		public SearchThread(String s, DownloadProgressBar progressBar){//, ManagementAllRandom mng) {
+		public SearchThread(String s, WaitDialog progressBar){//, ManagementAllRandom mng) {
 			super(s);
 			this.progressBar = progressBar;
 			//this.mng = mng;
@@ -159,7 +147,7 @@ public class ManagementFilteredSearch {
 				
 				//Here one thread shoul handle the gui and another thread should handle the search, or multiple threads. 
 				
-				NUMBER_OF_VIDEOS_RETRIVED = 0;
+			
 				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SERACH){
 					List<SearchResult> result = filterSearch.searchBy(randomGenerator.getNextRandom());
 					System.out.println(result.size());
@@ -186,7 +174,7 @@ public class ManagementFilteredSearch {
 						resultCache.add(res.getId().getVideoId());
 						
 					}
-					progressBar.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED);
+					progressBar.appendText(NUMBER_OF_VIDEOS_RETRIVED);
 				}
 				
 		  		Thread.sleep(1);

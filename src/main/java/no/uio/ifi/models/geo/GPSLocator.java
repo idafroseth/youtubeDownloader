@@ -30,7 +30,7 @@ public class GPSLocator {
             br.close();
 			
 		}catch (Exception e){
-			
+			return null;
 		}
 		
 		JSONParser parser = new JSONParser();
@@ -44,6 +44,7 @@ public class GPSLocator {
 			s = ""+ location.get("lat")+","+location.get("lng");
 		}catch(Exception e){
 			System.out.println("FEIL MED FINN LOCATION"+e);
+			return null;
 		}
 		return s;	
 	}

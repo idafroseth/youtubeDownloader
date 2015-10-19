@@ -39,6 +39,7 @@ public class FilteredSearch extends Search{
 	public static final int TIMEFILTER = 5;
 	public static final int VIDEODURATIONFILTER = 6;
 	public static final int VIDEOTYPEFILTER = 7;
+	public static final int GEOFILTER = 8;
 
 	private Map<String, String> availableCategories = new HashMap<String, String>();
 	private Map<String, String> availableLanguages = new HashMap<String, String>();
@@ -47,6 +48,7 @@ public class FilteredSearch extends Search{
 	private Map<String, String> availableDurations = new HashMap<String, String>();
 	private Map<String, String> availableVideoTypes = new HashMap<String, String>();
 
+	
 	
 	private Map<String, String> availableCategoriesReverse =  new HashMap<String, String>();
 

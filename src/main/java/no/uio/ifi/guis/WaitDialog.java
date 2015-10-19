@@ -11,8 +11,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class WaitDialog extends JDialog{
-	public WaitDialog(String dialog){
-		JLabel updating = new JLabel(dialog);
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1192024962932785605L;
+	JLabel updating;
+	String dialog;
+	public WaitDialog(String dia){
+		dialog = dia;
+		updating = new JLabel(dialog);
 		updating.setHorizontalAlignment((int) Component.CENTER_ALIGNMENT);
 		this.setVisible(true);
 		JPanel p = new JPanel();
@@ -26,5 +33,12 @@ public class WaitDialog extends JDialog{
 	
 		this.pack();
 	}
+	public void changeText(String newText){
+		updating.setText(newText);
+	}
+	public void appendText(Integer newText){
+		updating.setText(dialog + " \n Downloaded: " + newText);
+	}
+
 
 }
