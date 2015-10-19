@@ -227,7 +227,6 @@ public class FilteredSearch extends Search{
 	 */
 	public Map<String, String> getAvailableVideoDuration() {
 		if (availableDurations.size() < 1) {
-			availableDurations.put("Any", "any");
 			availableDurations.put("More than 20min", "long");
 			availableDurations.put("4 to 20 min ", "medium");
 			availableDurations.put("Less then 4 min", "short");
@@ -242,7 +241,6 @@ public class FilteredSearch extends Search{
 	 */
 	public Map<String, String> getAvailableVideoTypes() {
 		if (availableVideoTypes.size() < 1) {
-			availableVideoTypes.put("Any", "any");
 			availableVideoTypes.put("Episode of shows", "episode");
 			availableVideoTypes.put("Movie ", "movie");
 		}
@@ -316,26 +314,30 @@ public class FilteredSearch extends Search{
 	public void setFilter(int filterType, String id) {
 
 		System.out.println("Filter type is:" + filterType);
+		if(id.contains("No") && id.contains("filter")){
+			System.out.println("A no filter: " +id);
+			return;
+		}
 		switch (filterType) {
 
 		// You can only set one category filter
 		case CATEGORYFILTER:
+			System.out.println("Adding category filters");
 			search.setVideoCategoryId(availableCategories.get(id));
-			System.out.println(id);
 			break;
 		case GUIDECATEGORYFILTER:
-			// I could not find a parameter to set this
-			// search.set
 			break;
 		case LANGUAGEFILTER:
+			System.out.println("Adding language filters");
 			search.setRelevanceLanguage(availableLanguages.get(id));
 			break;
 		// Search in a specified country but only one
 		case REGIONFILTER:
+			System.out.println("Adding region filters");
 			search.setRegionCode(availableRegions.get(id));
-			// search.setLocation(id);
 			break;
 		case TIMEFILTER:
+			System.out.println("Adding period filters");
 			String[] period = id.split("\\|");
 			System.out.println(period[0]);
 			System.out.println(period[1]);
@@ -345,9 +347,11 @@ public class FilteredSearch extends Search{
 			search.setPublishedAfter(start);
 			break;
 		case VIDEODURATIONFILTER:
+			System.out.println("Adding duration filters");
 			search.setVideoDuration(availableDurations.get(id));
 			break;
 		case VIDEOTYPEFILTER:
+			System.out.println("Adding type filters");
 			search.setVideoType(availableVideoTypes.get(id));
 			break;
 		}

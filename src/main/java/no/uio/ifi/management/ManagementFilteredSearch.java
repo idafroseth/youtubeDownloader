@@ -46,13 +46,17 @@ public class ManagementFilteredSearch {
 	HashMap<String, String> availableRegions;
 	HashMap<String, String> availableDuration;
 	HashMap<String, String> availableVideoTypes;
+	File filepath;
 	/**
 	 * Counting the number of updates of the chache queue, if there isn´t recieved a new
 	 * video in the last 100 search, it will terminate and give a feedback to the user.  
 	 */
-	
 	int deadEndValue = 100;
 	int deadEndCount = 0;
+	
+	String videoInfo;
+	
+	WaitDialog wait;
 	/**
 	 * Retrieving all the filters and then display the window. 
 	 */
@@ -78,9 +82,12 @@ public class ManagementFilteredSearch {
 	
 	
 	/**
-	 * Applying choosing filter and start the search. 
+	 * Applying choosen filters and start the search. 
 	 */
 	public void preformFilteredSearch(String videoInfo,  String videoQuality, File filepath){
+		gui.wipeStatWindow();
+		this.filepath = filepath;
+		this.videoInfo = videoInfo;
 		NUMBER_OF_VIDEOS_RETRIVED = 0;
 		System.out.println("Videos to search: " + NUMBER_OF_VIDEOS_TO_SEARCH);
 		HashMap<Integer, String> filtersApplied = gui.getSelectedFilters();
@@ -89,94 +96,43 @@ public class ManagementFilteredSearch {
 			System.out.println("AddingFilters");
 			filterSearch.setFilter(key, filtersApplied.get(key));
 		}
-		WaitDialog wait =new WaitDialog("Crawling YouTube");
+		wait =new WaitDialog("Crawling YouTube");
+
+		
+	 	threadCount = NUMBER_OF_THREADS;
 		for(int i = 0;i<NUMBER_OF_THREADS; i++){
-			(new SearchThread("SearchThread_"+i)).run();
+			(new SearchThread("SearchThread_"+i, this)).run();
 		}
-		wait.setText(NUMBER_OF_VIDEOS_RETRIVED + " unique videoIds are retrived");
-		SwingWorker worker = new SwingWorker<Integer, Void>(){
-
-			WaitDialog wait =new WaitDialog("Crawling YouTube");
-	
-			@Override
-			protected Integer doInBackground() throws Exception {
-				// TODO Auto-generated method stub
-			 	threadCount = NUMBER_OF_THREADS;
-				for(int i = 0;i<NUMBER_OF_THREADS; i++){
-					(new SearchThread("SearchThread_"+i)).run();
-				}
-				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
-					wait.appendText(NUMBER_OF_VIDEOS_RETRIVED);
-					Thread.sleep(1);
-				}
-				return null;
-			}
-			
-		};
-		worker.execute();
-		
-
-
-	}
-	private void search(){
-		RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();
-		
-		
-		//Here one thread shoul handle the gui and another thread should handle the search, or multiple threads. 
-		
-		while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
-			List<SearchResult> result = filterSearch.searchBy(randomGenerator.getNextRandom());
-			System.out.println(result.size());
-			if(deadEndCount > deadEndValue){
-				System.out.println("DEAD END");
-		
-			}
-			if( result.size() == 0){
-				System.out.println(deadEndCount);
-				deadEndCount++;
-				continue;
-			}
-			
-			loop:
-			for(SearchResult res : result){
-				if(resultCache.contains(res.getId().getVideoId())){
-					deadEndCount++;
-					System.out.println(deadEndCount);
-					continue loop;
-				}
-				deadEndCount = 0;
-				System.out.print(NUMBER_OF_VIDEOS_RETRIVED + ": ");
-				System.out.println(res.getId());
-				System.out.println(res);
-				NUMBER_OF_VIDEOS_RETRIVED++;
-				resultCache.add(res.getId().getVideoId());
-				
-			}
-			
-		}
-	
-		System.out.println("thread stopped.");
-		
-		System.out.println("threadCount: " + threadCount);
-		if(threadCount==NUMBER_OF_THREADS){
-			threadCount--;
-			finishedSearch();
-		}
-		threadCount--;
-		System.out.println();	
 	}
 	/**
 	 * This method should take a keyword and preform a search in a loop until we get the number of videos the user want. 
 	 */
-	public void preformKeywordSearch(){
-		
+	public void updateOutput(){
+		wait.setText(NUMBER_OF_VIDEOS_RETRIVED + " of " + NUMBER_OF_VIDEOS_TO_SEARCH);	
+		System.out.println("Updates output");
 	}
 	/**
 	 * When the thread is finished Searching the videos are saved and statistics are displayed
 	 */
 	public void finishedSearch(){
+//		if(videoInfo!=)
 		System.out.println("Videos in cache " +resultCache.size());
-		Map<String, Video> videoInfoResult = (new VideoInfoExtracter()).getVideoContent(resultCache);
+		Map<String, Video> videoInfoResult = null;
+		switch(videoInfo){
+		case "JSON":
+			videoInfoResult  = (new VideoInfoExtracter()).saveJsonVideoContent(resultCache, filepath);
+			break;
+		case "XML":
+			videoInfoResult  = (new VideoInfoExtracter()).saveXmlVideoContent(resultCache, filepath);
+			break;
+		case "CSV":
+			System.out.println("CSV is not yet implemented");
+			break;
+		default:
+			videoInfoResult  = (new VideoInfoExtracter()).getVideoMetadata(resultCache);
+			break;
+		}
+		
 		gui.newResult(videoInfoResult);
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
 	}
@@ -203,8 +159,10 @@ public class ManagementFilteredSearch {
 	}
 	
 	class SearchThread extends Thread{
-		public SearchThread(String s){
+		ManagementFilteredSearch mng;
+		public SearchThread(String s, ManagementFilteredSearch mng){
 			super(s);
+			this.mng = mng;
 		}
 		
 		@Override
@@ -217,7 +175,6 @@ public class ManagementFilteredSearch {
 				
 				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
 					List<SearchResult> result = filterSearch.searchBy(randomGenerator.getNextRandom());
-					System.out.println(result.size());
 					if(deadEndCount > deadEndValue){
 						System.out.println("DEAD END");
 						throw new DeadEndException();	
@@ -243,6 +200,7 @@ public class ManagementFilteredSearch {
 						resultCache.add(res.getId().getVideoId());
 						
 					}
+					mng.updateOutput();
 					Thread.sleep(1);
 					
 				}
@@ -252,7 +210,7 @@ public class ManagementFilteredSearch {
 				System.out.println("threadCount: " + threadCount);
 				if(threadCount==NUMBER_OF_THREADS){
 					threadCount--;
-					finishedSearch();
+					mng.finishedSearch();
 				}
 				threadCount--;
 				System.out.println();	
@@ -260,13 +218,11 @@ public class ManagementFilteredSearch {
 			} catch (InterruptedException v) {
 				System.out.println("Thread error");
 				System.out.println(v);
-			} catch (DeadEndException e) {
-				//Should change this
-//				latch.countDown();
-				new DownloadProgressBar(0, "DEAD END EXCEPTION" );
+			} catch (DeadEndException e) {	
 				threadCount--;
-				if(threadCount<NUMBER_OF_THREADS){
+				if(threadCount>NUMBER_OF_THREADS+1){
 					deadEnd();
+					new WaitDialog("DEAD END EXCEPTION" );
 				}
 				e.printStackTrace();
 				this.interrupt();
