@@ -40,6 +40,7 @@ public class FilteredSearch extends Search{
 	public static final int VIDEODURATIONFILTER = 6;
 	public static final int VIDEOTYPEFILTER = 7;
 	public static final int GEOFILTER = 8;
+	public static final int NUMBERTOSEARCHFILTER = 9;
 
 	private Map<String, String> availableCategories = new HashMap<String, String>();
 	private Map<String, String> availableLanguages = new HashMap<String, String>();
@@ -335,8 +336,13 @@ public class FilteredSearch extends Search{
 			// search.setLocation(id);
 			break;
 		case TIMEFILTER:
-			String year = id;
-			setTimeFilter(year);
+			String[] period = id.split("\\|");
+			System.out.println(period[0]);
+			System.out.println(period[1]);
+			DateTime start = new DateTime(period[0]+"T00:00:00Z");
+			DateTime end = new DateTime(period[1]+"T00:00:00Z");
+			search.setPublishedBefore(end);
+			search.setPublishedAfter(start);
 			break;
 		case VIDEODURATIONFILTER:
 			search.setVideoDuration(availableDurations.get(id));
@@ -346,12 +352,4 @@ public class FilteredSearch extends Search{
 			break;
 		}
 	}
-	
-
-	public void setTimeFilter(String year) {
-		// Convert string to dateformat from the first of jan to last of dec.
-		// search.setPublishedAfter(before);
-		// search.setPublishedBefore(after);
-	}
-
 }

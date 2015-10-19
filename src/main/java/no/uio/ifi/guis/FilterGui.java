@@ -5,10 +5,15 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +27,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingWorker;
+
+import com.google.api.client.util.DateTime;
 
 import no.uio.ifi.management.ManagementFilteredSearch;
 import no.uio.ifi.models.geo.GPSLocator;
@@ -50,10 +58,15 @@ public class FilterGui extends JPanel {
 	private JButton fileChooserButton = new JButton("Choose path");
 	private JFileChooser fileChooser = new JFileChooser();
 
+	private JLabel outputNumberOfVideos = new JLabel("");
 	
 	private JTextField cityInput = new JTextField();
 	private JTextField radiusInput = new JTextField();
 	private JButton applyGeoFilter = new JButton("Set geofilter");
+	
+	private JTextField startDateTextField = new JTextField("YYYY-MM-DD");
+	private JTextField endDateTextField = new JTextField("YYYY-MM-DD");
+	private JLabel outputPeriodVideos = new JLabel("");
 	
 	private JTextField numberOfVideosInput = new JTextField("100 000");
 	// limited to 10 filters
@@ -61,10 +74,8 @@ public class FilterGui extends JPanel {
 	private SelectorListener filterListener = new SelectorListener();
 	private ButtonListener mouseListener = new ButtonListener();
 	private ManagementFilteredSearch mng;
-//	private final String VIDEO_INFO_DOWNLOAD_CHECK = "100";
-//	private final String VIDEO_INFO_DOWNLOAD_CHOISE = "200";
-//	private final String VIDEO_DOWNLOAD_CHECK = "300";
-//	private final String VIDEO_DOWNLOAD_CHOISE = "400";
+	public static final Integer SEARCH_HEIGHT = 100;
+	
 	public File filePath = null;
 //	
 	private HashMap<Integer, String> selectedFilters = new HashMap<Integer, String>(10);
@@ -84,22 +95,14 @@ public class FilterGui extends JPanel {
 	}
 
 	public void init(){
-		cityInput.setColumns(15);
-		radiusInput.setColumns(5);
-		numberOfVideosInput.setColumns(20);
-		this.drawFilterMenu();
 		this.setPreferredSize(FilteredSearchGui.CONTENT_PANE_SIZE);
 		this.setLayout(new BorderLayout());
 		this.add(drawSearchMenu(), BorderLayout.PAGE_END);
-		this.add(filterPanel, BorderLayout.CENTER);
+		this.add(drawFilterMenu(), BorderLayout.CENTER);
 		selectedFilters.replace(FilteredSearch.GEOFILTER, "No City");
 	}
 	public JPanel drawSearchMenu(){
 		JPanel searchPanel = new JPanel(new FlowLayout());
-//		videoInfoDL.setActionCommand(VIDEO_INFO_DOWNLOAD_CHECK);
-//		videoDownload.setActionCommand(VIDEO_DOWNLOAD_CHOISE);
-//		videoInfoFormats.setActionCommand(VIDEO_INFO_DOWNLOAD_CHOISE);
-//		VideoFormats.setActionCommand(VIDEO_DOWNLOAD_CHOISE);
 		fileChooserButton.setActionCommand("FILECHOOSER");
 		fileChooserButton.addActionListener(mouseListener);
 		
@@ -115,45 +118,63 @@ public class FilterGui extends JPanel {
 		searchPanel.add(videoInfo);
 		searchPanel.add(videoDL);
 		searchPanel.add(fileChooserButton);
-		searchPanel.add(searchButton);//, FlowLayout.TRAILING);
-		
-	//	videoFormats.
+		searchPanel.add(searchButton);
 		return searchPanel;
-		
 	}
 
 
 	/**
 	 * Making the layout of the FilterGui
 	 */
-	public void drawFilterMenu() {
+	public JPanel drawFilterMenu() {
+		JPanel panel =  new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 	//	this.setBorder(LineBorder.createGrayLineBorder());
 		searchButton.setActionCommand("SEARCHBUTTON");
 		searchButton.addActionListener(mouseListener);
-		searchButton.setPreferredSize(new Dimension(100, 30));
-		
-		
-
-		filterPanel.setPreferredSize(new Dimension(1000, 500));
+		searchButton.setPreferredSize(new Dimension(SEARCH_HEIGHT, 30));
+		panel.add(getNumberOfVideosPanel());
+		filterPanel.setPreferredSize(new Dimension(FilteredSearchGui.WINDOW_WIDTH, FilteredSearchGui.WINDOW_HEIGHT -SEARCH_HEIGHT));
 		filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
 		filterPanel.setLayout(new GridLayout(1, 2));
 		filterPanel.add(filterAddPanel);
 		filterPanel.add(filterActivePanel);
+	
 		filtersAppliedText.setBackground(Color.WHITE);
-		filterAddPanel.setLayout(new GridLayout(15, 1));
+		filterAddPanel.setLayout(new GridLayout(10, 1));
 		filterAddPanel.setPreferredSize(new Dimension(100, 500));
 		filterAddPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		filterAddPanel.add(new JLabel("# Videos to search"));
-		filterAddPanel.add(numberOfVideosInput);
+		filterAddPanel.add(getPeriodPanel());
 		filterAddPanel.setPreferredSize(new Dimension(400, 500));
 		filterAddPanel.add(getGelocationPanel());
 		filtersAppliedText.setPreferredSize(new Dimension(450, 500));
 		filtersAppliedText.setBorder(BorderFactory.createTitledBorder("Applied filters"));
 		filterActivePanel.add(filtersAppliedText);
 		filtersAppliedText.setBackground(new Color(238,238,238));
+		panel.add(filterPanel);
+		return panel;
 	}
-	public JPanel getGelocationPanel(){
+	private JPanel getNumberOfVideosPanel(){
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
+		JButton setNumVideos = new JButton("Apply");
+		setNumVideos.setActionCommand("NUMVIDEOS");
+		outputNumberOfVideos.setForeground(Color.RED);
+		setNumVideos.addActionListener(mouseListener);
+		numberOfVideosInput.setColumns(8);
+		//numberOfVideosInput.addActionListener(l);
+		//panel.setBorder(BorderFactory.createTitledBorder("# of videos"));
+		panel.add(new JLabel("# Videos to search:"));
+		panel.add(numberOfVideosInput);
+		panel.add(setNumVideos);
+		panel.add(outputNumberOfVideos);
+		FontFactory.changeFont(panel, new Font("Arial", Font.PLAIN, 15));
+		
+		return panel;
+	}
+	private JPanel getGelocationPanel(){
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 10));
+
+		cityInput.setColumns(15);
+		radiusInput.setColumns(5);
 		applyGeoFilter.setActionCommand("APPLYGEOFILTER");
 		applyGeoFilter.addActionListener(mouseListener);
 
@@ -162,8 +183,26 @@ public class FilterGui extends JPanel {
 		panel.add(new JLabel("Radius:"));
 		panel.add(radiusInput);
 		panel.add(applyGeoFilter);
+		
 		return panel;
 		
+	}
+	private JPanel getPeriodPanel(){
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 10));
+		panel.add(new JLabel("From: "));
+		outputPeriodVideos.setForeground(Color.RED);
+		startDateTextField.setColumns(8);
+		endDateTextField.setColumns(8);
+		panel.add(startDateTextField);
+		panel.add(new JLabel("To:"));
+		panel.add(endDateTextField);
+	
+		JButton apply = new JButton("Apply");
+		apply.setActionCommand("PERIOD");
+		apply.addActionListener(mouseListener);
+		panel.add(apply);	
+		panel.add(outputPeriodVideos);
+		return panel;
 	}
 
 	/**
@@ -253,7 +292,24 @@ public class FilterGui extends JPanel {
 						return;
 					}
 				}
-				mng.preformSearch( videoInfo,  videoQuality, filePath);//, filePath);
+				SwingWorker worker = new SwingWorker<Integer, Void>(){
+
+					WaitDialog wait =new WaitDialog("Crawling YouTube");
+			
+					@Override
+					protected Integer doInBackground() throws Exception {
+						// TODO Auto-generated method stub
+				
+						while(mng.NUMBER_OF_VIDEOS_RETRIVED< mng.NUMBER_OF_VIDEOS_TO_SEARCH){
+							wait.appendText(100);
+							Thread.sleep(1000);
+						}
+						return null;
+					}
+					
+				};
+				mng.preformFilteredSearch( videoInfo,  videoQuality, filePath);//, numberOfVideosInput);//, filePath);
+				worker.execute();
 				break;
 			case "FILECHOOSER":
 				final JFileChooser fc = new JFileChooser();
@@ -281,7 +337,76 @@ public class FilterGui extends JPanel {
 				}
 
 				filtersAppliedText.setText(outputText);
+				break;
+			case "NUMVIDEOS":
+				String number = numberOfVideosInput.getText().replaceAll("\\s+","");
+				try {
+					Integer numVideos = Integer.parseInt(number);
+				     System.out.println("An integer");
+				     outputNumberOfVideos.setText(null);
+				     mng.NUMBER_OF_VIDEOS_TO_SEARCH = numVideos;
+				}
+				catch (NumberFormatException num) {
+					 outputNumberOfVideos.setText("Not a number");
+					 numberOfVideosInput.setText(mng.NUMBER_OF_VIDEOS_TO_SEARCH+"");
+				     //Not an integer
+				}
+				selectedFilters.put(FilteredSearch.NUMBERTOSEARCHFILTER, "Videos to search: " + number);
+				outputPeriodVideos.setText("");
 
+				String o = "";
+				for (String filter : selectedFilters.values()) {
+					o += filter + "; \n";
+				}
+				filtersAppliedText.setText(o);
+				break;
+			case "PERIOD":
+				String dateFrom = startDateTextField.getText();//+"T00:00:00Z";
+				String dateTo = endDateTextField.getText();//+"T00:00:00Z";
+				
+					LocalDate from = null;
+					LocalDate to = null;
+					DateTimeFormatter dfs = new DateTimeFormatterBuilder()
+	                        .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd"))                                                                 
+	                        .appendOptional(DateTimeFormatter.ofPattern("dd.MM.yyyy"))                                                                                     
+	                        .toFormatter();
+					if(!dateFrom.contains("YY")&&dateTo.length()>0){
+						try{
+							from = LocalDate.parse(dateFrom, dfs);
+						}catch(DateTimeParseException ex){
+							outputPeriodVideos.setText("From date has wrong format");
+							System.out.println("Wrong fromat");
+							break;
+						}
+					}
+					if(!dateTo.contains("YY")&&dateTo.length()>0 ){
+						try{
+							to = LocalDate.parse(dateTo, dfs);
+						}catch(DateTimeParseException ex){
+							outputPeriodVideos.setText("To date has wrong format");
+							System.out.println("Wrong fromat");
+							break;
+						}
+					}
+					if(!dateTo.contains("YY") && !dateFrom.contains("YY")){
+						if(to.compareTo(from)<=0){
+							outputPeriodVideos.setText("StartDate is less then EndDate");
+							break;
+						}
+					}
+					
+				
+					String period = from + "|" + to;
+					selectedFilters.put(FilteredSearch.TIMEFILTER, period);
+					outputPeriodVideos.setText("");
+			
+					String ot = "";
+					for (String filter : selectedFilters.values()) {
+						ot += filter + "; \n";
+					}
+
+					filtersAppliedText.setText(ot);
+				
 			}
 		}
 	}

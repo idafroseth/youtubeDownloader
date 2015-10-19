@@ -57,14 +57,14 @@ public class VideoInfoExtracter extends Search{
 				listResponse = searchContent.execute();
 				videoList = listResponse.getItems();
 				for(Video v : videoList){
-					System.out.println("{\"video\":" + v + "}");//.getSnippet() +""+  v.getStatistics() + "" + v.getContentDetails() + "" + v.getStatus());
+					System.out.println(v.getSnippet().getTitle());//.getSnippet() +""+  v.getStatistics() + "" + v.getContentDetails() + "" + v.getStatus());
 					String videoJson = "{\"video\":" + v + "}";
 					videoJSON.put(v.getId(), v);
 		
 					//Demo how to convert to xml
 					JSONObject json  = new JSONObject( videoJson );  
 					String xml = XML.toString(json);
-					System.out.println(xml);
+				//	System.out.println(xml);
 				}
 			}
 		} catch (IOException e) {

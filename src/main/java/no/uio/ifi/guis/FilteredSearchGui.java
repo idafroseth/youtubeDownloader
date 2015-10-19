@@ -50,22 +50,29 @@ public class FilteredSearchGui extends JFrame{
 		private JLabel searchMenu = new JLabel("SEARCH",SwingConstants.CENTER); 
 		private JLabel resultMenu = new JLabel("RESULT",SwingConstants.CENTER);
 		private JLabel statsMenu = new JLabel("STATISTICS",SwingConstants.CENTER);
-		public static final Dimension CONTENT_PANE_SIZE = new Dimension(1000,600);
+		public static final Integer WINDOW_WIDTH = 1200;
+		public static final Integer WINDOW_HEIGHT = 600;
+		public static final Dimension CONTENT_PANE_SIZE = new Dimension(WINDOW_WIDTH,WINDOW_HEIGHT);
 		public static final Dimension MENU_BUTTON_SIZE = new Dimension(150,30);
 		Color menuColor = Color.LIGHT_GRAY;
 		JLabel activeButton;
-		Font menuButtonFont =   new Font("Areal", Font.PLAIN, 8);
+		Font menuButtonFont =   new Font("Arial", Font.PLAIN, 10);
 		
 		Border border = LineBorder.createGrayLineBorder();// BorderFactory.createRaisedBevelBorder();
 
 		private JTextArea resultIdList = new JTextArea();
 		private ManagementFilteredSearch mng;
 		
+		/**
+		 * Constructor
+		 * @param mng indicates the management for this gui
+		 */
 		public FilteredSearchGui(ManagementFilteredSearch mng){
 			this.mng = mng;
 			this.searchWindow = new FilterGui(this.mng);
 			this.statsWindow = new Statistics();
 		}
+		
 		/**
 		 * Configure the layout of the window and starts at the search card
 		 */
@@ -87,19 +94,25 @@ public class FilteredSearchGui extends JFrame{
 		
 			pack();
 		}
+		
+		/**
+		 * Return a panel with the result
+		 * @return
+		 */
 		public JPanel getResultPanel(){
 			JPanel resultPanel = new JPanel();
 			resultPanel.add(resultIdList);
-	//		resultPanel.add();
 			return resultPanel;
 		}
+		
+		/**
+		 * 
+		 * @return a panel with the buttons for the menu
+		 */
 		public JPanel getMenuPanel(){
 			JPanel menuPanel = new JPanel();
 			menuPanel.setBackground(menuColor);
 			System.out.println(searchMenu.getBackground());
-//			searchMenu.setBorder(border);
-//			resultMenu.setBorder(border);
-//			statsMenu.setBorder(border);
 			
 			searchMenu.setPreferredSize(MENU_BUTTON_SIZE);
 			resultMenu.setPreferredSize(MENU_BUTTON_SIZE);
@@ -113,15 +126,13 @@ public class FilteredSearchGui extends JFrame{
 			resultMenu.setOpaque(true);
 			statsMenu.setOpaque(true);
 			
-//			FontFactory.changeFont(menuPanel, menuButtonFont);
-			
 			searchMenu.setBackground(new Color(238,238,238));
 			searchMenu.setFont(searchMenu.getFont().deriveFont(Font.BOLD));
 			activeButton = searchMenu;
 			resultMenu.setBackground(Color.LIGHT_GRAY);
 			statsMenu.setBackground(Color.LIGHT_GRAY);
 			
-			menuPanel.setPreferredSize(new Dimension(1000, 30));
+			menuPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, 30));
 			menuPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));
 			menuPanel.add(searchMenu);
 			menuPanel.add(resultMenu);
@@ -132,32 +143,48 @@ public class FilteredSearchGui extends JFrame{
 			pack();
 			return menuPanel;
 		}
-		
-		public void drawSearch(){
+		/**
+		 * Draw that search tab. This is invoked when the search menu button is hit
+		 */
+		private void drawSearch(){
 			setTitle("YTDownloader ~ Filtered search");
-			((CardLayout) contentPane.getLayout()).show(contentPane, "SEARCH");
-	//		
+			((CardLayout) contentPane.getLayout()).show(contentPane, "SEARCH");	
 		}
-		public void drawResult(){
+		/**
+		 * Draw that result tab. This is invoked when the result menu button is hit
+		 */
+		private void drawResult(){
 			setTitle("YTDownloader ~ Result");
 			((CardLayout) contentPane.getLayout()).show(contentPane, "RESULT");
 		}
-		public void drawStatistics(){
+		/**
+		 * Draw that statistics tab. This is invoked when the stat menu button is hit
+		 */
+		private void drawStatistics(){
 			setTitle("YTDownloader ~ Statistics");
 			((CardLayout) contentPane.getLayout()).show(contentPane, "STATS");
 
 		}
-		
+		/**
+		 * Add a filterbox to the search GUI
+		 * @param filter contains a Map with the values and a name of the value
+		 * @param filterName the name of the filter would be display as a lable before the filter
+		 * @param filterType indicates the defined filter type in ManagementFilteredSearch
+		 * @return
+		 */
 		public boolean addFilterBox(Map<String, String> filter, String filterName, Integer filterType){
 			boolean result =  (searchWindow.addFilterBox(filter, filterName, filterType));
 			return result;
 		}
+		
+		/**
+		 * Return the selected filters from the FilterGui
+		 * @return
+		 */
 		public HashMap<Integer,String> getSelectedFilters(){
 			return searchWindow.getSelectedFilters();
 		}
-//		public void addVideoResult(String videoId){
-//			
-//		}
+		
 		public void newResult(Map<String, Video> videoInfo){
 			//First add all the info in the result
 			int count = 0;
@@ -232,10 +259,6 @@ public class FilteredSearchGui extends JFrame{
 					button.setBackground(menuColor);
 					hovered = null;
 				}
-				
-				//button.setForeground(Color.GREEN);
-				// TODO Auto-generated method stub
-//				button.setBackground(new Color(238,238,238));
 				
 			}
 		}

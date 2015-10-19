@@ -11,6 +11,9 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.SwingWorker;
+
+import com.google.api.client.util.DateTime;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
@@ -32,7 +35,7 @@ import no.uio.ifi.models.search.RandomVideoIdGenerator;
 public class ManagementFilteredSearch {
 	FilteredSearch filterSearch = new FilteredSearch();
 	FilteredSearchGui gui = new FilteredSearchGui(this);
-	public int NUMBER_OF_VIDEOS_TO_SEARCH = 200;
+	public int NUMBER_OF_VIDEOS_TO_SEARCH = 100000;
 	public int NUMBER_OF_VIDEOS_RETRIVED = 0;
 	int NUMBER_OF_THREADS=3;
 	LinkedList<String> resultCache = new LinkedList<String>();
@@ -77,21 +80,96 @@ public class ManagementFilteredSearch {
 	/**
 	 * Applying choosing filter and start the search. 
 	 */
-	public void preformSearch(String videoInfo,  String videoQuality, File filepath){
+	public void preformFilteredSearch(String videoInfo,  String videoQuality, File filepath){
 		NUMBER_OF_VIDEOS_RETRIVED = 0;
+		System.out.println("Videos to search: " + NUMBER_OF_VIDEOS_TO_SEARCH);
 		HashMap<Integer, String> filtersApplied = gui.getSelectedFilters();
 		filterSearch.init();
 		for (Integer key : filtersApplied.keySet()) {
 			System.out.println("AddingFilters");
 			filterSearch.setFilter(key, filtersApplied.get(key));
 		}
-		
-	 	WaitDialog wait = new WaitDialog("Crawling YouTube");
-
-	 	threadCount = NUMBER_OF_THREADS;
+		WaitDialog wait =new WaitDialog("Crawling YouTube");
 		for(int i = 0;i<NUMBER_OF_THREADS; i++){
 			(new SearchThread("SearchThread_"+i)).run();
 		}
+		wait.setText(NUMBER_OF_VIDEOS_RETRIVED + " unique videoIds are retrived");
+		SwingWorker worker = new SwingWorker<Integer, Void>(){
+
+			WaitDialog wait =new WaitDialog("Crawling YouTube");
+	
+			@Override
+			protected Integer doInBackground() throws Exception {
+				// TODO Auto-generated method stub
+			 	threadCount = NUMBER_OF_THREADS;
+				for(int i = 0;i<NUMBER_OF_THREADS; i++){
+					(new SearchThread("SearchThread_"+i)).run();
+				}
+				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
+					wait.appendText(NUMBER_OF_VIDEOS_RETRIVED);
+					Thread.sleep(1);
+				}
+				return null;
+			}
+			
+		};
+		worker.execute();
+		
+
+
+	}
+	private void search(){
+		RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();
+		
+		
+		//Here one thread shoul handle the gui and another thread should handle the search, or multiple threads. 
+		
+		while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
+			List<SearchResult> result = filterSearch.searchBy(randomGenerator.getNextRandom());
+			System.out.println(result.size());
+			if(deadEndCount > deadEndValue){
+				System.out.println("DEAD END");
+		
+			}
+			if( result.size() == 0){
+				System.out.println(deadEndCount);
+				deadEndCount++;
+				continue;
+			}
+			
+			loop:
+			for(SearchResult res : result){
+				if(resultCache.contains(res.getId().getVideoId())){
+					deadEndCount++;
+					System.out.println(deadEndCount);
+					continue loop;
+				}
+				deadEndCount = 0;
+				System.out.print(NUMBER_OF_VIDEOS_RETRIVED + ": ");
+				System.out.println(res.getId());
+				System.out.println(res);
+				NUMBER_OF_VIDEOS_RETRIVED++;
+				resultCache.add(res.getId().getVideoId());
+				
+			}
+			
+		}
+	
+		System.out.println("thread stopped.");
+		
+		System.out.println("threadCount: " + threadCount);
+		if(threadCount==NUMBER_OF_THREADS){
+			threadCount--;
+			finishedSearch();
+		}
+		threadCount--;
+		System.out.println();	
+	}
+	/**
+	 * This method should take a keyword and preform a search in a loop until we get the number of videos the user want. 
+	 */
+	public void preformKeywordSearch(){
+		
 	}
 	/**
 	 * When the thread is finished Searching the videos are saved and statistics are displayed
@@ -137,7 +215,6 @@ public class ManagementFilteredSearch {
 				
 				//Here one thread shoul handle the gui and another thread should handle the search, or multiple threads. 
 				
-			
 				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
 					List<SearchResult> result = filterSearch.searchBy(randomGenerator.getNextRandom());
 					System.out.println(result.size());
@@ -146,6 +223,7 @@ public class ManagementFilteredSearch {
 						throw new DeadEndException();	
 					}
 					if( result.size() == 0){
+						System.out.println(deadEndCount);
 						deadEndCount++;
 						continue;
 					}
@@ -154,6 +232,7 @@ public class ManagementFilteredSearch {
 					for(SearchResult res : result){
 						if(resultCache.contains(res.getId().getVideoId())){
 							deadEndCount++;
+							System.out.println(deadEndCount);
 							continue loop;
 						}
 						deadEndCount = 0;
@@ -164,8 +243,10 @@ public class ManagementFilteredSearch {
 						resultCache.add(res.getId().getVideoId());
 						
 					}
+					Thread.sleep(1);
+					
 				}
-				Thread.sleep(100);
+			
 				System.out.println("thread stopped.");
 				
 				System.out.println("threadCount: " + threadCount);
@@ -193,26 +274,6 @@ public class ManagementFilteredSearch {
 		}
 
 	}
-//	class BarThread implements Runnable {
-//		//ManagementAllRandom mng;
-//		DownloadProgressBar updateProgressBar = new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SEARCH,"Crawling");
-//		public BarThread(String s){//, ManagementAllRandom mng) {
-//	//		super(s);
-//			//this.mng = mng;
-//		}
-//		@Override
-//		public void run() {
-//			try {
-//				while(NUMBER_OF_VIDEOS_RETRIVED < NUMBER_OF_VIDEOS_TO_SEARCH ){
-//					updateProgressBar.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED);
-//				}
-//				Thread.sleep(1);
-//				System.out.println("thread stopped.");
-//				} catch (InterruptedException v) {
-//					System.out.println("Thread error");
-//					System.out.println(v);
-//				}
-//		}
-//	}
+
 	
 }
