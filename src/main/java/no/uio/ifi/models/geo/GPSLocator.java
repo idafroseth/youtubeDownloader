@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -17,7 +18,7 @@ public class GPSLocator {
 		
 		try{
 			
-			URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address="+city);
+			URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address="+URLEncoder.encode(city, "UTF-8"));
 			
 			URLConnection conn = url.openConnection();
 			InputStreamReader istr = new InputStreamReader(conn.getInputStream());
