@@ -56,7 +56,7 @@ public class FilteredSearch extends Search{
 	private Map<String, String> availableDurations = new HashMap<String, String>();
 	private Map<String, String> availableVideoTypes = new HashMap<String, String>();
 
-	private Map<String, String> availableVideoDefinitions = new HashMap<String, String>();
+	private Map<String, String> availableVideoDefinition = new HashMap<String, String>();
 
 	
 //	private Map<String, String> availableVideoDefinition = new HashMap<String, String>();
@@ -242,23 +242,23 @@ public class FilteredSearch extends Search{
 		}
 		return availableVideoDefinition;
 	}
-	public Map<String, String> getAvailableVideoDimension() {
-		if (availableVideoDimension.size() < 1) {
-			availableVideoDimension.put("2d", "2d");
-			availableVideoDimension.put("3d", "3d");
-		}
-		return availableVideoDimension;
-	}	
-	public Map<String, String> getAvailableVideoOrder() {
-		if (availableVideoOrder.size() < 1) {
-			availableVideoOrder.put("Date", "date");
-			availableVideoOrder.put("Rating", "rating");
-			availableVideoOrder.put("Relevance", "relevance");
-			availableVideoOrder.put("Title", "title");
-			availableVideoOrder.put("View count", "viewCount");
-		}
-		return availableVideoOrder;
-	}
+//	public Map<String, String> getAvailableVideoDimension() {
+//		if (availableVideoDimension.size() < 1) {
+//			availableVideoDimension.put("2d", "2d");
+//			availableVideoDimension.put("3d", "3d");
+//		}
+//		return availableVideoDimension;
+//	}	
+//	public Map<String, String> getAvailableVideoOrder() {
+//		if (availableVideoOrder.size() < 1) {
+//			availableVideoOrder.put("Date", "date");
+//			availableVideoOrder.put("Rating", "rating");
+//			availableVideoOrder.put("Relevance", "relevance");
+//			availableVideoOrder.put("Title", "title");
+//			availableVideoOrder.put("View count", "viewCount");
+//		}
+//		return availableVideoOrder;
+//	}
 	
 
 	/**
@@ -288,18 +288,6 @@ public class FilteredSearch extends Search{
 		return availableVideoTypes;
 	}
 	
-	/**
-	 * Making a map of all the available video definitions on YT
-	 * 
-	 * @return available types
-	 */
-	public Map<String, String> getAvailableVideoDefinitions() {
-		if (availableVideoDefinitions.size() < 1) {
-			availableVideoDefinitions.put("HD", "high");
-			availableVideoDefinitions.put("SD", "standard");
-		}
-		return availableVideoDefinitions;
-	}
 
 	/**
 	 * Setting up a HTTP connection with youtube and setting the properties for
@@ -408,18 +396,18 @@ public class FilteredSearch extends Search{
 			System.out.println("Adding type filters");
 			search.setVideoType(availableVideoTypes.get(id));
 			break;
-		case VIDEODEFINITIONFILTER:
+		case VIDEODEFINITONFILTER:
 			System.out.println("Adding definition filters");
 			search.setVideoDefinition(availableVideoDefinition.get(id)); //.setVideoQuality(availableVideoQuality.get(id));
 			break;
-		case VIDEODIMENSIONFILTER:
-			System.out.println("Adding dimension filters");
-			search.setVideoDimension(availableVideoDimension.get(id));
-			break;
-		case VIDEOORDERBY:
-			System.out.println("Adding order filters");
-			search.setOrder(availableVideoOrder.get(id));
-			break;
+//		case VIDEODIMENSIONFILTER:
+//			System.out.println("Adding dimension filters");
+//			search.setVideoDimension(availableVideoDimension.get(id));
+//			break;
+//		case VIDEOORDERBY:
+//			System.out.println("Adding order filters");
+//			search.setOrder(availableVideoOrder.get(id));
+//			break;
 		}
 	}
 }

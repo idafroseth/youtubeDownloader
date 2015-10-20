@@ -69,14 +69,13 @@ public class ManagementFilteredSearch {
 		HashMap<String, String> availableDuration = (HashMap<String, String>) filterSearch.getAvailableVideoDuration();
 		HashMap<String, String> availableVideoTypes = (HashMap<String, String>) filterSearch.getAvailableVideoTypes();
 
-		HashMap<String, String> availableVideoDefinitions = (HashMap<String, String>) filterSearch
-				.getAvailableVideoDefinitions();
+		HashMap<String, String> availableVideoDefinitions = (HashMap<String, String>) filterSearch.getAvailableVideoDefinition();
 		
 		gui.addFilterBox(availableCategories, "Category:", FilteredSearch.CATEGORYFILTER);
 		gui.addFilterBox(availableLanguages, "Language:", FilteredSearch.LANGUAGEFILTER);
 		gui.addFilterBox(availableRegions, "Region:", FilteredSearch.REGIONFILTER);
 		gui.addFilterBox(availableDuration, "Duration:", FilteredSearch.VIDEODURATIONFILTER);
-		gui.addFilterBox(availableVideoDefinitions, "Defintion:", FilteredSearch.VIDEODEFINITONFILTER);
+		//gui.addFilterBox(availableVideoDefinitions, "Defintion:", FilteredSearch.VIDEODEFINITONFILTER);
 		gui.addFilterBox(availableVideoTypes, "Type:", FilteredSearch.VIDEOTYPEFILTER);
 
 		//ADDED
@@ -100,46 +99,6 @@ public class ManagementFilteredSearch {
 
 	}
 	
-	public void preformKeyWordSearch(String videoInfo,  String videoQuality, File filepath, String keyWord){
-		this.filepath = filepath;
-		this.videoInfo = videoInfo;
-		filterSearch.init();
-		
-	//	while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
-			for(String order : filterSearch.getAvailableVideoOrder().keySet()){
-				filterSearch.setFilter(FilteredSearch.VIDEOORDERBY, order);
-//				for(String language : filterSearch.getAvailableLanguages().keySet()){
-//					filterSearch.setFilter(FilteredSearch.LANGUAGEFILTER, language);
-				
-					for(String category : filterSearch.getVideoCategories().keySet()){
-						filterSearch.setFilter(FilteredSearch.CATEGORYFILTER, category);
-					//	for(String region : filterSearch.getAvailableRegions().keySet()){
-					//		filterSearch.setFilter(FilteredSearch.REGIONFILTER, region);
-							
-							for(String duration : filterSearch.getAvailableVideoDuration().keySet()){
-								filterSearch.setFilter(FilteredSearch.VIDEODURATIONFILTER, duration);
-							
-								List<SearchResult> result = filterSearch.searchBy(keyWord);
-			
-								loop:
-								for(SearchResult res : result){
-									if(resultCache.contains(res.getId().getVideoId())){
-										continue loop;
-									}
-									System.out.print(NUMBER_OF_VIDEOS_RETRIVED + ": ");
-									System.out.println(res);
-									NUMBER_OF_VIDEOS_RETRIVED++;
-									resultCache.add(res.getId().getVideoId());
-									
-								}
-					//		}
-//						} 
-					}
-				}
-			}
-			System.out.println(NUMBER_OF_VIDEOS_RETRIVED);
-			finishedSearch();
-	}
 	
 	/**
 	 * Applying choosen filters and start the search. 
