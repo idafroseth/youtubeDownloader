@@ -12,17 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JPanel;
-import javax.swing.SwingWorker;
-
-import com.google.api.client.util.DateTime;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
-import no.uio.ifi.guis.DownloadProgressBar;
 import no.uio.ifi.guis.FilteredSearchGui;
 import no.uio.ifi.guis.WaitDialog;
 import no.uio.ifi.models.downloader.VideoInfoExtracter;
-import no.uio.ifi.models.search.DeadEndException;
 import no.uio.ifi.models.search.FilteredSearch;
 import no.uio.ifi.models.search.GeolocationSearch;
 import no.uio.ifi.models.search.RandomVideoIdGenerator;
@@ -73,6 +68,7 @@ public class ManagementFilteredSearch {
 		HashMap<String, String> availableRegions = (HashMap<String, String>) filterSearch.getAvailableRegions();
 		HashMap<String, String> availableDuration = (HashMap<String, String>) filterSearch.getAvailableVideoDuration();
 		HashMap<String, String> availableVideoTypes = (HashMap<String, String>) filterSearch.getAvailableVideoTypes();
+
 		HashMap<String, String> availableVideoDefinitions = (HashMap<String, String>) filterSearch
 				.getAvailableVideoDefinitions();
 		
@@ -82,11 +78,68 @@ public class ManagementFilteredSearch {
 		gui.addFilterBox(availableDuration, "Duration:", FilteredSearch.VIDEODURATIONFILTER);
 		gui.addFilterBox(availableVideoDefinitions, "Defintion:", FilteredSearch.VIDEODEFINITONFILTER);
 		gui.addFilterBox(availableVideoTypes, "Type:", FilteredSearch.VIDEOTYPEFILTER);
+
+		//ADDED
+	//	HashMap<String, String> availableVideoDimension = (HashMap<String, String>) filterSearch.getAvailableVideoDimension();
+	//	HashMap<String, String> availableVideoDefinition = (HashMap<String, String>) filterSearch.getAvailableVideoDefinition();
+	//	HashMap<String, String> availableVideoOrder = (HashMap<String, String>) filterSearch.getAvailableVideoOrder();
+		
+		
+	//	gui.addFilterBox(availableCategories, "Category", FilteredSearch.CATEGORYFILTER);
+	//	gui.addFilterBox(availableLanguages, "Language", FilteredSearch.LANGUAGEFILTER);
+	//	gui.addFilterBox(availableRegions, "Region", FilteredSearch.REGIONFILTER);
+	//	gui.addFilterBox(availableDuration, "Duration", FilteredSearch.VIDEODURATIONFILTER);
+	//	gui.addFilterBox(availableVideoTypes, "Video types", FilteredSearch.VIDEOTYPEFILTER);
+	//	gui.addFilterBox(availableVideoDefinition, "Video definition", FilteredSearch.VIDEODEFINITIONFILTER);
+	//	gui.addFilterBox(availableVideoDimension, "Video Dimension", FilteredSearch.VIDEODIMENSIONFILTER);
+	//	gui.addFilterBox(availableVideoOrder, "Order by", FilteredSearch.VIDEOORDERBY);
+		
+
 		wait.setVisible(false);
 		gui.pack();
 
 	}
 	
+	public void preformKeyWordSearch(String videoInfo,  String videoQuality, File filepath, String keyWord){
+		this.filepath = filepath;
+		this.videoInfo = videoInfo;
+		filterSearch.init();
+		
+	//	while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
+			for(String order : filterSearch.getAvailableVideoOrder().keySet()){
+				filterSearch.setFilter(FilteredSearch.VIDEOORDERBY, order);
+//				for(String language : filterSearch.getAvailableLanguages().keySet()){
+//					filterSearch.setFilter(FilteredSearch.LANGUAGEFILTER, language);
+				
+					for(String category : filterSearch.getVideoCategories().keySet()){
+						filterSearch.setFilter(FilteredSearch.CATEGORYFILTER, category);
+					//	for(String region : filterSearch.getAvailableRegions().keySet()){
+					//		filterSearch.setFilter(FilteredSearch.REGIONFILTER, region);
+							
+							for(String duration : filterSearch.getAvailableVideoDuration().keySet()){
+								filterSearch.setFilter(FilteredSearch.VIDEODURATIONFILTER, duration);
+							
+								List<SearchResult> result = filterSearch.searchBy(keyWord);
+			
+								loop:
+								for(SearchResult res : result){
+									if(resultCache.contains(res.getId().getVideoId())){
+										continue loop;
+									}
+									System.out.print(NUMBER_OF_VIDEOS_RETRIVED + ": ");
+									System.out.println(res);
+									NUMBER_OF_VIDEOS_RETRIVED++;
+									resultCache.add(res.getId().getVideoId());
+									
+								}
+					//		}
+//						} 
+					}
+				}
+			}
+			System.out.println(NUMBER_OF_VIDEOS_RETRIVED);
+			finishedSearch();
+	}
 	
 	/**
 	 * Applying choosen filters and start the search. 
@@ -104,6 +157,7 @@ public class ManagementFilteredSearch {
 			filterSearch.setFilter(key, filtersApplied.get(key));
 		}
 		wait =new WaitDialog("Crawling YouTube");
+		search();
 
 /*
 			WaitDialog wait =new WaitDialog("Crawling YouTube");
@@ -124,8 +178,6 @@ public class ManagementFilteredSearch {
 			
 		};
 		worker.execute();
-		
-
 */
 	}
 	
@@ -156,15 +208,14 @@ public class ManagementFilteredSearch {
 	
 	/**
 	 * When the thread is finished Searching the videos are saved and statistics are displayed
-	 
+	 */
 	public void finishedSearch(){
-//		if(videoInfo!=)
 		System.out.println("Videos in cache " +resultCache.size());
 
-//		Map<String, Video> videoInfoResult = (new VideoInfoExtracter()).getVideoContent(resultCache);
+		//Map<String, Video> videoInfoResult = (new VideoInfoExtracter()).getVideoContent(resultCache);
 		//gui.newResult(videoInfoResult);
 
-		//Map<String, Video> videoInfoResult = null;
+		Map<String, Video> videoInfoResult = null;
 		switch(videoInfo){
 		case "JSON":
 			videoInfoResult  = (new VideoInfoExtracter()).saveJsonVideoContent(resultCache, filepath);
@@ -184,7 +235,7 @@ public class ManagementFilteredSearch {
 
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
 	}
-*/
+
 	/**
 	 * This convert a video to xml format
 	 * @param video one object of YouTube video
@@ -204,6 +255,7 @@ public class ManagementFilteredSearch {
 	}
 	public static void main(String[] args) {
 		ManagementFilteredSearch fs = new ManagementFilteredSearch();
+		//fs.preformKeyWordSearch("","",null,"hello");
 	}
 	
 	class SearchThread extends Thread{
@@ -225,7 +277,6 @@ public class ManagementFilteredSearch {
 					List<SearchResult> result = filterSearch.searchBy(randomGenerator.getNextRandom());
 					if(deadEndCount > deadEndValue){
 						System.out.println("DEAD END");
-						throw new DeadEndException();	
 					}
 					if( result.size() == 0){
 						System.out.println(deadEndCount);
@@ -259,7 +310,7 @@ public class ManagementFilteredSearch {
 				System.out.println("threadCount: " + threadCount);
 				if(threadCount==NUMBER_OF_THREADS){
 					threadCount--;
-					//mng.finishedSearch();
+					mng.finishedSearch();
 				}
 				threadCount--;
 				System.out.println();	
@@ -267,14 +318,6 @@ public class ManagementFilteredSearch {
 			} catch (InterruptedException v) {
 				System.out.println("Thread error");
 				System.out.println(v);
-			} catch (DeadEndException e) {	
-				threadCount--;
-				if(threadCount>NUMBER_OF_THREADS+1){
-					deadEnd();
-					new WaitDialog("DEAD END EXCEPTION" );
-				}
-				e.printStackTrace();
-				this.interrupt();
 			}
 		}
 
