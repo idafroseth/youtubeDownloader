@@ -41,6 +41,9 @@ public class FilteredSearch extends Search{
 	public static final int VIDEOTYPEFILTER = 7;
 	public static final int GEOFILTER = 8;
 	public static final int NUMBERTOSEARCHFILTER = 9;
+	public static final int VIDEODIMENSIONFILTER = 10;
+	public static final int VIDEODEFINITIONFILTER = 11;
+	public static final int VIDEOORDERBY = 12;
 
 	private Map<String, String> availableCategories = new HashMap<String, String>();
 	private Map<String, String> availableLanguages = new HashMap<String, String>();
@@ -48,7 +51,12 @@ public class FilteredSearch extends Search{
 	private Map<String, String> availableRegions = new HashMap<String, String>();
 	private Map<String, String> availableDurations = new HashMap<String, String>();
 	private Map<String, String> availableVideoTypes = new HashMap<String, String>();
+	
+	private Map<String, String> availableVideoDefinition = new HashMap<String, String>();
+	private Map<String, String> availableVideoDimension = new HashMap<String, String>();
+	private Map<String, String> availableVideoOrder = new HashMap<String, String>();
 
+	
 	
 	
 	private Map<String, String> availableCategoriesReverse =  new HashMap<String, String>();
@@ -219,6 +227,32 @@ public class FilteredSearch extends Search{
 		}
 		return availableGuideCategories;
 	}
+	
+	public Map<String, String> getAvailableVideoDefinition() {
+		if (availableVideoDefinition.size() < 1) {
+			availableVideoDefinition.put("HD", "high");
+			availableVideoDefinition.put("SD", "standard");
+		}
+		return availableVideoDefinition;
+	}
+	public Map<String, String> getAvailableVideoDimension() {
+		if (availableVideoDimension.size() < 1) {
+			availableVideoDimension.put("2d", "2d");
+			availableVideoDimension.put("3d", "3d");
+		}
+		return availableVideoDimension;
+	}	
+	public Map<String, String> getAvailableVideoOrder() {
+		if (availableVideoOrder.size() < 1) {
+			availableVideoOrder.put("Date", "date");
+			availableVideoOrder.put("Rating", "rating");
+			availableVideoOrder.put("Relevance", "relevance");
+			availableVideoOrder.put("Title", "title");
+			availableVideoOrder.put("View count", "viewCount");
+		}
+		return availableVideoOrder;
+	}
+	
 
 	/**
 	 * Making a map of all the available durations on YT
@@ -353,6 +387,18 @@ public class FilteredSearch extends Search{
 		case VIDEOTYPEFILTER:
 			System.out.println("Adding type filters");
 			search.setVideoType(availableVideoTypes.get(id));
+			break;
+		case VIDEODEFINITIONFILTER:
+			System.out.println("Adding definition filters");
+			search.setVideoDefinition(availableVideoDefinition.get(id)); //.setVideoQuality(availableVideoQuality.get(id));
+			break;
+		case VIDEODIMENSIONFILTER:
+			System.out.println("Adding dimension filters");
+			search.setVideoDimension(availableVideoDimension.get(id));
+			break;
+		case VIDEOORDERBY:
+			System.out.println("Adding order filters");
+			search.setOrder(availableVideoOrder.get(id));
 			break;
 		}
 	}

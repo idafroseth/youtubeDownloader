@@ -334,7 +334,6 @@ public class FilterGui extends JPanel {
 						return;
 					}
 				}
-
 				mng.preformFilteredSearch( videoInfo,  videoQuality, filePath);
 				break;
 			case "FILECHOOSER":
