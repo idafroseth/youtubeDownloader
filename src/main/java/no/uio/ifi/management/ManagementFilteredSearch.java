@@ -37,7 +37,7 @@ public class ManagementFilteredSearch {
 	FilteredSearchGui gui = new FilteredSearchGui(this);
 	public int NUMBER_OF_VIDEOS_TO_SEARCH = 100000;
 	public int NUMBER_OF_VIDEOS_RETRIVED = 0;
-	int NUMBER_OF_THREADS=3;
+	int NUMBER_OF_THREADS=5;
 	LinkedList<String> resultCache = new LinkedList<String>();
 //	CountDownLatch latch = new CountDownLatch(0);
 	int threadCount = 0;
@@ -126,7 +126,7 @@ public class ManagementFilteredSearch {
 			videoInfoResult  = (new VideoInfoExtracter()).saveXmlVideoContent(resultCache, filepath);
 			break;
 		case "CSV":
-			System.out.println("CSV is not yet implemented");
+			videoInfoResult  = (new VideoInfoExtracter()).saveCSVVideoContent(resultCache, filepath);
 			break;
 		default:
 			videoInfoResult  = (new VideoInfoExtracter()).getVideoMetadata(resultCache);
@@ -200,7 +200,7 @@ public class ManagementFilteredSearch {
 						resultCache.add(res.getId().getVideoId());
 						
 					}
-					mng.updateOutput();
+//					mng.updateOutput();
 					Thread.sleep(1);
 					
 				}
