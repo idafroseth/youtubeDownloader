@@ -171,10 +171,10 @@ public class FilterGui extends JPanel {
 		filterAddPanel.setLayout(new GridLayout(10, 1));
 		filterAddPanel.setPreferredSize(new Dimension(100, 500));
 		filterAddPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-		filterAddPanel.add(getPeriodPanel());
-		filterAddPanel.setPreferredSize(new Dimension(400, 500));
 		filterAddPanel.add(getGelocationPanel());
 		filtersAppliedText.setPreferredSize(new Dimension(450, 450));
+		filterAddPanel.add(getPeriodPanel());
+		filterAddPanel.setPreferredSize(new Dimension(400, 500));
 		filtersAppliedText.setBorder(BorderFactory.createTitledBorder("Applied filters"));
 		filterActivePanel.add(filtersAppliedText);
 		filtersAppliedText.setBackground(new Color(238,238,238));
@@ -206,29 +206,48 @@ public class FilterGui extends JPanel {
 		applyGeoFilter.setActionCommand("APPLYGEOFILTER");
 		applyGeoFilter.addActionListener(mouseListener);
 
-		panel.add(new JLabel("City:"));
+		JLabel city = new JLabel("City: ");
+		Font font = city.getFont();
+		city.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
+		city.setPreferredSize(new Dimension(60, 20));
+
+		panel.add(city);
+
 		panel.add(cityInput);
-		panel.add(new JLabel("Radius:"));
+
+		JLabel radius = new JLabel("Radius: ");
+		font = radius.getFont();
+		radius.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
+		radius.setPreferredSize(new Dimension(60, 20));
+
+		panel.add(radius);
 		panel.add(radiusInput);
 		panel.add(applyGeoFilter);
-		
+
 		return panel;
 		
 	}
 	private JPanel getPeriodPanel(){
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 10));
-		panel.add(new JLabel("From: "));
+		JLabel from = new JLabel("Year: ");
+
+		Font font = from.getFont();
+		from.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
+		from.setPreferredSize(new Dimension(60, 20));
+
+		panel.add(from);
+
 		outputPeriodVideos.setForeground(Color.RED);
 		startDateTextField.setColumns(8);
 		endDateTextField.setColumns(8);
 		panel.add(startDateTextField);
 		panel.add(new JLabel("To:"));
 		panel.add(endDateTextField);
-	
+
 		JButton apply = new JButton("Apply");
 		apply.setActionCommand("PERIOD");
 		apply.addActionListener(mouseListener);
-		panel.add(apply);	
+		panel.add(apply);
 		panel.add(outputPeriodVideos);
 		return panel;
 	}
@@ -248,9 +267,12 @@ public class FilterGui extends JPanel {
 	 */
 	public boolean addFilterBox(Map<String, String> filter, String filterName, Integer filterType) {
 		String[] dropDownList = new String[filter.size() + 1];
-		dropDownList[0] = "No " + filterName + " filter";
+
+		String filterNameWithoutColon = filterName.replaceAll(":", "");
+
+		dropDownList[0] = "No " + filterNameWithoutColon + " filter";
 		int i = 1;
-		if (filters.contains(filterName)) {
+		if (filters.contains(filterNameWithoutColon)) {
 			System.out.println("A filter with this name is already defined!");
 			return false;
 		} else {
@@ -263,12 +285,18 @@ public class FilterGui extends JPanel {
 			categoryList.setName(filterType.toString());
 			categoryList.setSelectedIndex(0);
 			categoryList.addActionListener(filterListener);
+			categoryList.setPreferredSize(new Dimension(250, 20));
+
 			filters.add(filterType);
 			JLabel filterLabel = new JLabel(filterName);
+			Font font = filterLabel.getFont();
+			filterLabel.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
+			filterLabel.setPreferredSize(new Dimension(100, 20));
 			JPanel filterRow = new JPanel();
 			filterRow.setLayout(new FlowLayout(FlowLayout.LEFT, 3, 10));
 			filterRow.add(filterLabel);
 			filterRow.add(categoryList);
+
 			filterAddPanel.add(filterRow);
 			return true;
 		}

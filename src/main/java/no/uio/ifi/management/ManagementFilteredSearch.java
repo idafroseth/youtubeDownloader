@@ -49,6 +49,7 @@ public class ManagementFilteredSearch {
 	HashMap<String, String> availableRegions;
 	HashMap<String, String> availableDuration;
 	HashMap<String, String> availableVideoTypes;
+
 	File filepath;
 	/**
 	 * Counting the number of updates of the chache queue, if there isn´t recieved a new
@@ -72,12 +73,15 @@ public class ManagementFilteredSearch {
 		HashMap<String, String> availableRegions = (HashMap<String, String>) filterSearch.getAvailableRegions();
 		HashMap<String, String> availableDuration = (HashMap<String, String>) filterSearch.getAvailableVideoDuration();
 		HashMap<String, String> availableVideoTypes = (HashMap<String, String>) filterSearch.getAvailableVideoTypes();
+		HashMap<String, String> availableVideoDefinitions = (HashMap<String, String>) filterSearch
+				.getAvailableVideoDefinitions();
 		
-		gui.addFilterBox(availableCategories, "Category", FilteredSearch.CATEGORYFILTER);
-		gui.addFilterBox(availableLanguages, "Language", FilteredSearch.LANGUAGEFILTER);
-		gui.addFilterBox(availableRegions, "Region", FilteredSearch.REGIONFILTER);
-		gui.addFilterBox(availableDuration, "Duration", FilteredSearch.VIDEODURATIONFILTER);
-		gui.addFilterBox(availableVideoTypes, "Video types", FilteredSearch.VIDEOTYPEFILTER);
+		gui.addFilterBox(availableCategories, "Category:", FilteredSearch.CATEGORYFILTER);
+		gui.addFilterBox(availableLanguages, "Language:", FilteredSearch.LANGUAGEFILTER);
+		gui.addFilterBox(availableRegions, "Region:", FilteredSearch.REGIONFILTER);
+		gui.addFilterBox(availableDuration, "Duration:", FilteredSearch.VIDEODURATIONFILTER);
+		gui.addFilterBox(availableVideoDefinitions, "Defintion:", FilteredSearch.VIDEODEFINITONFILTER);
+		gui.addFilterBox(availableVideoTypes, "Type:", FilteredSearch.VIDEOTYPEFILTER);
 		wait.setVisible(false);
 		gui.pack();
 

@@ -41,6 +41,8 @@ public class FilteredSearch extends Search{
 	public static final int VIDEOTYPEFILTER = 7;
 	public static final int GEOFILTER = 8;
 	public static final int NUMBERTOSEARCHFILTER = 9;
+	public static final int VIDEODEFINITONFILTER = 10;
+
 
 	private Map<String, String> availableCategories = new HashMap<String, String>();
 	private Map<String, String> availableLanguages = new HashMap<String, String>();
@@ -48,6 +50,8 @@ public class FilteredSearch extends Search{
 	private Map<String, String> availableRegions = new HashMap<String, String>();
 	private Map<String, String> availableDurations = new HashMap<String, String>();
 	private Map<String, String> availableVideoTypes = new HashMap<String, String>();
+	private Map<String, String> availableVideoDefinitions = new HashMap<String, String>();
+
 
 	
 	
@@ -245,6 +249,19 @@ public class FilteredSearch extends Search{
 			availableVideoTypes.put("Movie ", "movie");
 		}
 		return availableVideoTypes;
+	}
+	
+	/**
+	 * Making a map of all the available video definitions on YT
+	 * 
+	 * @return available types
+	 */
+	public Map<String, String> getAvailableVideoDefinitions() {
+		if (availableVideoDefinitions.size() < 1) {
+			availableVideoDefinitions.put("HD", "high");
+			availableVideoDefinitions.put("SD", "standard");
+		}
+		return availableVideoDefinitions;
 	}
 
 	/**
