@@ -16,7 +16,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import no.uio.ifi.guis.Statistics;
+import no.uio.ifi.models.Export;
 import no.uio.ifi.models.Export.ExportType;
+import no.uio.ifi.models.PageYouTube;
 
 /**
  * 

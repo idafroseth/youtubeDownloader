@@ -14,10 +14,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.List;
+import java.util.ListIterator;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -27,6 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -36,6 +43,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 
+import com.google.api.services.youtube.model.ResourceId;
+import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
 import no.uio.ifi.management.ManagementFilteredSearch;
@@ -60,9 +69,9 @@ public class FilteredSearchGui extends JFrame{
 		
 		Border border = LineBorder.createGrayLineBorder();// BorderFactory.createRaisedBevelBorder();
 
-		private JTextArea resultIdList = new JTextArea();
+		//private JTextArea resultIdList = new JTextArea();
+		JPanel resultPanel;
 		private ManagementFilteredSearch mng;
-		
 		/**
 		 * Constructor
 		 * @param mng indicates the management for this gui
@@ -100,8 +109,8 @@ public class FilteredSearchGui extends JFrame{
 		 * @return
 		 */
 		public JPanel getResultPanel(){
-			JPanel resultPanel = new JPanel();
-			resultPanel.add(resultIdList);
+			resultPanel = new JPanel();
+			//resultPanel.add(resultIdList);
 			return resultPanel;
 		}
 		
@@ -185,6 +194,7 @@ public class FilteredSearchGui extends JFrame{
 			return searchWindow.getSelectedFilters();
 		}
 		
+		/*
 		public void newResult(Map<String, Video> videoInfo){
 			//First add all the info in the result
 			int count = 0;
@@ -194,7 +204,17 @@ public class FilteredSearchGui extends JFrame{
 			}
 			setButtonAsActive(resultMenu);
 			drawResult();
+		}*/
+		
+		public void displayResult(JPanel resultcontain){
+			if(resultPanel != null) contentPane.remove(resultPanel);
+			contentPane.add(resultcontain,"RESULT");
+			resultPanel = resultcontain;
+			setButtonAsActive(resultMenu);
+			drawResult();
 		}
+		
+		
 		
 		private void setButtonAsActive(JLabel button){
 			activeButton.setBackground(menuColor);

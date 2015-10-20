@@ -11,6 +11,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
 import com.google.api.client.util.DateTime;
@@ -23,7 +24,9 @@ import no.uio.ifi.guis.WaitDialog;
 import no.uio.ifi.models.downloader.VideoInfoExtracter;
 import no.uio.ifi.models.search.DeadEndException;
 import no.uio.ifi.models.search.FilteredSearch;
+import no.uio.ifi.models.search.GeolocationSearch;
 import no.uio.ifi.models.search.RandomVideoIdGenerator;
+import no.uio.ifi.models.search.Search;
 
 /**
  * Management for the filtered search Displaying a gui and handling the dialog
@@ -98,26 +101,66 @@ public class ManagementFilteredSearch {
 		}
 		wait =new WaitDialog("Crawling YouTube");
 
+/*
+			WaitDialog wait =new WaitDialog("Crawling YouTube");
+	
+			@Override
+			protected Integer doInBackground() throws Exception {
+				// TODO Auto-generated method stub
+			 	threadCount = NUMBER_OF_THREADS;
+				for(int i = 0;i<NUMBER_OF_THREADS; i++){
+					(new SearchThread("SearchThread_"+i)).run();
+				}
+				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
+					wait.appendText(NUMBER_OF_VIDEOS_RETRIVED);
+					Thread.sleep(1);
+				}
+				return null;
+			}
+			
+		};
+		worker.execute();
 		
+
+*/
+	}
+	
+	private void search(){
+		RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();	
 	 	threadCount = NUMBER_OF_THREADS;
 		for(int i = 0;i<NUMBER_OF_THREADS; i++){
 			(new SearchThread("SearchThread_"+i, this)).run();
 		}
 	}
+	
 	/**
 	 * This method should take a keyword and preform a search in a loop until we get the number of videos the user want. 
 	 */
-	public void updateOutput(){
-		wait.setText(NUMBER_OF_VIDEOS_RETRIVED + " of " + NUMBER_OF_VIDEOS_TO_SEARCH);	
-		System.out.println("Updates output");
+
+	public List<Video> preformKeywordSearch(String keyword){
+		return (new Search()).getVideoLinkFromKeyWord(keyword);
 	}
+	
+	public void displayresultFromKeySearch(JPanel resultcontain){
+		gui.displayResult(resultcontain);
+	}
+	
+	public List<Video> performKeywordSearchWithGeolocation(String keyword, String address, String distance){
+		return (new GeolocationSearch()).searchVideoBaseOnLocation(keyword, address, distance);
+	}
+	
+	
 	/**
 	 * When the thread is finished Searching the videos are saved and statistics are displayed
-	 */
+	 
 	public void finishedSearch(){
 //		if(videoInfo!=)
 		System.out.println("Videos in cache " +resultCache.size());
-		Map<String, Video> videoInfoResult = null;
+
+//		Map<String, Video> videoInfoResult = (new VideoInfoExtracter()).getVideoContent(resultCache);
+		//gui.newResult(videoInfoResult);
+
+		//Map<String, Video> videoInfoResult = null;
 		switch(videoInfo){
 		case "JSON":
 			videoInfoResult  = (new VideoInfoExtracter()).saveJsonVideoContent(resultCache, filepath);
@@ -133,10 +176,11 @@ public class ManagementFilteredSearch {
 			break;
 		}
 		
-		gui.newResult(videoInfoResult);
+		//gui.newResult(videoInfoResult);
+
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
 	}
-
+*/
 	/**
 	 * This convert a video to xml format
 	 * @param video one object of YouTube video
@@ -200,6 +244,7 @@ public class ManagementFilteredSearch {
 						resultCache.add(res.getId().getVideoId());
 						
 					}
+
 //					mng.updateOutput();
 					Thread.sleep(1);
 					
@@ -210,7 +255,7 @@ public class ManagementFilteredSearch {
 				System.out.println("threadCount: " + threadCount);
 				if(threadCount==NUMBER_OF_THREADS){
 					threadCount--;
-					mng.finishedSearch();
+					//mng.finishedSearch();
 				}
 				threadCount--;
 				System.out.println();	
