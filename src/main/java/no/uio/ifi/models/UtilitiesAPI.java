@@ -147,14 +147,18 @@ public class UtilitiesAPI {
 		YouTube.CommentThreads.List listcommentThreadRequest = null;
 
 		listcommentThreadRequest = youtube.commentThreads().list("snippet").setVideoId(videoId);
-
+		
 		listcommentThreadRequest.setKey(apiKey);
+		listcommentThreadRequest.setMaxResults(5L);
 
 		CommentThreadListResponse videoCommentsListResponse = null;
-		videoCommentsListResponse = listcommentThreadRequest.setTextFormat("plainText").execute();
+		videoCommentsListResponse = listcommentThreadRequest.execute();
 
 		commentsList = videoCommentsListResponse.getItems();
-
+		for(CommentThread cm : commentsList){
+			System.out.println(cm);
+			//System.out.println(cm.getSnippet());
+		}
 		return commentsList;
 
 	}
@@ -210,6 +214,16 @@ public class UtilitiesAPI {
 		}
 
 		return videoList;
+	}
+	public static void main(String[] args){
+		UtilitiesAPI uapi = new UtilitiesAPI();
+		try {
+			uapi.getTopLevelComments("FW3T6wU4dSo");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("IOEX");
+			e.printStackTrace();
+		}
 	}
 
 }

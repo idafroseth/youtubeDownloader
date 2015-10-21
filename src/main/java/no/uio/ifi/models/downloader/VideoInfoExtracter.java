@@ -39,8 +39,9 @@ public class VideoInfoExtracter extends Search {
 	BufferedWriter writer;
 	String fileType;
 	Map<String, Video> videoJSON = new HashMap<String, Video>();
+	CommentExtractor commentExtractor = new  CommentExtractor(5L);
 	/**
-	 * Empty constructor
+	 * setting the filetype
 	 */
 	public VideoInfoExtracter(String fileType) {
 		this.fileType = fileType;
@@ -88,7 +89,7 @@ public class VideoInfoExtracter extends Search {
 				videoList = listResponse.getItems();
 				
 				for (Video v : videoList) {
-					System.out.println(v.getId());
+					System.out.println("{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+"}");
 					videoJSON = v;
 					
 					switch(fileType){
