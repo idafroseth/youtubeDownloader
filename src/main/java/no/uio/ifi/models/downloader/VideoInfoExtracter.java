@@ -89,8 +89,9 @@ public class VideoInfoExtracter extends Search {
 				videoList = listResponse.getItems();
 				
 				for (Video v : videoList) {
-					System.out.println("{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+"}");
+					
 					videoJSON = v;
+					String jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+"}";
 					
 					switch(fileType){
 					case "JSON":
@@ -98,8 +99,8 @@ public class VideoInfoExtracter extends Search {
 						break;
 					case "XML":
 						String videoJson = v.toPrettyString();
-						JSONObject json = new JSONObject(videoJson);
-						String xml = XML.toString(json, "video");
+						JSONObject jsonObject = new JSONObject(videoJson);
+						String xml = XML.toString(jsonObject, "video");
 						saveMetaData(xml);
 						break;
 					case "CSV":
