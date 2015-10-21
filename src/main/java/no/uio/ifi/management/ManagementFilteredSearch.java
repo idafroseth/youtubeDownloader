@@ -1,6 +1,7 @@
 package no.uio.ifi.management;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -10,6 +11,7 @@ import org.json.XML;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JPanel;
 import com.google.api.services.youtube.model.SearchResult;
@@ -37,8 +39,8 @@ public class ManagementFilteredSearch {
 	public int NUMBER_OF_VIDEOS_TO_SEARCH = 100000;
 	public int NUMBER_OF_VIDEOS_RETRIVED = 0;
 	int NUMBER_OF_THREADS=5;
-	LinkedList<String> resultCache = new LinkedList<String>();
-//	CountDownLatch latch = new CountDownLatch(0);
+	ArrayList<String> resultCache = new ArrayList<String>();
+
 	int threadCount = 0;
 	HashMap<String, String> availableCategories;
 	HashMap<String, String> availableLanguages;
@@ -51,8 +53,14 @@ public class ManagementFilteredSearch {
 	String videoInfo;
 	
 	DownloadProgressBar wait;
+	
+	CountDownLatch latch;
+	Boolean finished = false;
+	
+	VideoInfoExtracter infoExtracter = new VideoInfoExtracter();
 
-	LinkedList<Thread> downloadThreads = new LinkedList<Thread>();
+	int count = 0;
+	ThreadGroup tg = new ThreadGroup("Download");
 	/**
 	 * Retrieving all the filters and then display the window. 
 	 */
@@ -111,41 +119,21 @@ public class ManagementFilteredSearch {
 			System.out.println("AddingFilters");
 			filterSearch.setFilter(key, filtersApplied.get(key));
 		}
-		wait =new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SEARCH,"Crawling YouTube");
+		wait =new DownloadProgressBar(this, NUMBER_OF_VIDEOS_TO_SEARCH,"Crawling YouTube");
 		search();
 
-/*
-			WaitDialog wait =new WaitDialog("Crawling YouTube");
-	
-			@Override
-			protected Integer doInBackground() throws Exception {
-				// TODO Auto-generated method stub
-			 	threadCount = NUMBER_OF_THREADS;
-				for(int i = 0;i<NUMBER_OF_THREADS; i++){
-					(new SearchThread("SearchThread_"+i)).run();
-				}
-				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
-					wait.appendText(NUMBER_OF_VIDEOS_RETRIVED);
-					Thread.sleep(1);
-				}
-				return null;
-			}
-			
-		};
-		worker.execute();
-*/
 	}
 	
-	private void search(){
-		RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();	
+	private void search() {
+		RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();
+	
 	 	threadCount = NUMBER_OF_THREADS;
 		for(int i = 0;i<NUMBER_OF_THREADS; i++){
-			downloadThreads.add(new SearchThread("SearchThread_"+i, this));
+			(new SearchThread(tg, "SearchThread_"+i, this)).start();
+			
+		}
 		
-		}
-		for(Thread th : downloadThreads){
-			th.start();
-		}
+
 	}
 	
 	/**
@@ -169,36 +157,32 @@ public class ManagementFilteredSearch {
 	 * When the thread is finished Searching the videos are saved and statistics are displayed
 	 */
 	public void finishedSearch(){
-		for(Thread th : downloadThreads){
-			th.interrupt();
-		}
-		System.out.println("Videos in cache " +resultCache.size());
-
+	
+		tg.interrupt();
 		
-		//Map<String, Video> videoInfoResult = (new VideoInfoExtracter()).getVideoContent(resultCache);
-		//gui.newResult(videoInfoResult);
-
+		System.out.println("Videos in cache " +resultCache.size());
+		wait.setVisible(true);
+		
 		Map<String, Video> videoInfoResult = null;
 		switch(videoInfo){
 		case "JSON":
-			videoInfoResult  = (new VideoInfoExtracter()).saveJsonVideoContent(resultCache, filepath);
+			videoInfoResult  = infoExtracter.saveJsonVideoContent(resultCache, filepath);
 			break;
 		case "XML":
-			videoInfoResult  = (new VideoInfoExtracter()).saveXmlVideoContent(resultCache, filepath);
+			videoInfoResult  = infoExtracter.saveXmlVideoContent(resultCache, filepath);
 			break;
 		case "CSV":
-			videoInfoResult  = (new VideoInfoExtracter()).saveCSVVideoContent(resultCache, filepath);
+			videoInfoResult  = infoExtracter.saveCSVVideoContent(resultCache, filepath);
 			break;
 		default:
-			videoInfoResult  = (new VideoInfoExtracter()).getVideoMetadata(resultCache);
+			videoInfoResult  = infoExtracter.getVideoMetadata(resultCache);
 			break;
 		}
-		
-		//gui.newResult(videoInfoResult);
-
+	
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
-	}
 
+		
+	}
 	/**
 	 * This convert a video to xml format
 	 * @param video one object of YouTube video
@@ -214,8 +198,10 @@ public class ManagementFilteredSearch {
 	
 	class SearchThread extends Thread{
 		ManagementFilteredSearch mng;
-		public SearchThread(String s, ManagementFilteredSearch mng){
-			super(s);
+		
+		public SearchThread(ThreadGroup tg, String s, ManagementFilteredSearch mng){//, CountDownLatch startSignal, CountDownLatch doneSignal){
+			super(tg,s);
+			
 			this.mng = mng;
 		}
 		
@@ -226,30 +212,37 @@ public class ManagementFilteredSearch {
 				
 				
 				//Here one thread shoul handle the gui and another thread should handle the search, or multiple threads. 
-				
+				loop:
 				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
 					List<SearchResult> result = filterSearch.searchBy(randomGenerator.getNextRandom());
-					
+	
+					innerLoop:
 					for(SearchResult res : result){
+						if(res.size()==0){
+							continue innerLoop;
+						}
 						Thread.sleep(1);
-						if(!resultCache.contains(res.getId().getVideoId())){
+						if(!resultCache.contains(res.getId().getVideoId())&&res.getId()!=null){
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							resultCache.add(res.getId().getVideoId());
-							System.out.println(NUMBER_OF_VIDEOS_RETRIVED + ": "+res.getId());
 						}	
 					}
 					wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED );	
 				}
+				ThreadGroup group = super.getThreadGroup();
+				group.interrupt();
 				wait.setVisible(false);
-				mng.finishedSearch();
-				
-				System.out.println("thread stopped.");
-				//interrupt();
-				
+				mng.threadCount--;
+				if(threadCount+1==NUMBER_OF_THREADS ){
+					mng.finishedSearch();
+				}
 			} catch (InterruptedException v) {
 				System.out.println("Thread Interrupted");
+				System.out.println(resultCache.size());
 			}
+
 		}
+	
 
 	}
 

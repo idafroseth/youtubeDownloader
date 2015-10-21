@@ -3,6 +3,8 @@ package no.uio.ifi.guis;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -17,13 +19,15 @@ import no.uio.ifi.models.search.RandomVideoIdGenerator;
 
 public class DownloadProgressBar extends JDialog  implements PreformingSearchDialog {
 	JProgressBar progressBar;
-	public DownloadProgressBar(int max, String title){
-		// We should move this into a separate class
+	ManagementFilteredSearch mng;
+	
+	public DownloadProgressBar(ManagementFilteredSearch mng, int max, String title){
+		this.mng = mng;
 		this.setTitle(title);
-		 progressBar = new JProgressBar();
-		 progressBar.setValue(0);
-		 progressBar.setMaximum(max);
-		 progressBar.setStringPainted(true);
+		progressBar = new JProgressBar();
+		progressBar.setValue(0);
+		progressBar.setMaximum(max);
+		progressBar.setStringPainted(true);
 	
 		JButton cancelButton = new JButton("Cancel");
 		JPanel content = new JPanel();
@@ -50,26 +54,44 @@ public class DownloadProgressBar extends JDialog  implements PreformingSearchDia
 	}
 	@Override
 	public void setVideosToRetrieve(int numbOfVideosToSearch) {
-		// TODO Auto-generated method stub
-		
+		progressBar.setMaximum(numbOfVideosToSearch);
 	}
 
 	@Override
 	public void updateProgressBar(int numberOfVideosRetrived) {
 		progressBar.setValue(numberOfVideosRetrived);
-		
 	}
-	
-	public void run() {
-		try {
-		
-			Thread.sleep(1);
+	class StopListener implements MouseListener{
 
-		} catch (InterruptedException v) {
-			System.out.println("Thread error");
-			System.out.println(v);
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
 		}
-	}
-	
 
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
 }
