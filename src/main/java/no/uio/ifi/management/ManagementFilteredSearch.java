@@ -127,7 +127,7 @@ public class ManagementFilteredSearch {
 			System.out.println("AddingFilters");
 			filterSearch.setFilter(key, filtersApplied.get(key));
 		}
-		wait =new DownloadProgressBar(this, NUMBER_OF_VIDEOS_TO_SEARCH,"Crawling YouTube");
+		wait =new DownloadProgressBar(this, NUMBER_OF_VIDEOS_TO_SEARCH,"Crawling YouTube", tg);
 		search();
 
 	}
@@ -230,15 +230,20 @@ public class ManagementFilteredSearch {
 					wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED );	
 				}
 			
-				wait.setVisible(false);
+			
 				threadCount--;
-				System.out.println(threadCount);
 				if(threadCount == 0 ){
 					mng.finishedSearch();
+					wait.setVisible(false);
 				}
 			} catch (InterruptedException v) {
 				System.out.println("Thread Interrupted");
 				System.out.println(resultCache.size());
+				threadCount--;
+				if(threadCount == 0 ){
+					mng.finishedSearch();
+					wait.setVisible(false);
+				}
 			}
 
 		}

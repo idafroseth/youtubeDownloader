@@ -3,6 +3,8 @@ package no.uio.ifi.guis;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
@@ -20,8 +22,11 @@ import no.uio.ifi.models.search.RandomVideoIdGenerator;
 public class DownloadProgressBar extends JDialog  implements PreformingSearchDialog {
 	JProgressBar progressBar;
 	ManagementFilteredSearch mng;
+	ThreadGroup tg;
+	StopListener mouseListener = new StopListener();
 	
-	public DownloadProgressBar(ManagementFilteredSearch mng, int max, String title){
+	public DownloadProgressBar(ManagementFilteredSearch mng, int max, String title, ThreadGroup tg){
+		this.tg = tg;
 		this.mng = mng;
 		this.setTitle(title);
 		progressBar = new JProgressBar();
@@ -29,7 +34,9 @@ public class DownloadProgressBar extends JDialog  implements PreformingSearchDia
 		progressBar.setMaximum(max);
 		progressBar.setStringPainted(true);
 	
-		JButton cancelButton = new JButton("Cancel");
+		JButton cancelButton = new JButton("Stop and save");
+		
+		cancelButton.addActionListener(mouseListener);
 		JPanel content = new JPanel();
 		JPanel buttonPanel = new JPanel();
 		JPanel progressPanel = new JPanel();
@@ -61,37 +68,12 @@ public class DownloadProgressBar extends JDialog  implements PreformingSearchDia
 	public void updateProgressBar(int numberOfVideosRetrived) {
 		progressBar.setValue(numberOfVideosRetrived);
 	}
-	class StopListener implements MouseListener{
+	class StopListener implements ActionListener{
 
 		@Override
-		public void mouseClicked(MouseEvent e) {
+		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
-			
+			tg.interrupt();
 		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-		
 	}
 }

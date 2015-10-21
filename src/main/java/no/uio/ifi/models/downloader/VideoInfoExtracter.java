@@ -80,7 +80,6 @@ public class VideoInfoExtracter extends Search {
 	 */
 	public Video getVideoInfo(String videoId) {
 		Video videoJSON = null; 
-		System.out.println("Inside getvideoInfo");
 		try {
 			List<Video> videoList;
 	
