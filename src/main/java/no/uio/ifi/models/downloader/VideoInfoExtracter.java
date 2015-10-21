@@ -91,15 +91,14 @@ public class VideoInfoExtracter extends Search {
 				for (Video v : videoList) {
 					
 					videoJSON = v;
-					String jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+"}";
-					
+			//		String jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+"}";
+					String jsonString = v.toPrettyString();
 					switch(fileType){
 					case "JSON":
 						saveMetaData( v.toPrettyString());
 						break;
 					case "XML":
-						String videoJson = v.toPrettyString();
-						JSONObject jsonObject = new JSONObject(videoJson);
+						JSONObject jsonObject = new JSONObject(jsonString);
 						String xml = XML.toString(jsonObject, "video");
 						saveMetaData(xml);
 						break;
@@ -117,74 +116,7 @@ public class VideoInfoExtracter extends Search {
 		}
 		return videoJSON;
 	}
-	
-	/**
-	 * Retrive the video information from youtube and saves it in a file named videoInfo.xml at a specified path.
-	 * @param videoIdsQueue a queue of videoIds to retrieve
-	 * @param path the folder to save the metadata
-	 * @return a Map of <VideoId, YouTube.Video> 
-	 */
-//	public Map<String, Video> saveXmlVideoContent(ArrayList<String> videoIdsQueue, File path) {
-//		Map<String, Video> videoJSON = new HashMap<String, Video>();
-//		try {
-//			initDataContent();
-//			List<Video> videoList;
-//			initOutputFile(path, "/videoInfo.xml");
-//			for (String videoId : videoIdsQueue) {
-//				searchContent.setId(videoId);
-//				VideoListResponse listResponse;
-//				listResponse = searchContent.execute();
-//				videoList = listResponse.getItems();
-//				for (Video v : videoList) {
-//					// System.out.println(v.getSnippet().getTitle());//.getSnippet()
-//					// +""+ v.getStatistics() + "" + v.getContentDetails() + ""
-//					// + v.getStatus());
-//					System.out.println(v.getId());
-//					String videoJson = v.toPrettyString();// "{\"video\":" +
-//															// v.toPrettyString()
-//															// + "}";
-//					videoJSON.put(v.getId(), v);
-//					JSONObject json = new JSONObject(videoJson);
-//					String xml = XML.toString(json, "video");
-//					System.out.println("xml: " + xml);
-//					saveMetaData(xml);
-//				}
-//			}
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		return videoJSON;
-//	}
-//	public Map<String, Video> saveCSVVideoContent(ArrayList<String> videoIdsQueue, File path) {
-//
-//		Map<String, Video> videoJSON = new HashMap<String, Video>();
-//		try {
-//			initDataContent();
-//			List<Video> videoList;
-//			initOutputFile(path, "/videoInfo.csv");
-//			for (String videoId : videoIdsQueue) {
-//				searchContent.setId(videoId);
-//				VideoListResponse listResponse;
-//				listResponse = searchContent.execute();
-//				videoList = listResponse.getItems();
-//				int i =0;
-//				System.out.println("VideoInfoExtractor number of videos in the list " + videoList.size());
-//				for (Video v : videoList) {
-//					System.out.println("This response contained: " + i++);
-//					String csv = convertJsonToCSV( new JSONObject("{\"video\":[" + v.toString() + "]}"));
-//					System.out.println(v.getId());
-//					videoJSON.put(v.getId(), v);
-//					saveMetaData(csv);
-//
-//				}
-//			}
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		return videoJSON;
-//
+
 //	}
 	public String convertJsonToCSV(JSONObject json){
 //	    JSONObject output = new JSONObject(json);
@@ -228,53 +160,4 @@ public class VideoInfoExtracter extends Search {
 
 	}
 
-	/**
-	 * Method that returns a list for the top level comments for a given videoId
-	 * @param videoId
-	 * @return a list of comment threads for this video
-	 * @throws IOException
-	 */
-	public List<CommentThread> getTopLevelComments(String videoId) throws IOException {
-
-		List<CommentThread> commentsList = null;
-		Properties properties = new Properties();
-		try {
-			InputStream in = Search.class.getResourceAsStream("/" + PROPERTIES_FILENAME);
-			properties.load(in);
-
-		} catch (IOException e) {
-			System.err.println(
-					"There was an error reading " + PROPERTIES_FILENAME + ": " + e.getCause() + " : " + e.getMessage());
-			System.exit(1);
-		}
-
-		// This object is used to make YouTube Data API requests.
-		youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, new HttpRequestInitializer() {
-			public void initialize(HttpRequest request) throws IOException {
-			}
-		}).setApplicationName("YT-downloader").build();
-
-		String apiKey = properties.getProperty("youtube.apikey");
-
-		// Call the YouTube Data API's commentThreads.list method to
-		// retrieve video comment threads.
-
-		YouTube.CommentThreads.List listcommentThreadRequest = null;
-
-		listcommentThreadRequest = youtube.commentThreads().list("items/snippet").setVideoId(videoId);
-		listcommentThreadRequest.setTextFormat("plainText");
-
-		listcommentThreadRequest.setKey(apiKey);
-
-		CommentThreadListResponse videoCommentsListResponse = null;
-		videoCommentsListResponse = listcommentThreadRequest.execute();
-
-		commentsList = videoCommentsListResponse.getItems();
-		for (CommentThread cm : commentsList) {
-			System.out.println(cm);
-		}
-
-		return commentsList;
-
-	}
 }
