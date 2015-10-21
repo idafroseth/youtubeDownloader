@@ -15,12 +15,16 @@ import com.google.api.services.youtube.YouTube.CommentThreads;
 import com.google.api.services.youtube.YouTube.Comments;
 import com.google.api.services.youtube.model.Comment;
 import com.google.api.services.youtube.model.CommentListResponse;
+import com.google.api.services.youtube.model.CommentSnippet;
 import com.google.api.services.youtube.model.CommentThread;
 import com.google.api.services.youtube.model.CommentThreadListResponse;
 import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoCategory;
 import com.google.api.services.youtube.model.VideoCategoryListResponse;
 import com.google.api.services.youtube.model.VideoListResponse;
+
+
+
 
 import no.uio.ifi.Auth;
 import no.uio.ifi.models.UtilitiesAPI;
@@ -51,7 +55,7 @@ public class CommentExtractor extends Search{
 
 			}).setApplicationName("CommentExtractor").build();
 			
-			listcommentThreadRequest = youtube.commentThreads().list("id");
+			listcommentThreadRequest = youtube.commentThreads().list("snippet");//"id");
 			listcommentThreadRequest.setFields("items");
 			String apiKey = properties.getProperty("youtube.apikey");
 			listcommentThreadRequest.setMaxResults(numberOfComments);
@@ -146,10 +150,46 @@ public class CommentExtractor extends Search{
 		return json;
 
 	}
+	public String topLevelComments(String videoId){
+		json = ",\"comments\":"+ "{\"comment\":[";
+		   try {
+			//listcommentThreadRequest.list("snippet");
+			listcommentThreadRequest.setVideoId(videoId);
+			CommentThreadListResponse videoCommentsListResponse = listcommentThreadRequest.execute();
+			
+			  List<CommentThread> videoComments = videoCommentsListResponse.getItems();
+			  int counter = 0;
+			  int size = videoComments.size();
+			  for (CommentThread videoComment : videoComments) {
+                  CommentSnippet snippet = videoComment.getSnippet().getTopLevelComment().getSnippet();
+                  System.out.println(snippet);
+                  System.out.println("  - Author: " + snippet.getAuthorDisplayName());
+                  System.out.println("  - Comment: " + snippet.getTextDisplay());
+                  System.out
+                          .println("\n-------------------------------------------------------------\n");
+                  counter++;
+                  json += videoComment.getSnippet().toPrettyString();
+                  System.out.println(size);
+                  System.out.println(counter);
+                  if(counter<size){
+                	  json +=",";
+                  }
+                  
+              }
+			json += "]}}";
+			System.out.println(json);
+			return json;
+		   } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		   return json;
+	}
 	public static void main(String[] args){
 		CommentExtractor uapi = new CommentExtractor(5L);
 		try {
 			uapi.getTopLevelComments("jeYhb8h47CE");
+			uapi.topLevelComments("jeYhb8h47CE");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("IOEX");

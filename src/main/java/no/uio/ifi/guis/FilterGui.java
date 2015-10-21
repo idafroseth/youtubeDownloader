@@ -423,7 +423,7 @@ public class FilterGui extends JPanel {
 	                        .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd"))                                                                 
 	                        .appendOptional(DateTimeFormatter.ofPattern("dd.MM.yyyy"))                                                                                     
 	                        .toFormatter();
-					if(!dateFrom.contains("YY")&&dateTo.length()>0){
+					if(!dateFrom.contains("YY")){//&&dateFrom.length()>0){
 						try{
 							from = LocalDate.parse(dateFrom, dfs);
 						}catch(DateTimeParseException ex){
@@ -432,7 +432,7 @@ public class FilterGui extends JPanel {
 							break;
 						}
 					}
-					if(!dateTo.contains("YY")&&dateTo.length()>0 ){
+					if(!dateTo.contains("YY")){//&&dateTo.length()>0 ){
 						try{
 							to = LocalDate.parse(dateTo, dfs);
 						}catch(DateTimeParseException ex){

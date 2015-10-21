@@ -223,6 +223,7 @@ public class ManagementFilteredSearch {
 						String videoId = res.getId().getVideoId();
 						if(!resultCache.contains(videoId)&&res.getId()!=null){
 							NUMBER_OF_VIDEOS_RETRIVED++;
+							System.out.println(res.getId().getVideoId());
 							resultCache.add(res.getId().getVideoId());
 							videoInfoResult.put(videoId, infoExtracter.getVideoInfo(videoId));		
 						}	
