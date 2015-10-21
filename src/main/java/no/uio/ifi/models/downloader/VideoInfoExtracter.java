@@ -32,12 +32,13 @@ public class VideoInfoExtracter extends Search {
 	private YouTube.Videos.List searchContent;
 	private CommentThreadListResponse videoCommentsListResponse;
 	BufferedWriter writer;
+	String fileType;
 	Map<String, Video> videoJSON = new HashMap<String, Video>();
 	/**
 	 * Empty constructor
 	 */
-	public VideoInfoExtracter() {
-
+	public VideoInfoExtracter(String fileType) {
+		this.fileType = fileType;
 	}
 
 	/**
@@ -71,139 +72,177 @@ public class VideoInfoExtracter extends Search {
 	 * @param videoIdsQueue a queue of videoIds to retrieve
 	 * @return a Map of <VideoId, YouTube.Video> 
 	 */
-	public Map<String, Video> getVideoMetadata(ArrayList<String> videoIdsQueue) {
-		 synchronized(this) {
-			System.out.println("Size of queue" + videoIdsQueue.size());
-			try {
-				initDataContent();
-				List<Video> videoList;
-				for (String videoId : videoIdsQueue) {
-					if(videoId == null){
-						continue;
-					}
-					searchContent.setId(videoId);
+//	public Map<String, Video> getVideoMetadata(ArrayList<String> videoIdsQueue) {
+//		 synchronized(this) {
+//			System.out.println("Size of queue" + videoIdsQueue.size());
+//			try {
+//				initDataContent();
+//				List<Video> videoList;
+//				for (String videoId : videoIdsQueue) {
+//					if(videoId == null){
+//						continue;
+//					}
+//					searchContent.setId(videoId);
+//				
+//					VideoListResponse listResponse = searchContent.execute();
+//					videoList = listResponse.getItems();
+//					for (Video v : videoList) {
+//						videoJSON.put(v.getId(), v);
+//						System.out.println(v.getId());
+//					}
+//
+//				}
+//				System.out.println("Number of videos in list " + videoJSON.size());
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}catch(NoSuchElementException e){
+//				System.out.println("*************"+videoIdsQueue.size());
+//				e.printStackTrace();
+//			}
+//			return videoJSON;
+//		 }
+//	}
+//	/**
+//	 * Retrive the video information from youtube and saves it in a file named videoInfo.json at a specified path.
+//	 * @param videoIdsQueue a queue of videoIds to retrieve
+//	 * @param path the folder to save the metadata
+//	 * @return a Map of <VideoId, YouTube.Video> 
+//	 */
+//	
+//	public Map<String, Video> saveJsonVideoContent(ArrayList<String> videoIdsQueue, File path) {
+//		 synchronized(this) {
+//			Map<String, Video> videoJSON = new HashMap<String, Video>();
+//			try {
+//				
+//				List<Video> videoList;
+//				for (String videoId : videoIdsQueue) {
+//					searchContent.setId(videoId);
+//					VideoListResponse listResponse;
+//					listResponse = searchContent.execute();
+//					videoList = listResponse.getItems();
+//					for (Video v : videoList) {
+//						System.out.println(v.getId());
+//						videoJSON.put(v.getId(), v);
+//						saveMetaData("{\n \"video\" :" + v.toPrettyString() + "\n}");
+//	
+//					}
+//				}
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			return videoJSON;
+//		 }
+//
+//	}
+	public Video getVideoInfo(String videoId) {
+		Video videoJSON = null; 
+		System.out.println("Inside getvideoInfo");
+		try {
+			List<Video> videoList;
+	
+				searchContent.setId(videoId);
+				VideoListResponse listResponse = searchContent.execute();
+				videoList = listResponse.getItems();
 				
-					VideoListResponse listResponse = searchContent.execute();
-					videoList = listResponse.getItems();
-					for (Video v : videoList) {
-						videoJSON.put(v.getId(), v);
-						System.out.println(v.getId());
+				for (Video v : videoList) {
+					System.out.println(v.getId());
+					videoJSON = v;
+					
+					switch(fileType){
+					case "JSON":
+						saveMetaData( v.toPrettyString());
+						break;
+					case "XML":
+						String videoJson = v.toPrettyString();
+						JSONObject json = new JSONObject(videoJson);
+						String xml = XML.toString(json, "video");
+						saveMetaData(xml);
+						break;
+					case "CSV":
+						//not implemented
+						break;
+					default:
+						//Dont save
+						break;
 					}
-
-				}
-				System.out.println("Number of videos in list " + videoJSON.size());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}catch(NoSuchElementException e){
-				System.out.println("*************"+videoIdsQueue.size());
-				e.printStackTrace();
 			}
-			return videoJSON;
-		 }
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return videoJSON;
 	}
-	/**
-	 * Retrive the video information from youtube and saves it in a file named videoInfo.json at a specified path.
-	 * @param videoIdsQueue a queue of videoIds to retrieve
-	 * @param path the folder to save the metadata
-	 * @return a Map of <VideoId, YouTube.Video> 
-	 */
 	
-	public Map<String, Video> saveJsonVideoContent(ArrayList<String> videoIdsQueue, File path) {
-		 synchronized(this) {
-			Map<String, Video> videoJSON = new HashMap<String, Video>();
-			try {
-				initDataContent();
-				List<Video> videoList;
-				initOutputFile(path, "/videoInfo.json");
-				for (String videoId : videoIdsQueue) {
-					searchContent.setId(videoId);
-					VideoListResponse listResponse;
-					listResponse = searchContent.execute();
-					videoList = listResponse.getItems();
-					for (Video v : videoList) {
-						System.out.println(v.getId());
-						videoJSON.put(v.getId(), v);
-						saveMetaData("{\n \"video\" :" + v.toPrettyString() + "\n}");
-	
-					}
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return videoJSON;
-		 }
-
-	}
 	/**
 	 * Retrive the video information from youtube and saves it in a file named videoInfo.xml at a specified path.
 	 * @param videoIdsQueue a queue of videoIds to retrieve
 	 * @param path the folder to save the metadata
 	 * @return a Map of <VideoId, YouTube.Video> 
 	 */
-	public Map<String, Video> saveXmlVideoContent(ArrayList<String> videoIdsQueue, File path) {
-		Map<String, Video> videoJSON = new HashMap<String, Video>();
-		try {
-			initDataContent();
-			List<Video> videoList;
-			initOutputFile(path, "/videoInfo.xml");
-			for (String videoId : videoIdsQueue) {
-				searchContent.setId(videoId);
-				VideoListResponse listResponse;
-				listResponse = searchContent.execute();
-				videoList = listResponse.getItems();
-				for (Video v : videoList) {
-					// System.out.println(v.getSnippet().getTitle());//.getSnippet()
-					// +""+ v.getStatistics() + "" + v.getContentDetails() + ""
-					// + v.getStatus());
-					System.out.println(v.getId());
-					String videoJson = v.toPrettyString();// "{\"video\":" +
-															// v.toPrettyString()
-															// + "}";
-					videoJSON.put(v.getId(), v);
-					JSONObject json = new JSONObject(videoJson);
-					String xml = XML.toString(json, "video");
-					System.out.println("xml: " + xml);
-					saveMetaData(xml);
-				}
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return videoJSON;
-	}
-	public Map<String, Video> saveCSVVideoContent(ArrayList<String> videoIdsQueue, File path) {
-
-		Map<String, Video> videoJSON = new HashMap<String, Video>();
-		try {
-			initDataContent();
-			List<Video> videoList;
-			initOutputFile(path, "/videoInfo.csv");
-			for (String videoId : videoIdsQueue) {
-				searchContent.setId(videoId);
-				VideoListResponse listResponse;
-				listResponse = searchContent.execute();
-				videoList = listResponse.getItems();
-				int i =0;
-				System.out.println("VideoInfoExtractor number of videos in the list " + videoList.size());
-				for (Video v : videoList) {
-					System.out.println("This response contained: " + i++);
-					String csv = convertJsonToCSV( new JSONObject("{\"video\":[" + v.toString() + "]}"));
-					System.out.println(v.getId());
-					videoJSON.put(v.getId(), v);
-					saveMetaData(csv);
-
-				}
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return videoJSON;
-
-	}
+//	public Map<String, Video> saveXmlVideoContent(ArrayList<String> videoIdsQueue, File path) {
+//		Map<String, Video> videoJSON = new HashMap<String, Video>();
+//		try {
+//			initDataContent();
+//			List<Video> videoList;
+//			initOutputFile(path, "/videoInfo.xml");
+//			for (String videoId : videoIdsQueue) {
+//				searchContent.setId(videoId);
+//				VideoListResponse listResponse;
+//				listResponse = searchContent.execute();
+//				videoList = listResponse.getItems();
+//				for (Video v : videoList) {
+//					// System.out.println(v.getSnippet().getTitle());//.getSnippet()
+//					// +""+ v.getStatistics() + "" + v.getContentDetails() + ""
+//					// + v.getStatus());
+//					System.out.println(v.getId());
+//					String videoJson = v.toPrettyString();// "{\"video\":" +
+//															// v.toPrettyString()
+//															// + "}";
+//					videoJSON.put(v.getId(), v);
+//					JSONObject json = new JSONObject(videoJson);
+//					String xml = XML.toString(json, "video");
+//					System.out.println("xml: " + xml);
+//					saveMetaData(xml);
+//				}
+//			}
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return videoJSON;
+//	}
+//	public Map<String, Video> saveCSVVideoContent(ArrayList<String> videoIdsQueue, File path) {
+//
+//		Map<String, Video> videoJSON = new HashMap<String, Video>();
+//		try {
+//			initDataContent();
+//			List<Video> videoList;
+//			initOutputFile(path, "/videoInfo.csv");
+//			for (String videoId : videoIdsQueue) {
+//				searchContent.setId(videoId);
+//				VideoListResponse listResponse;
+//				listResponse = searchContent.execute();
+//				videoList = listResponse.getItems();
+//				int i =0;
+//				System.out.println("VideoInfoExtractor number of videos in the list " + videoList.size());
+//				for (Video v : videoList) {
+//					System.out.println("This response contained: " + i++);
+//					String csv = convertJsonToCSV( new JSONObject("{\"video\":[" + v.toString() + "]}"));
+//					System.out.println(v.getId());
+//					videoJSON.put(v.getId(), v);
+//					saveMetaData(csv);
+//
+//				}
+//			}
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return videoJSON;
+//
+//	}
 	public String convertJsonToCSV(JSONObject json){
 //	    JSONObject output = new JSONObject(json);
 	    JSONArray jsonArray = json.getJSONArray("video");

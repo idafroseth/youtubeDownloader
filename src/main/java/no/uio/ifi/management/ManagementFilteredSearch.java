@@ -30,7 +30,7 @@ import no.uio.ifi.models.search.Search;
  * Management for the filtered search Displaying a gui and handling the dialog
  * with the searchbox and crawler
  * 
- * @author Ida Marie Frøseth
+ * @author Ida Marie Frøseth and Richard Reimer
  *
  */
 public class ManagementFilteredSearch {
@@ -57,8 +57,9 @@ public class ManagementFilteredSearch {
 	CountDownLatch latch;
 	Boolean finished = false;
 	
-	VideoInfoExtracter infoExtracter = new VideoInfoExtracter();
+//	VideoInfoExtracter infoExtracter = new VideoInfoExtracter();
 
+	Map<String, Video> videoInfoResult;
 	int count = 0;
 	ThreadGroup tg = new ThreadGroup("Download");
 	/**
@@ -109,10 +110,18 @@ public class ManagementFilteredSearch {
 	 * Applying choosen filters and start the search. 
 	 */
 	public void preformFilteredSearch(String videoInfo,  String videoQuality, File filepath){
+		videoInfoResult = new HashMap<String, Video>();
 		gui.wipeStatWindow();
+		
 		this.filepath = filepath;
 		this.videoInfo = videoInfo;
+		
+		
+		
+
+		
 		NUMBER_OF_VIDEOS_RETRIVED = 0;
+		
 		HashMap<Integer, String> filtersApplied = gui.getSelectedFilters();
 		filterSearch.init();
 		for (Integer key : filtersApplied.keySet()) {
@@ -163,21 +172,21 @@ public class ManagementFilteredSearch {
 		System.out.println("Videos in cache " +resultCache.size());
 		wait.setVisible(true);
 		
-		Map<String, Video> videoInfoResult = null;
-		switch(videoInfo){
-		case "JSON":
-			videoInfoResult  = infoExtracter.saveJsonVideoContent(resultCache, filepath);
-			break;
-		case "XML":
-			videoInfoResult  = infoExtracter.saveXmlVideoContent(resultCache, filepath);
-			break;
-		case "CSV":
-			videoInfoResult  = infoExtracter.saveCSVVideoContent(resultCache, filepath);
-			break;
-		default:
-			videoInfoResult  = infoExtracter.getVideoMetadata(resultCache);
-			break;
-		}
+//		
+//		switch(videoInfo){
+//		case "JSON":
+//			videoInfoResult  = infoExtracter.saveJsonVideoContent(resultCache, filepath);
+//			break;
+//		case "XML":
+//			videoInfoResult  = infoExtracter.saveXmlVideoContent(resultCache, filepath);
+//			break;
+//		case "CSV":
+//			videoInfoResult  = infoExtracter.saveCSVVideoContent(resultCache, filepath);
+//			break;
+//		default:
+//			videoInfoResult  = infoExtracter.getVideoMetadata(resultCache);
+//			break;
+//		}
 	
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
 
@@ -198,33 +207,45 @@ public class ManagementFilteredSearch {
 	
 	class SearchThread extends Thread{
 		ManagementFilteredSearch mng;
-		
+		VideoInfoExtracter infoExtracter;
 		public SearchThread(ThreadGroup tg, String s, ManagementFilteredSearch mng){//, CountDownLatch startSignal, CountDownLatch doneSignal){
 			super(tg,s);
-			
+			infoExtracter= new VideoInfoExtracter(videoInfo);
 			this.mng = mng;
+			infoExtracter.initDataContent();
+			
+			switch(videoInfo){
+			case "JSON":
+				infoExtracter.initOutputFile(filepath, "/videoInfo.json");
+				break;
+			case "XML":
+				infoExtracter.initOutputFile(filepath, "/videoInfo.xml");
+				break;
+			case "CSV":
+				infoExtracter.initOutputFile(filepath, "/videoInfo.csv");
+				break;
+			default:
+				infoExtracter.initOutputFile(filepath, "/temp.json");
+				break;
+			}
 		}
 		
 		@Override
 		public void run() {
 			try {
 				RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();
-				
-				
-				//Here one thread shoul handle the gui and another thread should handle the search, or multiple threads. 
 				loop:
 				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
 					List<SearchResult> result = filterSearch.searchBy(randomGenerator.getNextRandom());
 	
 					innerLoop:
 					for(SearchResult res : result){
-						if(res.size()==0){
-							continue innerLoop;
-						}
 						Thread.sleep(1);
-						if(!resultCache.contains(res.getId().getVideoId())&&res.getId()!=null){
+						String videoId = res.getId().getVideoId();
+						if(!resultCache.contains(videoId)&&res.getId()!=null){
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							resultCache.add(res.getId().getVideoId());
+							videoInfoResult.put(videoId, infoExtracter.getVideoInfo(videoId));		
 						}	
 					}
 					wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED );	
