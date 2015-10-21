@@ -89,7 +89,7 @@ public class CommentExtractor extends Search{
 	}
 
 	public String getTopLevelComments(String videoId){
-		json = ",\"comments\":";
+		json = ",\"comments\":{\"comment\":[";
 		   try {
 			//listcommentThreadRequest.list("snippet");
 			listcommentThreadRequest.setVideoId(videoId);
@@ -111,16 +111,14 @@ public class CommentExtractor extends Search{
 ////                  System.out
 //                          .println("\n-------------------------------------------------------------\n");
                   counter++;
-                  json += "{\"comment\":["+videoComment.getSnippet().getTopLevelComment().toPrettyString();
-                  System.out.println(size);
-                  System.out.println(counter);
+                  json += videoComment.getSnippet().getTopLevelComment().toPrettyString();
+       
                   if(counter<size){
                 	  json +=",";
                   }
                   
               }
 			json += "]}}";
-			System.out.println(json);
 			return json;
 		   } catch (IOException e) {
 			// TODO Auto-generated catch block

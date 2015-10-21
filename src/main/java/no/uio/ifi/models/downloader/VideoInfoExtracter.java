@@ -91,7 +91,6 @@ public class VideoInfoExtracter extends Search {
 					
 					videoJSON = v;
 					String jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+"}";
-					System.out.println(jsonString);
 					//		String jsonString = v.toPrettyString();
 					switch(fileType){
 					case "JSON":
@@ -100,6 +99,7 @@ public class VideoInfoExtracter extends Search {
 					case "XML":
 						JSONObject jsonObject = new JSONObject(jsonString);
 						String xml = XML.toString(jsonObject, "video");
+						System.out.println(xml);
 						saveMetaData(xml);
 						break;
 					case "CSV":
