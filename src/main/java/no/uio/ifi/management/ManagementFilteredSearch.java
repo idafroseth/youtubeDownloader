@@ -171,14 +171,7 @@ public class ManagementFilteredSearch {
 		System.out.println("Compute stats");
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
 	}
-	/**
-	 * This convert a video to xml format
-	 * @param video one object of YouTube video
-	 * @return the video in xml formats
-	 */
-	public String convertToXML(Video video){
-		return XML.toString(new JSONObject(video));
-	}
+
 	public static void main(String[] args) {
 		ManagementFilteredSearch fs = new ManagementFilteredSearch();
 		//fs.preformKeyWordSearch("","",null,"hello");

@@ -35,7 +35,6 @@ import no.uio.ifi.models.search.Search;
  */
 public class VideoInfoExtracter extends Search {
 	private YouTube.Videos.List searchContent;
-	private CommentThreadListResponse videoCommentsListResponse;
 	BufferedWriter writer;
 	String fileType;
 	Map<String, Video> videoJSON = new HashMap<String, Video>();
@@ -91,8 +90,9 @@ public class VideoInfoExtracter extends Search {
 				for (Video v : videoList) {
 					
 					videoJSON = v;
-					String jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.topLevelComments(v.getId())+"}";
-			//		String jsonString = v.toPrettyString();
+					String jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+"}";
+					System.out.println(jsonString);
+					//		String jsonString = v.toPrettyString();
 					switch(fileType){
 					case "JSON":
 						saveMetaData( v.toPrettyString());

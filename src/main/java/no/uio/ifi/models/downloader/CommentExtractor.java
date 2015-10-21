@@ -87,71 +87,9 @@ public class CommentExtractor extends Search{
 		}
 
 	}
-	//TODO handle no comments error
-	public String getTopLevelComments(String videoId) throws IOException {
-		json = ",\"comments\":"+ "{\"comment\":[";
-		List<CommentThread> commentsList = null;
-		listcommentThreadRequest.setVideoId(videoId);
-		counter = 0L;
-		CommentThreadListResponse videoCommentsListResponse;
-		try{
-			
-			
-			videoCommentsListResponse = listcommentThreadRequest.execute();
-			commentsList = videoCommentsListResponse.getItems();
-			if( commentsList.size() == 0){
-				return "";//json += "]}}";
-			}
-			
-			for(CommentThread cm : commentsList){
-				
-//				System.out.println(cm.getId());
-			
-				getComment(cm.getId());
-			}
-		}catch(GoogleJsonResponseException e){
-			System.out.println("*******Comments disabled*********");
-			return "";
-			
-		}
-	
-		
 
-		json += "]}}";
-		System.out.println(json);
-		return json;
-
-	}
-	public String getComment(String commentId) throws IOException {
-
-		List<Comment> commentsList = null;
-		
-		listCommentsRequest.setId(commentId);
-		
-		CommentListResponse commentResponse;
-		try{
-		
-			commentResponse = listCommentsRequest.execute();
-			commentsList = commentResponse.getItems();
-			
-			for(Comment cm : commentsList){
-				json +=  cm.getSnippet().toPrettyString();
-				counter++;
-				if(counter <numComm ){
-					json+=",";
-				}
-			}
-			
-		}catch (GoogleJsonResponseException e) {
-			System.out.println("********Comments not accessible**********");
-			return "";
-		}
-
-		return json;
-
-	}
-	public String topLevelComments(String videoId){
-		json = ",\"comments\":"+ "{\"comment\":[";
+	public String getTopLevelComments(String videoId){
+		json = ",\"comments\":";
 		   try {
 			//listcommentThreadRequest.list("snippet");
 			listcommentThreadRequest.setVideoId(videoId);
@@ -160,15 +98,20 @@ public class CommentExtractor extends Search{
 			  List<CommentThread> videoComments = videoCommentsListResponse.getItems();
 			  int counter = 0;
 			  int size = videoComments.size();
+			  if(videoComments.isEmpty()){
+				  System.out.println("No available comments");
+				  return "}";
+				  
+			  }
 			  for (CommentThread videoComment : videoComments) {
-                  CommentSnippet snippet = videoComment.getSnippet().getTopLevelComment().getSnippet();
-                  System.out.println(snippet);
-                  System.out.println("  - Author: " + snippet.getAuthorDisplayName());
-                  System.out.println("  - Comment: " + snippet.getTextDisplay());
-                  System.out
-                          .println("\n-------------------------------------------------------------\n");
+//                  CommentSnippet snippet = videoComment.getSnippet().getTopLevelComment().getSnippet();
+//                  System.out.println(snippet);
+//                  System.out.println("authorDisplayName: " + snippet.getAuthorDisplayName());
+//                  System.out.println("comment: " + snippet.getTextDisplay());
+////                  System.out
+//                          .println("\n-------------------------------------------------------------\n");
                   counter++;
-                  json += videoComment.getSnippet().toPrettyString();
+                  json += "{\"comment\":["+videoComment.getSnippet().getTopLevelComment().toPrettyString();
                   System.out.println(size);
                   System.out.println(counter);
                   if(counter<size){
@@ -181,20 +124,19 @@ public class CommentExtractor extends Search{
 			return json;
 		   } catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			   System.out.println("The comment is not availble");
+			   return "}";
+		//	e.printStackTrace();
 		}	
-		   return json;
+		   
+
 	}
 	public static void main(String[] args){
 		CommentExtractor uapi = new CommentExtractor(5L);
-		try {
+	
+		//	uapi.getTopLevelComments("jeYhb8h47CE");
 			uapi.getTopLevelComments("jeYhb8h47CE");
-			uapi.topLevelComments("jeYhb8h47CE");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("IOEX");
-			e.printStackTrace();
-		}
+	
 	}
 
 }
