@@ -55,7 +55,6 @@ public class ManagementFilteredSearch {
 	DownloadProgressBar wait;
 	
 	CountDownLatch latch;
-	Boolean finished = false;
 	
 //	VideoInfoExtracter infoExtracter = new VideoInfoExtracter();
 
@@ -168,29 +167,8 @@ public class ManagementFilteredSearch {
 	public void finishedSearch(){
 	
 		tg.interrupt();
-		
-		System.out.println("Videos in cache " +resultCache.size());
 		wait.setVisible(true);
-		
-//		
-//		switch(videoInfo){
-//		case "JSON":
-//			videoInfoResult  = infoExtracter.saveJsonVideoContent(resultCache, filepath);
-//			break;
-//		case "XML":
-//			videoInfoResult  = infoExtracter.saveXmlVideoContent(resultCache, filepath);
-//			break;
-//		case "CSV":
-//			videoInfoResult  = infoExtracter.saveCSVVideoContent(resultCache, filepath);
-//			break;
-//		default:
-//			videoInfoResult  = infoExtracter.getVideoMetadata(resultCache);
-//			break;
-//		}
-	
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
-
-		
 	}
 	/**
 	 * This convert a video to xml format
@@ -225,7 +203,7 @@ public class ManagementFilteredSearch {
 				infoExtracter.initOutputFile(filepath, "/videoInfo.csv");
 				break;
 			default:
-				infoExtracter.initOutputFile(filepath, "/temp.json");
+			//	do nothing
 				break;
 			}
 		}
@@ -254,7 +232,7 @@ public class ManagementFilteredSearch {
 				group.interrupt();
 				wait.setVisible(false);
 				mng.threadCount--;
-				if(threadCount+1==NUMBER_OF_THREADS ){
+				if(threadCount == 0 ){
 					mng.finishedSearch();
 				}
 			} catch (InterruptedException v) {
