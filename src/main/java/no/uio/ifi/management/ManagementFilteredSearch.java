@@ -167,7 +167,8 @@ public class ManagementFilteredSearch {
 	public void finishedSearch(){
 	
 		tg.interrupt();
-		wait.setVisible(true);
+		//wait.setVisible(true);
+		System.out.println("Compute stats");
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
 	}
 	/**
@@ -228,10 +229,10 @@ public class ManagementFilteredSearch {
 					}
 					wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED );	
 				}
-				ThreadGroup group = super.getThreadGroup();
-				group.interrupt();
+			
 				wait.setVisible(false);
-				mng.threadCount--;
+				threadCount--;
+				System.out.println(threadCount);
 				if(threadCount == 0 ){
 					mng.finishedSearch();
 				}
