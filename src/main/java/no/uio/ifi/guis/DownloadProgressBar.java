@@ -15,17 +15,15 @@ import com.google.api.services.youtube.model.SearchResult;
 import no.uio.ifi.management.ManagementFilteredSearch;
 import no.uio.ifi.models.search.RandomVideoIdGenerator;
 
-public class DownloadProgressBar  implements PreformingSearchDialog{
+public class DownloadProgressBar extends JDialog  implements PreformingSearchDialog {
 	JProgressBar progressBar;
 	public DownloadProgressBar(int max, String title){
 		// We should move this into a separate class
-		JDialog dialog = new JDialog();
-		dialog.setTitle(title);
-		
-		progressBar = new JProgressBar(0, max);
-		progressBar.setValue(0);
-		progressBar.setMaximum(max);
-		progressBar.setStringPainted(true);
+		this.setTitle(title);
+		 progressBar = new JProgressBar();
+		 progressBar.setValue(0);
+		 progressBar.setMaximum(max);
+		 progressBar.setStringPainted(true);
 	
 		JButton cancelButton = new JButton("Cancel");
 		JPanel content = new JPanel();
@@ -45,10 +43,10 @@ public class DownloadProgressBar  implements PreformingSearchDialog{
 	
 		progressPanel.add(progressBar);
 		content.add(progressPanel, BorderLayout.CENTER);
-		dialog.setPreferredSize(new Dimension(500, 150));
-		dialog.add(content);
-		dialog.setVisible(true);
-		dialog.pack();
+		this.setPreferredSize(new Dimension(500, 150));
+		this.add(content);
+		this.setVisible(true);
+		this.pack();
 	}
 	@Override
 	public void setVideosToRetrieve(int numbOfVideosToSearch) {

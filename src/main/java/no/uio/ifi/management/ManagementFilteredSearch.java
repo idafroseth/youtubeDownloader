@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
+import no.uio.ifi.guis.DownloadProgressBar;
 import no.uio.ifi.guis.FilteredSearchGui;
 import no.uio.ifi.guis.WaitDialog;
 import no.uio.ifi.models.downloader.VideoInfoExtracter;
@@ -46,16 +47,12 @@ public class ManagementFilteredSearch {
 	HashMap<String, String> availableVideoTypes;
 
 	File filepath;
-	/**
-	 * Counting the number of updates of the chache queue, if there isn´t recieved a new
-	 * video in the last 100 search, it will terminate and give a feedback to the user.  
-	 */
-	int deadEndValue = 100;
-	int deadEndCount = 0;
-	
+
 	String videoInfo;
 	
-	WaitDialog wait;
+	DownloadProgressBar wait;
+
+	LinkedList<Thread> downloadThreads = new LinkedList<Thread>();
 	/**
 	 * Retrieving all the filters and then display the window. 
 	 */
@@ -108,14 +105,13 @@ public class ManagementFilteredSearch {
 		this.filepath = filepath;
 		this.videoInfo = videoInfo;
 		NUMBER_OF_VIDEOS_RETRIVED = 0;
-		System.out.println("Videos to search: " + NUMBER_OF_VIDEOS_TO_SEARCH);
 		HashMap<Integer, String> filtersApplied = gui.getSelectedFilters();
 		filterSearch.init();
 		for (Integer key : filtersApplied.keySet()) {
 			System.out.println("AddingFilters");
 			filterSearch.setFilter(key, filtersApplied.get(key));
 		}
-		wait =new WaitDialog("Crawling YouTube");
+		wait =new DownloadProgressBar(NUMBER_OF_VIDEOS_TO_SEARCH,"Crawling YouTube");
 		search();
 
 /*
@@ -144,7 +140,11 @@ public class ManagementFilteredSearch {
 		RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();	
 	 	threadCount = NUMBER_OF_THREADS;
 		for(int i = 0;i<NUMBER_OF_THREADS; i++){
-			(new SearchThread("SearchThread_"+i, this)).run();
+			downloadThreads.add(new SearchThread("SearchThread_"+i, this));
+		
+		}
+		for(Thread th : downloadThreads){
+			th.start();
 		}
 	}
 	
@@ -169,8 +169,12 @@ public class ManagementFilteredSearch {
 	 * When the thread is finished Searching the videos are saved and statistics are displayed
 	 */
 	public void finishedSearch(){
+		for(Thread th : downloadThreads){
+			th.interrupt();
+		}
 		System.out.println("Videos in cache " +resultCache.size());
 
+		
 		//Map<String, Video> videoInfoResult = (new VideoInfoExtracter()).getVideoContent(resultCache);
 		//gui.newResult(videoInfoResult);
 
@@ -203,15 +207,6 @@ public class ManagementFilteredSearch {
 	public String convertToXML(Video video){
 		return XML.toString(new JSONObject(video));
 	}
-	public void deadEnd(){
-		System.out.println("Dead END Videos in cache " +resultCache.size());
-	}
-	public int getDeadEndValue(){
-		return this.deadEndValue;
-	}
-	public void setDeadEndValue(int newDeadEndValue){
-		this.deadEndValue = newDeadEndValue;
-	}
 	public static void main(String[] args) {
 		ManagementFilteredSearch fs = new ManagementFilteredSearch();
 		//fs.preformKeyWordSearch("","",null,"hello");
@@ -234,49 +229,25 @@ public class ManagementFilteredSearch {
 				
 				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
 					List<SearchResult> result = filterSearch.searchBy(randomGenerator.getNextRandom());
-					if(deadEndCount > deadEndValue){
-						System.out.println("DEAD END");
-					}
-					if( result.size() == 0){
-						System.out.println(deadEndCount);
-						deadEndCount++;
-						continue;
-					}
 					
-					loop:
 					for(SearchResult res : result){
-						if(resultCache.contains(res.getId().getVideoId())){
-							deadEndCount++;
-							System.out.println(deadEndCount);
-							continue loop;
-						}
-						deadEndCount = 0;
-						System.out.print(NUMBER_OF_VIDEOS_RETRIVED + ": ");
-						System.out.println(res.getId());
-						System.out.println(res);
-						NUMBER_OF_VIDEOS_RETRIVED++;
-						resultCache.add(res.getId().getVideoId());
-						
+						Thread.sleep(1);
+						if(!resultCache.contains(res.getId().getVideoId())){
+							NUMBER_OF_VIDEOS_RETRIVED++;
+							resultCache.add(res.getId().getVideoId());
+							System.out.println(NUMBER_OF_VIDEOS_RETRIVED + ": "+res.getId());
+						}	
 					}
-
-//					mng.updateOutput();
-					Thread.sleep(1);
-					
+					wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED );	
 				}
-			
-				System.out.println("thread stopped.");
+				wait.setVisible(false);
+				mng.finishedSearch();
 				
-				System.out.println("threadCount: " + threadCount);
-				if(threadCount==NUMBER_OF_THREADS){
-					threadCount--;
-					mng.finishedSearch();
-				}
-				threadCount--;
-				System.out.println();	
-				this.interrupt();
+				System.out.println("thread stopped.");
+				//interrupt();
+				
 			} catch (InterruptedException v) {
-				System.out.println("Thread error");
-				System.out.println(v);
+				System.out.println("Thread Interrupted");
 			}
 		}
 
