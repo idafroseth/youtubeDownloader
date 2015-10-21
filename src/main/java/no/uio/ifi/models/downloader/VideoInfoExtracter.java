@@ -28,6 +28,11 @@ import com.google.api.services.youtube.model.VideoListResponse;
 import no.uio.ifi.Auth;
 import no.uio.ifi.models.search.Search;
 
+/**
+ * 
+ * @author Ida Marie Frøseth and Richard Reimer
+ *
+ */
 public class VideoInfoExtracter extends Search {
 	private YouTube.Videos.List searchContent;
 	private CommentThreadListResponse videoCommentsListResponse;
@@ -67,75 +72,12 @@ public class VideoInfoExtracter extends Search {
 		}
 	}
 	
+
 	/**
-	 * Saves the metadata in memory. Does not download anything
-	 * @param videoIdsQueue a queue of videoIds to retrieve
-	 * @return a Map of <VideoId, YouTube.Video> 
+	 * 
+	 * @param videoId
+	 * @return
 	 */
-//	public Map<String, Video> getVideoMetadata(ArrayList<String> videoIdsQueue) {
-//		 synchronized(this) {
-//			System.out.println("Size of queue" + videoIdsQueue.size());
-//			try {
-//				initDataContent();
-//				List<Video> videoList;
-//				for (String videoId : videoIdsQueue) {
-//					if(videoId == null){
-//						continue;
-//					}
-//					searchContent.setId(videoId);
-//				
-//					VideoListResponse listResponse = searchContent.execute();
-//					videoList = listResponse.getItems();
-//					for (Video v : videoList) {
-//						videoJSON.put(v.getId(), v);
-//						System.out.println(v.getId());
-//					}
-//
-//				}
-//				System.out.println("Number of videos in list " + videoJSON.size());
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}catch(NoSuchElementException e){
-//				System.out.println("*************"+videoIdsQueue.size());
-//				e.printStackTrace();
-//			}
-//			return videoJSON;
-//		 }
-//	}
-//	/**
-//	 * Retrive the video information from youtube and saves it in a file named videoInfo.json at a specified path.
-//	 * @param videoIdsQueue a queue of videoIds to retrieve
-//	 * @param path the folder to save the metadata
-//	 * @return a Map of <VideoId, YouTube.Video> 
-//	 */
-//	
-//	public Map<String, Video> saveJsonVideoContent(ArrayList<String> videoIdsQueue, File path) {
-//		 synchronized(this) {
-//			Map<String, Video> videoJSON = new HashMap<String, Video>();
-//			try {
-//				
-//				List<Video> videoList;
-//				for (String videoId : videoIdsQueue) {
-//					searchContent.setId(videoId);
-//					VideoListResponse listResponse;
-//					listResponse = searchContent.execute();
-//					videoList = listResponse.getItems();
-//					for (Video v : videoList) {
-//						System.out.println(v.getId());
-//						videoJSON.put(v.getId(), v);
-//						saveMetaData("{\n \"video\" :" + v.toPrettyString() + "\n}");
-//	
-//					}
-//				}
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			return videoJSON;
-//		 }
-//
-//	}
 	public Video getVideoInfo(String videoId) {
 		Video videoJSON = null; 
 		System.out.println("Inside getvideoInfo");
