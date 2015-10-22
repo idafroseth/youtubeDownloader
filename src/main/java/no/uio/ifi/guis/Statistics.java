@@ -43,19 +43,11 @@ public class Statistics extends JPanel {
 
 
 	public Statistics (){
-//		super(applicationTitle);
-//		setDefaultCloseOperation(EXIT_ON_CLOSE);
-//		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 		contentPane.setLayout(new GridLayout(2,2));
-	//	contentPane.setBackground(Color.WHITE);
-	//	JLabel noSearch = new JLabel("No search have been preformed");
 		JScrollPane scrollPane = new JScrollPane(contentPane);
-	//	contentPane.setPreferredSize(new Dimension(1000,500));
 		scrollPane.setPreferredSize(FilteredSearchGui.CONTENT_PANE_SIZE);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-	//	contentPane.add(noSearch);
 		counterPanel.setLayout(new BoxLayout(counterPanel, BoxLayout.PAGE_AXIS));
-//		counterPanel.setBackground(Color.WHITE);
 		contentPane.add(counterPanel);
 		add(scrollPane);
 	    setVisible(true);

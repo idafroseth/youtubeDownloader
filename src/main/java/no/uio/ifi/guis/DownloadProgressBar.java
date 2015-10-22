@@ -34,7 +34,7 @@ public class DownloadProgressBar extends JDialog  implements PreformingSearchDia
 		progressBar.setMaximum(max);
 		progressBar.setStringPainted(true);
 	
-		JButton cancelButton = new JButton("Stop and save");
+		JButton cancelButton = new JButton("Stop");
 		
 		cancelButton.addActionListener(mouseListener);
 		JPanel content = new JPanel();

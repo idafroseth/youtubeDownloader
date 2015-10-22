@@ -90,9 +90,9 @@ public class VideoInfoExtracter extends Search {
 				for (Video v : videoList) {
 					
 					videoJSON = v;
-					String jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+"}";
-					System.out.println(jsonString);
-					//		String jsonString = v.toPrettyString();
+				//	String jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+"}";
+					
+					String jsonString = v.toPrettyString();
 					switch(fileType){
 					case "JSON":
 						saveMetaData( v.toPrettyString());

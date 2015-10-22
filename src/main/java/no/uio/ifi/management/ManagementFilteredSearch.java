@@ -80,7 +80,7 @@ public class ManagementFilteredSearch {
 		gui.addFilterBox(availableLanguages, "Language:", FilteredSearch.LANGUAGEFILTER);
 		gui.addFilterBox(availableRegions, "Region:", FilteredSearch.REGIONFILTER);
 		gui.addFilterBox(availableDuration, "Duration:", FilteredSearch.VIDEODURATIONFILTER);
-		//gui.addFilterBox(availableVideoDefinitions, "Defintion:", FilteredSearch.VIDEODEFINITONFILTER);
+		gui.addFilterBox(availableVideoDefinitions, "Defintion:", FilteredSearch.VIDEODEFINITONFILTER);
 		gui.addFilterBox(availableVideoTypes, "Type:", FilteredSearch.VIDEOTYPEFILTER);
 
 		//ADDED
@@ -222,14 +222,21 @@ public class ManagementFilteredSearch {
 						}	
 					}
 					wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED );	
+//					if(NUMBER_OF_VIDEOS_RETRIVED%10 == 0){
+//						System.out.println("Updating stats");
+//						gui.wipeStatWindow();
+//						gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
+//					}
+					
 				}
 			
-			
+				
 				threadCount--;
 				if(threadCount == 0 ){
 					mng.finishedSearch();
 					wait.setVisible(false);
 				}
+				
 			} catch (InterruptedException v) {
 				System.out.println("Thread Interrupted");
 				System.out.println(resultCache.size());
