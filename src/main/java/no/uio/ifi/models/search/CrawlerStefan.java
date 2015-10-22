@@ -32,7 +32,7 @@ public class CrawlerStefan {
 	private Writer fw = null;
 	private long startTime;
 	private long endTime;
-	private static final int numberVideosToCrawl = 10;
+	private static final int numberVideosToCrawl = 10000;
 	private List<String> arr;
 	private Map<String, PageYouTube> crawledPages;
 	private Map<String, Integer> genres = new HashMap<String, Integer>();
@@ -87,7 +87,7 @@ public class CrawlerStefan {
 	}
 
 	private void crawlLinks() {
-		for (int i = 0; i < numberVideosToCrawl; i++) {
+		for (int i = 0; i < numberVideosToCrawl && i < arr.size(); i++) {
 			System.out.println(i + ". " + arr.get(i));
 			crawlPage(arr.get(i));
 		}
@@ -187,9 +187,13 @@ public class CrawlerStefan {
 			author = findPattern("author\":\".*?\",", webSite.body().toString());
 			author = author.substring(9, author.length()-2);
 			}catch(IllegalStateException e){
-				author = findPattern("<a href=\"[[/user/]|[/channel/]].*?alt=\".*?\"", webSite.body().toString());
-				author = findPattern("alt=\".*?\"", author);
-				author = author.substring(5, author.length()-1);
+				try{
+					author = findPattern("<a href=\"[[/user/]|[/channel/]].*?alt=\".*?\"", webSite.body().toString());
+					author = findPattern("alt=\".*?\"", author);
+					author = author.substring(5, author.length()-1);
+				}catch(IllegalStateException ex){
+					author = "";
+				}
 			}
 			//lengthSeconds -1
 //			String length = convertLength(findPattern("length_seconds\":\".*?\",", webSite.body().toString()));
@@ -230,7 +234,11 @@ public class CrawlerStefan {
 			}else{
 				dates.put(datePublished, 1);
 			}
-			String y = findPattern("\\d+", datePublished);
+			String y = "";
+			if(!datePublished.equals("")){
+				y = findPattern("\\d+", datePublished);
+			}
+			
 			if(years.containsKey(y)){
 				years.put(y, years.get(y) + 1);
 			}else{
@@ -272,24 +280,26 @@ public class CrawlerStefan {
 	private List<String> getLinkedVideos(Elements linkedUrls){
 		List<String> linkedVideos = new ArrayList<String>();
 		
-		for (Element link : linkedUrls) {
-			if (link.toString().contains("watch?v")) {
-				if(link.attr("href").contains("http")){
-					if(link.attr("href").contains("https")){
-						if (!arr.contains(link.attr("href"))) {
-							arr.add(link.attr("href"));
-							linkedVideos.add(link.attr("href"));
+		if(linkedUrls.size() != 0){
+			for (Element link : linkedUrls) {
+				if (link.toString().contains("watch?v")) {
+					if(link.attr("href").contains("http")){
+						if(link.attr("href").contains("https")){
+							if (!arr.contains(link.attr("href"))) {
+								arr.add(link.attr("href"));
+								linkedVideos.add(link.attr("href"));
+							}
+						}else{
+							String linkNew = new StringBuffer(link.attr("href")).insert(4, "s").toString();
+							if (!arr.contains(linkNew)) {
+								arr.add(linkNew);
+								linkedVideos.add(link.attr(linkNew));
+							}
 						}
-					}else{
-						String linkNew = new StringBuffer(link.attr("href")).insert(4, "s").toString();
-						if (!arr.contains(linkNew)) {
-							arr.add(linkNew);
-							linkedVideos.add(link.attr(linkNew));
-						}
+					}else if(!arr.contains(startUrl + link.attr("href"))) {
+						arr.add(startUrl + link.attr("href"));
+						linkedVideos.add(startUrl + link.attr("href"));
 					}
-				}else if(!arr.contains(startUrl + link.attr("href"))) {
-					arr.add(startUrl + link.attr("href"));
-					linkedVideos.add(startUrl + link.attr("href"));
 				}
 			}
 		}
@@ -300,27 +310,29 @@ public class CrawlerStefan {
 		List<String> des = new ArrayList<String>();
 		String s = "";
 		
-		for(int i = 0; i < descriptionRAW.get(0).childNodes().size(); i++){
-			//to get only text in the description
-			if(!descriptionRAW.get(0).childNode(i).hasAttr("href")){
-				String child = descriptionRAW.get(0).childNode(i).toString();
-				if(child.equals("<br>") || child.equals("<br />")){
-					des.add(s);
-					s = new String("");
-				}else if(!(child.matches("\\p{Blank}+") || child.equals("<wbr>") || child.equals("<wbr />"))){
-					s += descriptionRAW.get(0).childNode(i).toString();
-				}
-			//to get the hyperLinks in the description
-			}else{
-				//to get the linked time in the video
-				if(descriptionRAW.get(0).childNode(i).attr("href").equals("#")){
-					s += descriptionRAW.get(0).childNode(i).childNode(0).toString();
+		if(descriptionRAW.size() != 0){
+			for(int i = 0; i < descriptionRAW.get(0).childNodes().size(); i++){
+				//to get only text in the description
+				if(!descriptionRAW.get(0).childNode(i).hasAttr("href")){
+					String child = descriptionRAW.get(0).childNode(i).toString();
+					if(child.equals("<br>") || child.equals("<br />")){
+						des.add(s);
+						s = new String("");
+					}else if(!(child.matches("\\p{Blank}+") || child.equals("<wbr>") || child.equals("<wbr />"))){
+						s += descriptionRAW.get(0).childNode(i).toString();
+					}
+				//to get the hyperLinks in the description
 				}else{
-					s += descriptionRAW.get(0).childNode(i).attr("href");
+					//to get the linked time in the video
+					if(descriptionRAW.get(0).childNode(i).attr("href").equals("#")){
+						s += descriptionRAW.get(0).childNode(i).childNode(0).toString();
+					}else{
+						s += descriptionRAW.get(0).childNode(i).attr("href");
+					}
 				}
 			}
+			if(!s.equals("")) des.add(s);
 		}
-		if(!s.equals("")) des.add(s);
 		
 		return des;
 	}
@@ -333,6 +345,8 @@ public class CrawlerStefan {
 	}
 	
 	private String convertLength(String lengthRAW){
+		if(lengthRAW.equals("")) return "";
+		
 		int seconds = Integer.parseInt(findPattern("\\d+", findPattern("M\\d+", lengthRAW))) - 1;
 		int minutes = Integer.parseInt(findPattern("\\d+", lengthRAW));
 		String time = "";
@@ -384,8 +398,10 @@ public class CrawlerStefan {
 	
 	private List<String> convertKeywords(Elements keywordsElements){
 		List<String> keywords = new ArrayList<String>();
-		for(Element e : keywordsElements){
-			keywords.add(e.attr("content"));
+		if(keywordsElements.size() != 0){
+			for(Element e : keywordsElements){
+				keywords.add(e.attr("content"));
+			}
 		}
 		return keywords;
 	}
