@@ -39,7 +39,7 @@ public class ManagementFilteredSearch {
 	public int NUMBER_OF_VIDEOS_TO_SEARCH = 100000;
 	public int NUMBER_OF_VIDEOS_RETRIVED = 0;
 	int NUMBER_OF_THREADS=5;
-	ArrayList<String> resultCache = new ArrayList<String>();
+//	ArrayList<String> resultCache = new ArrayList<String>();
 
 	int threadCount = 0;
 	HashMap<String, String> availableCategories;
@@ -214,10 +214,10 @@ public class ManagementFilteredSearch {
 					for(SearchResult res : result){
 						Thread.sleep(1);
 						String videoId = res.getId().getVideoId();
-						if(!resultCache.contains(videoId)&&res.getId()!=null){
+						if(!videoInfoResult.containsKey(videoId)&&res.getId()!=null){
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							System.out.println(res.getId().getVideoId());
-							resultCache.add(res.getId().getVideoId());
+						//	resultCache.add(res.getId().getVideoId());
 							videoInfoResult.put(videoId, infoExtracter.getVideoInfo(videoId));		
 						}	
 					}
@@ -239,7 +239,7 @@ public class ManagementFilteredSearch {
 				
 			} catch (InterruptedException v) {
 				System.out.println("Thread Interrupted");
-				System.out.println(resultCache.size());
+				//System.out.println(resultCache.size());
 				threadCount--;
 				if(threadCount == 0 ){
 					mng.finishedSearch();
