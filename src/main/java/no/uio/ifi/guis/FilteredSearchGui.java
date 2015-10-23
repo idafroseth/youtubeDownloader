@@ -49,15 +49,16 @@ import com.google.api.services.youtube.model.Video;
 
 import no.uio.ifi.management.ManagementFilteredSearch;
 
+
 public class FilteredSearchGui extends JFrame{
-		private JPanel contentPane = new JPanel();
+		public JPanel contentPane = new JPanel();
 		
 		private FilterGui searchWindow;
 		private Statistics statsWindow;
 		
 		private MouseClickListener mouseListener = new MouseClickListener();
 		private JLabel searchMenu = new JLabel("SEARCH",SwingConstants.CENTER); 
-		private JLabel resultMenu = new JLabel("RESULT",SwingConstants.CENTER);
+		public JLabel resultMenu = new JLabel("RESULT",SwingConstants.CENTER);
 		private JLabel statsMenu = new JLabel("STATISTICS",SwingConstants.CENTER);
 		public static final Integer WINDOW_WIDTH = 1200;
 		public static final Integer WINDOW_HEIGHT = 600;
@@ -70,8 +71,16 @@ public class FilteredSearchGui extends JFrame{
 		Border border = LineBorder.createGrayLineBorder();// BorderFactory.createRaisedBevelBorder();
 
 		//private JTextArea resultIdList = new JTextArea();
-		JPanel resultPanel;
+		public JPanel resultPanel;
 		private ManagementFilteredSearch mng;
+		
+		//======== FOR THE RESULT JPANEL =======
+		public JPanel mainResultPanel;
+		public JScrollPane jscrollResultUp,jscrollResultDown;
+		public JPanel jpanelR_UP, jpanelR_DOWN;
+	    //======================================
+		
+		
 		/**
 		 * Constructor
 		 * @param mng indicates the management for this gui
@@ -162,7 +171,7 @@ public class FilteredSearchGui extends JFrame{
 		/**
 		 * Draw that result tab. This is invoked when the result menu button is hit
 		 */
-		private void drawResult(){
+		public void drawResult(){
 			setTitle("YTDownloader ~ Result");
 			((CardLayout) contentPane.getLayout()).show(contentPane, "RESULT");
 		}
@@ -215,8 +224,17 @@ public class FilteredSearchGui extends JFrame{
 		}
 		
 		
+		//=========================================================================
+		public synchronized void updateTheResultToGUI(SearchResult res ){
+
+			System.out.println(jpanelR_UP);
+			jpanelR_UP.add(new ResultElem(res));
+			revalidate();
+		}
 		
-		private void setButtonAsActive(JLabel button){
+		
+		
+		public void setButtonAsActive(JLabel button){
 			activeButton.setBackground(menuColor);
 			activeButton.setFont(button.getFont().deriveFont(Font.PLAIN));
 			activeButton = button;
@@ -286,4 +304,198 @@ public class FilteredSearchGui extends JFrame{
 				
 			}
 		}
+		public void addResultPanel(){
+			
+		}
+		
+		
+		/* when perform the search, the result must be a list of Video ==============BEGIN RESULT PART================= */
+		public JPanel resultPartInGUI(List<Video> listOfvideo){
+			mainResultPanel.removeAll();
+			mainResultPanel.add(createJPanelResultUp(listOfvideo),BorderLayout.CENTER);
+			return mainResultPanel;
+		}
+		
+		public JScrollPane createJPanelResultUp(List<Video> listOfvideo){
+			
+			JPanel jpanelR_UP = new JPanel();
+			jscrollResultUp = new JScrollPane(jpanelR_UP, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+			jpanelR_UP.setLayout(new BoxLayout(jpanelR_UP, BoxLayout.PAGE_AXIS));
+			ResultElem[] outerScope = new ResultElem[listOfvideo.size()];//DETERMINE THIS LATER --------------
+			
+			int cnt = 0;
+			if(listOfvideo != null){
+				ListIterator<Video> listIter = listOfvideo.listIterator();
+				Iterator<Video> it = (Iterator<Video>)listIter;
+				while (it.hasNext()) {
+		            Video sVideo = it.next();
+		            if (sVideo.getKind().equals("youtube#video")) {
+		            	ResultElem re = new ResultElem(sVideo, outerScope);
+		            	outerScope[cnt++] = re;
+		            	jpanelR_UP.add(re);
+		            }
+		        }
+			}
+			return jscrollResultUp;
+		}
+		
+		public class ResultElem extends JPanel implements MouseListener{
+			Video svideo;
+			SearchResult res;
+			JPanel jp_tail;
+			JLabel jjtitle, jjLink;
+			JLabel jicon;
+			public String videoLink;
+			
+			
+			ResultElem[] outerScope;
+			boolean selected = false;
+			
+			public ResultElem(Video svideo, ResultElem[] outerScope){
+				this.svideo = svideo;
+				this.outerScope = outerScope;
+				setBorder(BorderFactory.createLineBorder(Color.GRAY));
+				createInfoVideo();
+				addMouseListener(this);
+			}
+			
+			public ResultElem(SearchResult res){
+				this.res = res;
+				setBorder(BorderFactory.createLineBorder(Color.GRAY));
+				createInfoVideoRES();
+				addMouseListener(this);
+			}
+			
+			public void createInfoVideoRES(){
+				this.setLayout(new BorderLayout());
+				
+				String urlThumbnail = res.getSnippet().getThumbnails().getDefault().getUrl();
+				videoLink = "https://www.youtube.com/watch?v="+res.getId().getVideoId();
+				//System.out.println(videoLink);
+				String title = res.getSnippet().getTitle();
+				URL url = null;
+				BufferedImage image =null;
+				try{
+					url = new URL(urlThumbnail);
+					image = ImageIO.read(url);
+				}catch(Exception e){}
+				
+				jicon = new JLabel(new ImageIcon(image));
+				this.add(jicon, BorderLayout.LINE_START);
+				
+				jp_tail = new JPanel();
+				jp_tail.setBackground(Color.WHITE);
+				jp_tail.setLayout(new BoxLayout(jp_tail, BoxLayout.PAGE_AXIS));
+				
+				jjtitle = new JLabel(title);
+				jjtitle.setFont(new Font("Serif", Font.BOLD, 18));
+				jp_tail.add(jjtitle);
+				
+				jjLink = new JLabel(videoLink);
+				jjLink.setFont(new Font("Serif", Font.ROMAN_BASELINE, 16));
+				jp_tail.add(jjLink);
+				
+				this.add(jp_tail, BorderLayout.CENTER);
+			}
+			
+			public void createInfoVideo(){
+				this.setLayout(new BorderLayout());
+				
+				String urlThumbnail = svideo.getSnippet().getThumbnails().getDefault().getUrl();
+				System.out.println("Tumbnail"+urlThumbnail);
+				videoLink = "https://www.youtube.com/watch?v="+svideo.getId();
+				//System.out.println(videoLink);
+				String title = svideo.getSnippet().getTitle();
+				URL url = null;
+				BufferedImage image =null;
+				System.out.println("Title"+title);
+				try{
+					url = new URL(urlThumbnail);
+					image = ImageIO.read(url);
+				}catch(Exception e){
+					System.out.println("Tumbnail not available..");
+					e.printStackTrace();
+					return;
+				}
+				
+				jicon = new JLabel(new ImageIcon(image));
+				this.add(jicon, BorderLayout.LINE_START);
+				
+				jp_tail = new JPanel();
+				jp_tail.setBackground(Color.WHITE);
+				jp_tail.setLayout(new BoxLayout(jp_tail, BoxLayout.PAGE_AXIS));
+				
+				jjtitle = new JLabel(title);
+				jjtitle.setFont(new Font("Serif", Font.BOLD, 18));
+				jp_tail.add(jjtitle);
+				
+				jjLink = new JLabel(videoLink);
+				jjLink.setFont(new Font("Serif", Font.ROMAN_BASELINE, 16));
+				jp_tail.add(jjLink);
+				
+				this.add(jp_tail, BorderLayout.CENTER);
+			}
+			
+			
+			public void mouseClicked(MouseEvent e){
+				
+				if(res != null) return;
+				
+				System.out.println("SELECTED "+svideo.getSnippet().getTitle());
+				String videoTittle = svideo.getSnippet().getTitle();
+				
+				
+				for(int i = 0; i < outerScope.length; i++){
+					if(outerScope[i] != null && outerScope[i].selected == true){
+						outerScope[i].jp_tail.setBackground(Color.WHITE);
+						outerScope[i].jjtitle.setFont(new Font("Serif", Font.BOLD, 18));
+						outerScope[i].jjLink.setFont(new Font("Serif", Font.ROMAN_BASELINE, 16));
+						outerScope[i].selected = false;
+						//break;
+					}
+				}
+				selected = true;
+				jjtitle.setFont(new Font("Serif", Font.BOLD, 21));
+				jjLink.setFont(new Font("Serif", Font.ROMAN_BASELINE, 19));
+				jp_tail.setBackground(Color.PINK);
+				if(jscrollResultDown != null) mainResultPanel.remove(jscrollResultDown);
+				jscrollResultDown = createResultBelow(this);
+				
+				mainResultPanel.add(jscrollResultDown, BorderLayout.PAGE_END);
+				jscrollResultDown.revalidate();
+				mainResultPanel.revalidate();
+				revalidate();
+				//pack();
+			}
+			
+			public void mouseEntered(MouseEvent e){
+				
+			}
+
+			public void mouseExited(MouseEvent e){
+				
+			}
+
+			public void mousePressed(MouseEvent e){
+
+			}
+
+			public void mouseReleased(MouseEvent e){
+
+			}
+		}
+		
+		
+		/*The information of the selected video will be displayed here*/
+		JScrollPane createResultBelow(ResultElem relem){
+			JPanel jpanelR_down = new JPanel();
+			jscrollResultDown = new JScrollPane(jpanelR_down, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+			
+			jpanelR_down.add(new JLabel("THE VIDEO INFO WILL BE HERE "+relem.svideo.getSnippet().getTitle()));
+			
+			return jscrollResultDown;
+		}
+		
+		
+		/*=================================================END RESULT PART==========================================================*/
 }

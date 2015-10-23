@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import org.json.JSONObject;
 import org.json.XML;
 
+import java.awt.BorderLayout;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,8 @@ public class ManagementFilteredSearch {
 	DownloadProgressBar wait;
 	
 	CountDownLatch latch;
+	ArrayList<SearchResult> resultCache = new ArrayList<SearchResult>();
+	ArrayList<Video> videoCache = new ArrayList<Video>();
 	
 //	VideoInfoExtracter infoExtracter = new VideoInfoExtracter();
 
@@ -70,6 +73,14 @@ public class ManagementFilteredSearch {
 	public ManagementFilteredSearch() {
 		
 		gui.initWindow();
+		
+		//=====================================================================
+		gui.mainResultPanel = new JPanel(new BorderLayout());
+		if(gui.resultPanel != null) gui.contentPane.remove(gui.resultPanel);
+		gui.contentPane.add(gui.mainResultPanel,"RESULT");
+		gui.resultPanel = gui.mainResultPanel;
+		
+		
 		WaitDialog wait = new WaitDialog("Downloading available filters from YouTube");
 		HashMap<String, String> availableCategories = (HashMap<String, String>) filterSearch.getVideoCategories();
 		HashMap<String, String> availableLanguages = (HashMap<String, String>) filterSearch.getAvailableLanguages();
@@ -175,6 +186,10 @@ public class ManagementFilteredSearch {
 		long estimatedTime = System.currentTimeMillis()-startTime;
 		System.out.println("Estimated time is :" +estimatedTime/1000 + " sec");
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
+		gui.resultPartInGUI(videoCache);
+//		for(SearchResult res : resultCache){
+//			gui.updateTheResultToGUI(res);
+//		}
 	}
 
 	public static void main(String[] args) {
@@ -223,8 +238,10 @@ public class ManagementFilteredSearch {
 						if(!videoInfoResult.containsKey(videoId)&&res.getId()!=null){
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							System.out.println(res.getId().getVideoId());
-						//	resultCache.add(res.getId().getVideoId());
-							videoInfoResult.put(videoId, infoExtracter.getVideoInfo(res, "VIDEOFILE", filepath));	
+							Video v = infoExtracter.getVideoInfo(res, "def", filepath);
+							videoCache.add(v);
+							resultCache.add(res);
+							videoInfoResult.put(videoId, v );	
 							System.out.println("*****" +res.getSnippet().getTitle());
 						}	
 					}
