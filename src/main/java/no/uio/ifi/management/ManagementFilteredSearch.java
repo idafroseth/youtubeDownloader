@@ -8,6 +8,7 @@ import java.util.LinkedList;
 
 import org.json.JSONObject;
 import org.json.XML;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import com.google.api.services.youtube.model.Video;
 import no.uio.ifi.guis.DownloadProgressBar;
 import no.uio.ifi.guis.FilteredSearchGui;
 import no.uio.ifi.guis.WaitDialog;
+import no.uio.ifi.models.downloader.DownloadLinkExtractor;
 import no.uio.ifi.models.downloader.VideoInfoExtracter;
 import no.uio.ifi.models.search.FilteredSearch;
 import no.uio.ifi.models.search.GeolocationSearch;
@@ -39,6 +41,7 @@ public class ManagementFilteredSearch {
 	public int NUMBER_OF_VIDEOS_TO_SEARCH = 100000;
 	public int NUMBER_OF_VIDEOS_RETRIVED = 0;
 	int NUMBER_OF_THREADS=5;
+	
 //	ArrayList<String> resultCache = new ArrayList<String>();
 
 	int threadCount = 0;
@@ -49,7 +52,7 @@ public class ManagementFilteredSearch {
 	HashMap<String, String> availableVideoTypes;
 
 	File filepath;
-
+	long startTime;
 	String videoInfo;
 	
 	DownloadProgressBar wait;
@@ -109,6 +112,7 @@ public class ManagementFilteredSearch {
 	 * Applying choosen filters and start the search. 
 	 */
 	public void preformFilteredSearch(String videoInfo,  String videoQuality, File filepath){
+		startTime = System.currentTimeMillis();
 		videoInfoResult = new HashMap<String, Video>();
 		gui.wipeStatWindow();
 		
@@ -165,10 +169,11 @@ public class ManagementFilteredSearch {
 	 * When the thread is finished Searching the videos are saved and statistics are displayed
 	 */
 	public void finishedSearch(){
-	
+		
 		tg.interrupt();
 		//wait.setVisible(true);
-		System.out.println("Compute stats");
+		long estimatedTime = System.currentTimeMillis()-startTime;
+		System.out.println("Estimated time is :" +estimatedTime/1000 + " sec");
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
 	}
 
@@ -180,6 +185,7 @@ public class ManagementFilteredSearch {
 	class SearchThread extends Thread{
 		ManagementFilteredSearch mng;
 		VideoInfoExtracter infoExtracter;
+		
 		public SearchThread(ThreadGroup tg, String s, ManagementFilteredSearch mng){//, CountDownLatch startSignal, CountDownLatch doneSignal){
 			super(tg,s);
 			infoExtracter= new VideoInfoExtracter(videoInfo);
@@ -218,15 +224,11 @@ public class ManagementFilteredSearch {
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							System.out.println(res.getId().getVideoId());
 						//	resultCache.add(res.getId().getVideoId());
-							videoInfoResult.put(videoId, infoExtracter.getVideoInfo(videoId));		
+							videoInfoResult.put(videoId, infoExtracter.getVideoInfo(res, "VIDEOFILE", filepath));	
+							System.out.println("*****" +res.getSnippet().getTitle());
 						}	
 					}
 					wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED );	
-//					if(NUMBER_OF_VIDEOS_RETRIVED%10 == 0){
-//						System.out.println("Updating stats");
-//						gui.wipeStatWindow();
-//						gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
-//					}
 					
 				}
 			

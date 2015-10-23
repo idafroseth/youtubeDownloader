@@ -89,7 +89,7 @@ public class CommentExtractor extends Search{
 	}
 
 	public String getTopLevelComments(String videoId){
-		json = ",\"comments\":";
+		json = ",\"comments\":{\"comment\":[";
 		   try {
 			//listcommentThreadRequest.list("snippet");
 			listcommentThreadRequest.setVideoId(videoId);
@@ -100,7 +100,7 @@ public class CommentExtractor extends Search{
 			  int size = videoComments.size();
 			  if(videoComments.isEmpty()){
 				  System.out.println("No available comments");
-				  return "}";
+				  return "";
 				  
 			  }
 			  for (CommentThread videoComment : videoComments) {
@@ -111,7 +111,7 @@ public class CommentExtractor extends Search{
 ////                  System.out
 //                          .println("\n-------------------------------------------------------------\n");
                   counter++;
-                  json += "{\"comment\":["+videoComment.getSnippet().getTopLevelComment().toPrettyString();
+                  json +=videoComment.getSnippet().getTopLevelComment().toPrettyString();;
                   System.out.println(size);
                   System.out.println(counter);
                   if(counter<size){
@@ -119,13 +119,13 @@ public class CommentExtractor extends Search{
                   }
                   
               }
-			json += "]}}";
+			json += "]}";
 			System.out.println(json);
 			return json;
 		   } catch (IOException e) {
 			// TODO Auto-generated catch block
 			   System.out.println("The comment is not availble");
-			   return "}";
+			   return "";
 		//	e.printStackTrace();
 		}	
 		   

@@ -303,8 +303,8 @@ public class FilteredSearch extends Search{
 			}).setApplicationName("SERACH").build();
 			
 			
-			search = youtube.search().list("id");//, recordingDetails, contentDetails, statistics");
-			search.setFields("items(id/videoId)");
+			search = youtube.search().list("snippet");//, recordingDetails, contentDetails, statistics");
+			search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
 			String apiKey = properties.getProperty("youtube.apikey");
 			search.setType("video");
 			search.setKey(apiKey);
