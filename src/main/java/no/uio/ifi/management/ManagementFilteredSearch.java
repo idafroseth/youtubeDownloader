@@ -8,6 +8,8 @@ import java.util.LinkedList;
 
 import org.json.JSONObject;
 import org.json.XML;
+
+import java.awt.BorderLayout;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,7 @@ import com.google.api.services.youtube.model.Video;
 import no.uio.ifi.guis.DownloadProgressBar;
 import no.uio.ifi.guis.FilteredSearchGui;
 import no.uio.ifi.guis.WaitDialog;
+import no.uio.ifi.models.downloader.DownloadLinkExtractor;
 import no.uio.ifi.models.downloader.VideoInfoExtracter;
 import no.uio.ifi.models.search.FilteredSearch;
 import no.uio.ifi.models.search.GeolocationSearch;
@@ -39,7 +42,8 @@ public class ManagementFilteredSearch {
 	public int NUMBER_OF_VIDEOS_TO_SEARCH = 100000;
 	public int NUMBER_OF_VIDEOS_RETRIVED = 0;
 	int NUMBER_OF_THREADS=5;
-	ArrayList<String> resultCache = new ArrayList<String>();
+	
+//	ArrayList<String> resultCache = new ArrayList<String>();
 
 	int threadCount = 0;
 	HashMap<String, String> availableCategories;
@@ -49,12 +53,15 @@ public class ManagementFilteredSearch {
 	HashMap<String, String> availableVideoTypes;
 
 	File filepath;
-
+	long startTime;
 	String videoInfo;
+	String videoFormat;
 	
 	DownloadProgressBar wait;
 	
 	CountDownLatch latch;
+	ArrayList<SearchResult> resultCache = new ArrayList<SearchResult>();
+	ArrayList<Video> videoCache = new ArrayList<Video>();
 	
 //	VideoInfoExtracter infoExtracter = new VideoInfoExtracter();
 
@@ -67,6 +74,14 @@ public class ManagementFilteredSearch {
 	public ManagementFilteredSearch() {
 		
 		gui.initWindow();
+		
+		//=====================================================================
+		gui.mainResultPanel = new JPanel(new BorderLayout());
+		if(gui.resultPanel != null) gui.contentPane.remove(gui.resultPanel);
+		gui.contentPane.add(gui.mainResultPanel,"RESULT");
+		gui.resultPanel = gui.mainResultPanel;
+		
+		
 		WaitDialog wait = new WaitDialog("Downloading available filters from YouTube");
 		HashMap<String, String> availableCategories = (HashMap<String, String>) filterSearch.getVideoCategories();
 		HashMap<String, String> availableLanguages = (HashMap<String, String>) filterSearch.getAvailableLanguages();
@@ -80,7 +95,7 @@ public class ManagementFilteredSearch {
 		gui.addFilterBox(availableLanguages, "Language:", FilteredSearch.LANGUAGEFILTER);
 		gui.addFilterBox(availableRegions, "Region:", FilteredSearch.REGIONFILTER);
 		gui.addFilterBox(availableDuration, "Duration:", FilteredSearch.VIDEODURATIONFILTER);
-		//gui.addFilterBox(availableVideoDefinitions, "Defintion:", FilteredSearch.VIDEODEFINITONFILTER);
+		gui.addFilterBox(availableVideoDefinitions, "Defintion:", FilteredSearch.VIDEODEFINITONFILTER);
 		gui.addFilterBox(availableVideoTypes, "Type:", FilteredSearch.VIDEOTYPEFILTER);
 
 		//ADDED
@@ -109,15 +124,14 @@ public class ManagementFilteredSearch {
 	 * Applying choosen filters and start the search. 
 	 */
 	public void preformFilteredSearch(String videoInfo,  String videoQuality, File filepath){
+		startTime = System.currentTimeMillis();
 		videoInfoResult = new HashMap<String, Video>();
 		gui.wipeStatWindow();
 		
 		this.filepath = filepath;
 		this.videoInfo = videoInfo;
+		this.videoFormat = videoQuality;
 		
-		
-		
-
 		
 		NUMBER_OF_VIDEOS_RETRIVED = 0;
 		
@@ -129,7 +143,6 @@ public class ManagementFilteredSearch {
 		}
 		wait =new DownloadProgressBar(this, NUMBER_OF_VIDEOS_TO_SEARCH,"Crawling YouTube", tg);
 		search();
-
 	}
 	
 	private void search() {
@@ -138,7 +151,6 @@ public class ManagementFilteredSearch {
 	 	threadCount = NUMBER_OF_THREADS;
 		for(int i = 0;i<NUMBER_OF_THREADS; i++){
 			(new SearchThread(tg, "SearchThread_"+i, this)).start();
-			
 		}
 		
 
@@ -165,11 +177,17 @@ public class ManagementFilteredSearch {
 	 * When the thread is finished Searching the videos are saved and statistics are displayed
 	 */
 	public void finishedSearch(){
-	
+		
 		tg.interrupt();
 		//wait.setVisible(true);
-		System.out.println("Compute stats");
+		long estimatedTime = System.currentTimeMillis()-startTime;
+		System.out.println("Estimated time is :" +estimatedTime/1000 + " sec");
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
+		gui.drawStatistics();
+		gui.resultPartInGUI(videoCache);
+//		for(SearchResult res : resultCache){
+//			gui.updateTheResultToGUI(res);
+//		}
 	}
 
 	public static void main(String[] args) {
@@ -180,6 +198,7 @@ public class ManagementFilteredSearch {
 	class SearchThread extends Thread{
 		ManagementFilteredSearch mng;
 		VideoInfoExtracter infoExtracter;
+		
 		public SearchThread(ThreadGroup tg, String s, ManagementFilteredSearch mng){//, CountDownLatch startSignal, CountDownLatch doneSignal){
 			super(tg,s);
 			infoExtracter= new VideoInfoExtracter(videoInfo);
@@ -214,25 +233,30 @@ public class ManagementFilteredSearch {
 					for(SearchResult res : result){
 						Thread.sleep(1);
 						String videoId = res.getId().getVideoId();
-						if(!resultCache.contains(videoId)&&res.getId()!=null){
+						if(!videoInfoResult.containsKey(videoId)&&res.getId()!=null){
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							System.out.println(res.getId().getVideoId());
-							resultCache.add(res.getId().getVideoId());
-							videoInfoResult.put(videoId, infoExtracter.getVideoInfo(videoId));		
+							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath);
+							videoCache.add(v);
+							resultCache.add(res);
+							videoInfoResult.put(videoId, v );	
+						//	System.out.println("*****" +res.getSnippet().getTitle());
 						}	
 					}
 					wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED );	
+					
 				}
 			
-			
+				
 				threadCount--;
 				if(threadCount == 0 ){
 					mng.finishedSearch();
 					wait.setVisible(false);
 				}
+				
 			} catch (InterruptedException v) {
 				System.out.println("Thread Interrupted");
-				System.out.println(resultCache.size());
+				//System.out.println(resultCache.size());
 				threadCount--;
 				if(threadCount == 0 ){
 					mng.finishedSearch();

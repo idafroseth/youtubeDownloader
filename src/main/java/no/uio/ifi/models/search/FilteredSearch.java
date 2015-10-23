@@ -303,8 +303,8 @@ public class FilteredSearch extends Search{
 			}).setApplicationName("SERACH").build();
 			
 			
-			search = youtube.search().list("id");//, recordingDetails, contentDetails, statistics");
-			search.setFields("items(id/videoId)");
+			search = youtube.search().list("snippet");//, recordingDetails, contentDetails, statistics");
+			search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
 			String apiKey = properties.getProperty("youtube.apikey");
 			search.setType("video");
 			search.setKey(apiKey);
@@ -400,6 +400,17 @@ public class FilteredSearch extends Search{
 			System.out.println("Adding definition filters");
 			search.setVideoDefinition(availableVideoDefinition.get(id)); //.setVideoQuality(availableVideoQuality.get(id));
 			break;
+		case GEOFILTER:
+			String[] elements  = id.split("-");
+			if(elements.length<3){
+				System.out.println("Something wrong with elements");
+				break;
+			}
+			System.out.println("Adding geolocation filter");
+			System.out.println("GPS " + elements[0]);
+			search.setLocation(elements[0]);
+			System.out.println("Radius:"+elements[2]);
+			search.setLocationRadius(elements[2].replaceAll("\\s",""));
 //		case VIDEODIMENSIONFILTER:
 //			System.out.println("Adding dimension filters");
 //			search.setVideoDimension(availableVideoDimension.get(id));

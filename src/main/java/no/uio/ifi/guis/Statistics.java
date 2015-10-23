@@ -6,6 +6,8 @@ import java.awt.GridLayout;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,22 +42,16 @@ public class Statistics extends JPanel {
 	HashMap<String, ChartPanel> chartFactory = new HashMap<String, ChartPanel>();
 	JPanel contentPane = new JPanel();
 	JPanel counterPanel = new JPanel();
-
-
+	NumberFormat formatter = NumberFormat.getInstance(); // get instance
+	
+	
 	public Statistics (){
-//		super(applicationTitle);
-//		setDefaultCloseOperation(EXIT_ON_CLOSE);
-//		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
+		formatter.setMaximumFractionDigits(2);
 		contentPane.setLayout(new GridLayout(2,2));
-	//	contentPane.setBackground(Color.WHITE);
-	//	JLabel noSearch = new JLabel("No search have been preformed");
 		JScrollPane scrollPane = new JScrollPane(contentPane);
-	//	contentPane.setPreferredSize(new Dimension(1000,500));
 		scrollPane.setPreferredSize(FilteredSearchGui.CONTENT_PANE_SIZE);
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-	//	contentPane.add(noSearch);
 		counterPanel.setLayout(new BoxLayout(counterPanel, BoxLayout.PAGE_AXIS));
-//		counterPanel.setBackground(Color.WHITE);
 		contentPane.add(counterPanel);
 		add(scrollPane);
 	    setVisible(true);
@@ -114,9 +110,9 @@ public class Statistics extends JPanel {
 	private CategoryDataset createBigDataset(Map<String, BigInteger> dataContent, Integer totalNumberOfVideos){
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		final String frequency = "Average disribution";
-		LinkedList<Map<String, BigInteger>> sortedQueue = sortBigByCategory(dataContent,totalNumberOfVideos);
+		LinkedList<Map<String, Double>> sortedQueue = sortBigByCategory(dataContent,totalNumberOfVideos);
 		while(sortedQueue.size()>0){
-			Map<String, BigInteger> sortedMap = sortedQueue.removeFirst();
+			Map<String, Double> sortedMap = sortedQueue.removeFirst();
 			for(String key : sortedMap.keySet()){
 				dataset.addValue(sortedMap.get(key),frequency, key );
 			}
@@ -127,9 +123,9 @@ public class Statistics extends JPanel {
 	private CategoryDataset createDataset(Map<String, Integer> dataContent){
 			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 			final String frequency = "Average disribution";
-			LinkedList<Map<String, Integer>> sortedQueue = sortByCategory(dataContent);
+			LinkedList<Map<String, Double>> sortedQueue = sortByCategory(dataContent);
 			while(sortedQueue.size()>0){
-				Map<String, Integer> sortedMap = sortedQueue.removeFirst();
+				Map<String, Double> sortedMap = sortedQueue.removeFirst();
 				for(String key : sortedMap.keySet()){
 					dataset.addValue(sortedMap.get(key),frequency, key );
 				}
@@ -137,8 +133,8 @@ public class Statistics extends JPanel {
 			return dataset;
 	}
 	
-	private LinkedList<Map<String,Integer>> sortByCategory(Map<String,Integer> dataMap){
-		LinkedList<Map<String,Integer>> sortedQueue = new LinkedList<Map<String, Integer>>();
+	private LinkedList<Map<String,Double>> sortByCategory(Map<String,Integer> dataMap){
+		LinkedList<Map<String,Double>> sortedQueue = new LinkedList<Map<String, Double>>();
 		System.out.println("Trying to sort the map");
 		int totalNumberOfVideos = 0;
 		for(String key : dataMap.keySet()){
@@ -148,7 +144,7 @@ public class Statistics extends JPanel {
 		String pointerToLargestValue = "";
 		int i = 0;
 		while(dataMap.size()>0){
-			Map<String, Integer> sortedMap = new HashMap<String, Integer>(1);
+			Map<String, Double> sortedMap = new HashMap<String, Double>(1);
 			i++;
 			int largestValue = 0;
 			for(String key : dataMap.keySet()){
@@ -158,31 +154,24 @@ public class Statistics extends JPanel {
 				}
 			}
 			System.out.println("Value nb" + i + " has value " + pointerToLargestValue + " With "  +largestValue);
-			sortedMap.put(pointerToLargestValue, largestValue*100/totalNumberOfVideos);
+			sortedMap.put(pointerToLargestValue, (double)largestValue*100/(double)totalNumberOfVideos);
 			sortedQueue.add(sortedMap);
 			dataMap.remove(pointerToLargestValue);
 		}		
 		return sortedQueue;
 	}
 	
-	private LinkedList<Map<String,BigInteger>> sortBigByCategory(Map<String,BigInteger> dataMap, Integer numVideo){
-		LinkedList<Map<String,BigInteger>> sortedQueue = new LinkedList<Map<String, BigInteger>>();
+	private LinkedList<Map<String,Double>> sortBigByCategory(Map<String,BigInteger> dataMap, Integer numVideo){
+		LinkedList<Map<String,Double>> sortedQueue = new LinkedList<Map<String, Double>>();
 		System.out.println("Trying to sort the map");
 		BigInteger totalNumberOfVideos = new BigInteger(numVideo.toString());
 		System.out.println("TotalNUmberOfVideos: " + totalNumberOfVideos);
-	
-//		if(totalNumberOfVideos.compareTo(new BigInteger("0") == 0){
-//			totalNumberOfVideos = new BigInteger("0");
-//			for(String key : dataMap.keySet()){
-//				totalNumberOfVideos = totalNumberOfVideos.add(dataMap.get(key));
-//			}
-//		}
 		
 		System.out.println("Total number of Videos in the categorySet " + totalNumberOfVideos);
 		String pointerToLargestValue = "";
 		int i = 0;
 		while(dataMap.size()>0){
-			Map<String, BigInteger> sortedMap = new HashMap<String, BigInteger>(1);
+			Map<String, Double> sortedMap = new HashMap<String, Double>(1);
 			i++;
 			BigInteger largestValue = new BigInteger("0");
 			for(String key : dataMap.keySet()){
@@ -191,7 +180,7 @@ public class Statistics extends JPanel {
 					pointerToLargestValue = key;
 				}
 			}
-			sortedMap.put(pointerToLargestValue, largestValue.divide(totalNumberOfVideos));
+			sortedMap.put(pointerToLargestValue,largestValue.doubleValue()/totalNumberOfVideos.doubleValue());
 			sortedQueue.add(sortedMap);
 			dataMap.remove(pointerToLargestValue);
 		}		
@@ -286,27 +275,27 @@ public class Statistics extends JPanel {
 
 	}
 	
-	public static void main(String[] args){
-		JFrame jf = new JFrame();
-		Statistics chart = new Statistics();
-		
-		Map<String, Integer> categoryMap = new HashMap<String, Integer>();
-		Map<String, Integer> likes = new HashMap<String, Integer>();
-		Map<String, Integer> third = new HashMap<String, Integer>();
-		third.put("Likes", 85);
-		third.put("dislike", 12);
-		categoryMap.put("Sport", 15);
-		categoryMap.put("Entertainment", 80);
-		categoryMap.put("GameShow", 40);
-		likes.put("Likes", 85);
-		likes.put("dislike", 12);
-		chart.addBarChart(categoryMap, "Categories frequency");
-		chart.addBarChart(likes, "LIKES");
-		chart.addBarChart(third, "Third example");
-		jf.setVisible(true);
-		jf.add(chart);
-		jf.pack();
-	}
+//	public static void main(String[] args){
+//		JFrame jf = new JFrame();
+//		Statistics chart = new Statistics();
+//		
+//		Map<String, Integer> categoryMap = new HashMap<String, Integer>();
+//		Map<String, Integer> likes = new HashMap<String, Integer>();
+//		Map<String, Integer> third = new HashMap<String, Integer>();
+//		third.put("Likes", 85);
+//		third.put("dislike", 12);
+//		categoryMap.put("Sport", 15);
+//		categoryMap.put("Entertainment", 80);
+//		categoryMap.put("GameShow", 40);
+//		likes.put("Likes", 85);
+//		likes.put("dislike", 12);
+//		chart.addBarChart(categoryMap, "Categories frequency");
+//		chart.addBarChart(likes, "LIKES");
+//		chart.addBarChart(third, "Third example");
+//		jf.setVisible(true);
+//		jf.add(chart);
+//		jf.pack();
+//	}
 }
 /**
  * I have mainly used SQL and Javascript in different student projects. One project I built a Student System web application using Java, JavaScript and a PostgreSQL database.  Are working on a very interesting project right now where we use SQL to store downloaded metadata and user content from YouTube which later would be used in multimodal analysis in a smart City context.

@@ -22,6 +22,7 @@ import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.CommentThread;
 import com.google.api.services.youtube.model.CommentThreadListResponse;
+import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoListResponse;
 
@@ -39,6 +40,7 @@ public class VideoInfoExtracter extends Search {
 	String fileType;
 	Map<String, Video> videoJSON = new HashMap<String, Video>();
 	CommentExtractor commentExtractor = new  CommentExtractor(5L);
+	DownloadLinkExtractor dlExtractor  = new DownloadLinkExtractor(null);
 	/**
 	 * setting the filetype
 	 */
@@ -78,21 +80,39 @@ public class VideoInfoExtracter extends Search {
 	 * @param videoId
 	 * @return
 	 */
-	public Video getVideoInfo(String videoId) {
+	public Video getVideoInfo(SearchResult res, String getVideo, File filePath) {
 		Video videoJSON = null; 
+		
 		try {
 			List<Video> videoList;
 	
-				searchContent.setId(videoId);
+				searchContent.setId(res.getId().getVideoId());
 				VideoListResponse listResponse = searchContent.execute();
 				videoList = listResponse.getItems();
 				
+				String videoUrlJson = "";
+				switch(getVideo){
+				case("VIDEOLINK"):
+					videoUrlJson += dlExtractor.extract(res);
+					break;
+				case("VIDEOFILE"):
+					dlExtractor  = new DownloadLinkExtractor(filePath.toString());
+					videoUrlJson += dlExtractor.extract(res);
+					break;
+				default:
+					videoUrlJson = "";
+				}
+				
+				
 				for (Video v : videoList) {
-					
+					String jsonString;
+			
+					 jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+videoUrlJson+"}";
+						
 					videoJSON = v;
-					String jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+"}";
-					System.out.println(jsonString);
-					//		String jsonString = v.toPrettyString();
+					
+				//	System.out.println(jsonString);
+			//		String jsonString = v.toPrettyString();
 					switch(fileType){
 					case "JSON":
 						saveMetaData( v.toPrettyString());
@@ -122,7 +142,7 @@ public class VideoInfoExtracter extends Search {
 //	    JSONObject output = new JSONObject(json);
 	    JSONArray jsonArray = json.getJSONArray("video");
 	    String csv = CDL.toString(jsonArray);
-	    System.out.println(csv);
+	   // System.out.println(csv);
 	    return csv;
 	}
 
@@ -136,7 +156,7 @@ public class VideoInfoExtracter extends Search {
 		writer = null;
 		try {
 			File utskrift = new File(filePath + filename);
-			System.out.println(utskrift);
+			//System.out.println(utskrift);
 			writer = new BufferedWriter(new FileWriter(utskrift));
 		} catch (Exception e) {
 			e.printStackTrace();
