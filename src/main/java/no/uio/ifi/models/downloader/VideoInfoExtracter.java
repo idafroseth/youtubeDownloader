@@ -111,7 +111,7 @@ public class VideoInfoExtracter extends Search {
 						
 					videoJSON = v;
 					
-					System.out.println(jsonString);
+				//	System.out.println(jsonString);
 			//		String jsonString = v.toPrettyString();
 					switch(fileType){
 					case "JSON":
@@ -142,7 +142,7 @@ public class VideoInfoExtracter extends Search {
 //	    JSONObject output = new JSONObject(json);
 	    JSONArray jsonArray = json.getJSONArray("video");
 	    String csv = CDL.toString(jsonArray);
-	    System.out.println(csv);
+	   // System.out.println(csv);
 	    return csv;
 	}
 
@@ -156,7 +156,7 @@ public class VideoInfoExtracter extends Search {
 		writer = null;
 		try {
 			File utskrift = new File(filePath + filename);
-			System.out.println(utskrift);
+			//System.out.println(utskrift);
 			writer = new BufferedWriter(new FileWriter(utskrift));
 		} catch (Exception e) {
 			e.printStackTrace();

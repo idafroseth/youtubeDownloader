@@ -43,10 +43,13 @@ public class DownloadLinkExtractor {
 	public String extract(SearchResult res){
 		YoutubeDownloader yt = new YoutubeDownloader("https://www.youtube.com/watch?v="+res.getId().getVideoId());
 		HashMap<String, SingleVideoINFO> links = yt.get_single_video_info();
+	
+		//PARSING TO JSON
 		String json = ",\"videoLinks\":{"
 				+ "\"downloadLink\":[{";
 		int count = 0;
 		for(String s : links.keySet()){
+			System.out.println("********s " + s + " key " + links.get(s));
 			json += "\"itag\":\""+s+"\",\"url\":\""+links.get(s).downloadLink+"\"}";
 			count++;
 			if(count == links.size()){
@@ -54,12 +57,14 @@ public class DownloadLinkExtractor {
 			}else{
 				json+=",{";
 			}
-			System.out.println(s);
-			System.out.println("Quality label " + links.get(s).quality_label);
 		}
-		System.out.println("Json "+json);
+		//================================
+		
 		downloadLinks.put(res.getId().getVideoId(), links);
+		//We have to decide which is the smallets video
+		
 		forSaveOnly.put(links, res);
+		
 		DownloadThread.nrOflinkextracted.setText("Number of video has been extracted download-links: " + (downloadLinks.size()));
 		if(dlmonitor != null){
 			dlmonitor.setnewDLlinks(links);
@@ -183,7 +188,7 @@ class DownloadThread extends JFrame implements Runnable{
 	
 	void beginDownload(){
 		//create folder for this video
-		File theDir = new File(pathfile+res.getId().getVideoId());
+		File theDir = new File(pathfile+"/"+res.getId().getVideoId());
 
 		// if the directory does not exist, create it
 		if (!theDir.exists()) {
@@ -252,7 +257,7 @@ class StatusDownload implements Runnable{
             connect.setConnectTimeout(20000);
             connect.setReadTimeout(20000);
 
-            f = new File(filepath+res.getId().getVideoId()+"/"+urlStreamObj.itag+" "+res.getSnippet().getTitle()+urlStreamObj.type);
+            f = new File(filepath+"/"+res.getId().getVideoId()+urlStreamObj.itag+" "+res.getSnippet().getTitle()+urlStreamObj.type);
 
             RandomAccessFile fileOutputStream = new RandomAccessFile(f,"rw");
             BufferedInputStream breader = new BufferedInputStream(connect.getInputStream());

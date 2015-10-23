@@ -3,14 +3,18 @@ package no.uio.ifi.guis;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
@@ -26,6 +30,8 @@ public class DownloadProgressBar extends JDialog  implements PreformingSearchDia
 	StopListener mouseListener = new StopListener();
 	
 	public DownloadProgressBar(ManagementFilteredSearch mng, int max, String title, ThreadGroup tg){
+		this.setLocation((Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - getWidth() / 2,
+				(Toolkit.getDefaultToolkit().getScreenSize().height) / 4 - getHeight() / 2);
 		this.tg = tg;
 		this.mng = mng;
 		this.setTitle(title);
@@ -33,7 +39,14 @@ public class DownloadProgressBar extends JDialog  implements PreformingSearchDia
 		progressBar.setValue(0);
 		progressBar.setMaximum(max);
 		progressBar.setStringPainted(true);
-	
+//	
+		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+			   public void windowClosing(WindowEvent evt) {
+				   tg.interrupt();
+			   }	
+			  });
+		
 		JButton cancelButton = new JButton("Stop");
 		
 		cancelButton.addActionListener(mouseListener);
@@ -73,6 +86,7 @@ public class DownloadProgressBar extends JDialog  implements PreformingSearchDia
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO Auto-generated method stub
+			System.out.println("STOPPING");
 			tg.interrupt();
 		}
 	}

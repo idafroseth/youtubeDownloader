@@ -55,6 +55,7 @@ public class ManagementFilteredSearch {
 	File filepath;
 	long startTime;
 	String videoInfo;
+	String videoFormat;
 	
 	DownloadProgressBar wait;
 	
@@ -129,10 +130,8 @@ public class ManagementFilteredSearch {
 		
 		this.filepath = filepath;
 		this.videoInfo = videoInfo;
+		this.videoFormat = videoQuality;
 		
-		
-		
-
 		
 		NUMBER_OF_VIDEOS_RETRIVED = 0;
 		
@@ -144,7 +143,6 @@ public class ManagementFilteredSearch {
 		}
 		wait =new DownloadProgressBar(this, NUMBER_OF_VIDEOS_TO_SEARCH,"Crawling YouTube", tg);
 		search();
-
 	}
 	
 	private void search() {
@@ -153,7 +151,6 @@ public class ManagementFilteredSearch {
 	 	threadCount = NUMBER_OF_THREADS;
 		for(int i = 0;i<NUMBER_OF_THREADS; i++){
 			(new SearchThread(tg, "SearchThread_"+i, this)).start();
-			
 		}
 		
 
@@ -186,6 +183,7 @@ public class ManagementFilteredSearch {
 		long estimatedTime = System.currentTimeMillis()-startTime;
 		System.out.println("Estimated time is :" +estimatedTime/1000 + " sec");
 		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());		
+		gui.drawStatistics();
 		gui.resultPartInGUI(videoCache);
 //		for(SearchResult res : resultCache){
 //			gui.updateTheResultToGUI(res);
@@ -238,11 +236,11 @@ public class ManagementFilteredSearch {
 						if(!videoInfoResult.containsKey(videoId)&&res.getId()!=null){
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							System.out.println(res.getId().getVideoId());
-							Video v = infoExtracter.getVideoInfo(res, "def", filepath);
+							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath);
 							videoCache.add(v);
 							resultCache.add(res);
 							videoInfoResult.put(videoId, v );	
-							System.out.println("*****" +res.getSnippet().getTitle());
+						//	System.out.println("*****" +res.getSnippet().getTitle());
 						}	
 					}
 					wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED );	

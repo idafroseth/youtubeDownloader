@@ -164,7 +164,8 @@ public class FilteredSearchGui extends JFrame{
 		/**
 		 * Draw that search tab. This is invoked when the search menu button is hit
 		 */
-		private void drawSearch(){
+		public void drawSearch(){
+			setButtonAsActive(searchMenu);
 			setTitle("YTDownloader ~ Filtered search");
 			((CardLayout) contentPane.getLayout()).show(contentPane, "SEARCH");	
 		}
@@ -172,13 +173,15 @@ public class FilteredSearchGui extends JFrame{
 		 * Draw that result tab. This is invoked when the result menu button is hit
 		 */
 		public void drawResult(){
+			setButtonAsActive(resultMenu);
 			setTitle("YTDownloader ~ Result");
 			((CardLayout) contentPane.getLayout()).show(contentPane, "RESULT");
 		}
 		/**
 		 * Draw that statistics tab. This is invoked when the stat menu button is hit
 		 */
-		private void drawStatistics(){
+		public void drawStatistics(){
+			setButtonAsActive(statsMenu);
 			setTitle("YTDownloader ~ Statistics");
 			((CardLayout) contentPane.getLayout()).show(contentPane, "STATS");
 
@@ -270,7 +273,7 @@ public class FilteredSearchGui extends JFrame{
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				JLabel button = (JLabel)e.getSource();
-				setButtonAsActive(button);
+			//	setButtonAsActive(button);
 				String action = button.getText();
 				switch (action){
 					case "SEARCH":

@@ -59,7 +59,8 @@ import no.uio.ifi.Auth;
 public class GeolocationSearch {
 	public GeolocationSearch(){
 	 	FindGPSOnName g = new FindGPSOnName();
-	 	System.out.println(g.getGeolocationCity("Oslo"));
+	 	System.out.println();
+	System.out.println(	searchVideoBaseOnLocation("Ylvis","("+g.getGeolocationCity("Oslo")+")", "20km"));
 	}
 	
 	public class FindGPSOnName{
@@ -212,6 +213,7 @@ public class GeolocationSearch {
     }
     public static void main(String[] args){
     	GeolocationSearch geo = new GeolocationSearch();
+    
   
     }
 }

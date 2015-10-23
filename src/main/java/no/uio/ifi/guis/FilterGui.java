@@ -69,7 +69,7 @@ public class FilterGui extends JPanel {
 	private JCheckBox videoDownload  = new JCheckBox();
 
 	private JComboBox videoInfoFormats = new JComboBox(new String[]{"JSON", "XML", "CSV"});
-	private JComboBox videoFormats = new JComboBox(new String[]{"Smallest available", "Best available"});
+	private JComboBox videoFormats = new JComboBox(new String[]{"Store video download link in metadata", "Download Video files"});
 	private JButton fileChooserButton = new JButton("Choose path");
 	private JFileChooser fileChooser = new JFileChooser();
 
@@ -130,17 +130,18 @@ public class FilterGui extends JPanel {
 		
 		JPanel videoInfo = new JPanel(new FlowLayout());
 		JPanel videoDL = new JPanel(new FlowLayout());
-		videoInfo.add(new JLabel("Download video info?"));
-		videoInfo.add(videoInfoDL);
+		videoInfo.add(new JLabel("Select video metadata format: "));
+		//videoInfo.add(videoInfoDL);
+		videoInfoDL.setSelected(true);
 		videoInfo.add(videoInfoFormats);
-		videoDL.add(new JLabel("Download video?"));
+		videoDL.add(new JLabel("Include video?"));
 		videoDL.add(videoDownload);
 		videoDL.add(videoFormats);
 		searchPanel.add(videoInfo);
 		searchPanel.add(videoDL);
 		searchPanel.add(fileChooserButton);
 		searchPanel.add(searchButton);
-		searchPanel.add(searchKeywordTest);//==================================
+	//	searchPanel.add(searchKeywordTest);//==================================
 		return searchPanel;
 	}
 
@@ -329,19 +330,19 @@ public class FilterGui extends JPanel {
 			//get the choise
 			String action = e.getActionCommand();
 			switch(action){
-			case "SEARCHBUTTONTEST": //=========================TEST======
-				String keysearch = numberOfVideosInput.getText();
-				String address = cityInput.getText();
-				String distance = radiusInput.getText();
-				JPanel resultcontain = null;
-				if(address.equals("")) resultcontain = resultPartInGUI(mng.preformKeywordSearch(keysearch));
-				else {
-					distance = (distance.equals("")) ? "100km" : distance;
-					if(distance.charAt(distance.length()-1) != 'm') distance+="km";
-					resultcontain = resultPartInGUI(mng.performKeywordSearchWithGeolocation(keysearch, address, distance));
-				}
-				mng.displayresultFromKeySearch(resultcontain);
-				break;
+//			case "SEARCHBUTTONTEST": //=========================TEST======
+//				String keysearch = numberOfVideosInput.getText();
+//				String address = cityInput.getText();
+//				String distance = radiusInput.getText();
+//				JPanel resultcontain = null;
+//				if(address.equals("")) resultcontain = resultPartInGUI(mng.preformKeywordSearch(keysearch));
+//				else {
+//					distance = (distance.equals("")) ? "100km" : distance;
+//					if(distance.charAt(distance.length()-1) != 'm') distance+="km";
+//					resultcontain = resultPartInGUI(mng.performKeywordSearchWithGeolocation(keysearch, address, distance));
+//				}
+//				mng.displayresultFromKeySearch(resultcontain);
+//				break;
 			
 			case "SEARCHBUTTON":
 				String videoInfo = "";
@@ -350,19 +351,25 @@ public class FilterGui extends JPanel {
 					videoInfo = (String) videoInfoFormats.getSelectedItem();
 					System.out.println(videoInfo);
 					if(filePath == null){
-						new WaitDialog("If you like to download the video info, you have to select a path");
+						new WaitDialog("Please select a path to store metadata");
 						return;
 					}
 				}
 				if(videoDownload.isSelected()){
 					videoQuality = (String) videoFormats.getSelectedItem();
+					if(videoQuality.toLowerCase().contains("metadata")){
+						videoQuality ="VIDEOLINK";
+					}else{
+						videoQuality =  "VIDEOFILE";
+					}
+					
 					System.out.println(videoInfo);
 					if(filePath == null){
-						new WaitDialog("If you like to download the video, you have to select a path");
+						new WaitDialog("Please select a path to store everything");
 						return;
 					}
 				}
-				mng.preformFilteredSearch( videoInfo,  videoQuality, filePath);
+				mng.preformFilteredSearch( videoInfo, videoQuality, filePath);
 				break;
 			case "FILECHOOSER":
 				final JFileChooser fc = new JFileChooser();
@@ -374,7 +381,7 @@ public class FilterGui extends JPanel {
 				break;
 			case "APPLYGEOFILTER":
 				//First we must check if the location is valid
-				String gps = GPSLocator.getGeolocationCity(cityInput.getText());
+				String gps =  GPSLocator.getGeolocationCity(cityInput.getText());
 				if(gps == null){
 					selectedFilters.put(FilteredSearch.GEOFILTER, "Could not find city: " + cityInput.getText() );
 				}else{
@@ -530,6 +537,11 @@ public class FilterGui extends JPanel {
 		return jscrollResultUp;
 	}
 	
+	/**
+	 * 
+	 * @author Viet Thi Tran
+	 *
+	 */
 	class ResultElem extends JPanel implements MouseListener{
 		Video svideo;
 		

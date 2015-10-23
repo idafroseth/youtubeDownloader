@@ -112,15 +112,15 @@ public class CommentExtractor extends Search{
 //                          .println("\n-------------------------------------------------------------\n");
                   counter++;
                   json +=videoComment.getSnippet().getTopLevelComment().toPrettyString();;
-                  System.out.println(size);
-                  System.out.println(counter);
+                 // System.out.println(size);
+                 // System.out.println(counter);
                   if(counter<size){
                 	  json +=",";
                   }
                   
               }
 			json += "]}";
-			System.out.println(json);
+		//	System.out.println(json);
 			return json;
 		   } catch (IOException e) {
 			// TODO Auto-generated catch block
