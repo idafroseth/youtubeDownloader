@@ -82,6 +82,13 @@ public class DownloadLinkExtractor {
 		return downloadLinks;
 	}
 	
+	public void stopCall(){
+		if(dlmonitor!= null){
+			dlmonitor.dlTH.dispose();
+		}
+		
+	}
+	
 }
 
 class DownloadVideoMonitor{
@@ -257,7 +264,7 @@ class StatusDownload implements Runnable{
             connect.setConnectTimeout(20000);
             connect.setReadTimeout(20000);
 
-            f = new File(filepath+"/"+res.getId().getVideoId()+urlStreamObj.itag+" "+res.getSnippet().getTitle()+urlStreamObj.type);
+            f = new File(filepath+"/"+res.getId().getVideoId()+"/"+urlStreamObj.itag+" "+res.getSnippet().getTitle()+urlStreamObj.type);
 
             RandomAccessFile fileOutputStream = new RandomAccessFile(f,"rw");
             BufferedInputStream breader = new BufferedInputStream(connect.getInputStream());

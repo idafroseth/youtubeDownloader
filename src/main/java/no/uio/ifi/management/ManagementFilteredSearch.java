@@ -43,6 +43,8 @@ public class ManagementFilteredSearch {
 	public int NUMBER_OF_VIDEOS_RETRIVED = 0;
 	int NUMBER_OF_THREADS=5;
 	
+	DownloadLinkExtractor dlExtractor;
+	
 //	ArrayList<String> resultCache = new ArrayList<String>();
 
 	int threadCount = 0;
@@ -131,6 +133,8 @@ public class ManagementFilteredSearch {
 		this.filepath = filepath;
 		this.videoInfo = videoInfo;
 		this.videoFormat = videoQuality;
+		
+		dlExtractor  = new DownloadLinkExtractor(filepath==null ? null : filepath.getAbsolutePath());
 		
 		
 		NUMBER_OF_VIDEOS_RETRIVED = 0;
@@ -236,7 +240,7 @@ public class ManagementFilteredSearch {
 						if(!videoInfoResult.containsKey(videoId)&&res.getId()!=null){
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							System.out.println(res.getId().getVideoId());
-							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath);
+							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath, dlExtractor);
 							videoCache.add(v);
 							resultCache.add(res);
 							videoInfoResult.put(videoId, v );	
@@ -259,6 +263,7 @@ public class ManagementFilteredSearch {
 				//System.out.println(resultCache.size());
 				threadCount--;
 				if(threadCount == 0 ){
+					dlExtractor.stopCall();
 					mng.finishedSearch();
 					wait.setVisible(false);
 				}

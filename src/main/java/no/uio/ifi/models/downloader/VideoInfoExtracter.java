@@ -40,7 +40,7 @@ public class VideoInfoExtracter extends Search {
 	String fileType;
 	Map<String, Video> videoJSON = new HashMap<String, Video>();
 	CommentExtractor commentExtractor = new  CommentExtractor(5L);
-	DownloadLinkExtractor dlExtractor  = new DownloadLinkExtractor(null);
+	
 	/**
 	 * setting the filetype
 	 */
@@ -80,7 +80,7 @@ public class VideoInfoExtracter extends Search {
 	 * @param videoId
 	 * @return
 	 */
-	public Video getVideoInfo(SearchResult res, String getVideo, File filePath) {
+	public Video getVideoInfo(SearchResult res, String getVideo, File filePath, DownloadLinkExtractor dlExtractor) {
 		Video videoJSON = null; 
 		
 		try {
@@ -96,7 +96,6 @@ public class VideoInfoExtracter extends Search {
 					videoUrlJson += dlExtractor.extract(res);
 					break;
 				case("VIDEOFILE"):
-					dlExtractor  = new DownloadLinkExtractor(filePath.toString());
 					videoUrlJson += dlExtractor.extract(res);
 					break;
 				default:
