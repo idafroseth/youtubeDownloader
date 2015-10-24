@@ -42,11 +42,11 @@ public class FilteredSearch extends Search{
 	public static final int GEOFILTER = 8;
 	public static final int NUMBERTOSEARCHFILTER = 9;
 	public static final int VIDEODEFINITONFILTER = 10;
+	public static final int KEYWORDFILTER = 11;
 
 
-//	public static final int VIDEODIMENSIONFILTER = 10;
-//	public static final int VIDEODEFINITIONFILTER = 11;
-//	public static final int VIDEOORDERBY = 12;
+//	public static final int VIDEODIMENSIONFILTER = 12;
+//	public static final int VIDEOORDERBY = 13;
 
 
 	private Map<String, String> availableCategories = new HashMap<String, String>();
@@ -302,9 +302,9 @@ public class FilteredSearch extends Search{
 
 			}).setApplicationName("SERACH").build();
 			
-			
 			search = youtube.search().list("snippet");//, recordingDetails, contentDetails, statistics");
-			search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url)");
+			search.setFields("items(id/kind,id/videoId,snippet/title,snippet/thumbnails/default/url),nextPageToken");
+
 			String apiKey = properties.getProperty("youtube.apikey");
 			search.setType("video");
 			search.setKey(apiKey);
@@ -320,18 +320,33 @@ public class FilteredSearch extends Search{
 	 * @param randomInput
 	 * @return
 	 */
+	
+	public String inputString = "";
+	String nextPageToken = "";
+	
 	public List<SearchResult> searchBy(String randomInput){
 		try {
+			System.out.println("random input " + randomInput);
 			List<SearchResult> searchResultList = null;
+			System.out.println("Next Token " + nextPageToken);
 
+			
+			if (inputString.equals(randomInput)) {
+				search.setPageToken(nextPageToken);
+			}
+			
 			search.setQ(randomInput);
-
 			search.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
 
 			// Call the API and print results.
 			SearchListResponse searchResponse = search.execute();
+			if (searchResponse.getNextPageToken() != null) {
+				nextPageToken = searchResponse.getNextPageToken();
+			}
 			searchResultList = searchResponse.getItems();
-	
+
+			inputString=randomInput;
+
 			return searchResultList;
 
 		} catch (GoogleJsonResponseException e) {
@@ -400,17 +415,23 @@ public class FilteredSearch extends Search{
 			System.out.println("Adding definition filters");
 			search.setVideoDefinition(availableVideoDefinition.get(id)); //.setVideoQuality(availableVideoQuality.get(id));
 			break;
-		case GEOFILTER:
-			String[] elements  = id.split("-");
-			if(elements.length<3){
-				System.out.println("Something wrong with elements");
-				break;
-			}
-			System.out.println("Adding geolocation filter");
-			System.out.println("GPS " + elements[0]);
-			search.setLocation(elements[0]);
-			System.out.println("Radius:"+elements[2]);
-			search.setLocationRadius(elements[2].replaceAll("\\s",""));
+		case KEYWORDFILTER:
+			System.out.println("Adding keyword filter");
+			search.setQ(id);
+			break;	
+			
+//		case GEOFILTER:
+//			String[] elements  = id.split("-");
+//			if(elements.length<3){
+//				System.out.println("Something wrong with elements");
+//				break;
+//			}
+//			System.out.println("Adding geolocation filter");
+//			System.out.println("GPS " + elements[0]);
+//			search.setLocation(elements[0]);
+//			System.out.println("Radius:"+elements[2]);
+//			search.setLocationRadius(elements[2].replaceAll("\\s",""));
+//	
 //		case VIDEODIMENSIONFILTER:
 //			System.out.println("Adding dimension filters");
 //			search.setVideoDimension(availableVideoDimension.get(id));

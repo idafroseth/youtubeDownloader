@@ -38,9 +38,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingWorker;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
-import com.google.api.client.util.DateTime;
 import com.google.api.services.youtube.model.Video;
 
 import no.uio.ifi.management.ManagementFilteredSearch;
@@ -76,8 +76,9 @@ public class FilterGui extends JPanel {
 	private JLabel outputNumberOfVideos = new JLabel("");
 	
 	private JTextField cityInput = new JTextField();
+	private JTextField keyWordInput = new JTextField();
 	private JTextField radiusInput = new JTextField();
-	private JButton applyGeoFilter = new JButton("Set geofilter");
+
 	
 	private JTextField startDateTextField = new JTextField("YYYY-MM-DD");
 	private JTextField endDateTextField = new JTextField("YYYY-MM-DD");
@@ -121,6 +122,119 @@ public class FilterGui extends JPanel {
 		this.add(drawSearchMenu(), BorderLayout.PAGE_END);
 		this.add(drawFilterMenu(), BorderLayout.CENTER);
 		selectedFilters.replace(FilteredSearch.GEOFILTER, "No City");
+		onTextFieldChange();
+	}
+	
+	
+public void onTextFieldChange() {	
+		
+		keyWordInput.getDocument().addDocumentListener(new DocumentListener() {
+			  public void changedUpdate(DocumentEvent e) {
+			    changed();
+			  }
+			  public void removeUpdate(DocumentEvent e) {
+			    changed();
+			  }
+			  public void insertUpdate(DocumentEvent e) {
+			    changed();
+			  }
+
+			  public void changed() {
+			     if (keyWordInput.getText().equals("")){
+			      
+			     }
+			     else {
+			    	 
+						selectedFilters.put(FilteredSearch.KEYWORDFILTER,  keyWordInput.getText() );					
+
+			    	
+			    }
+			 	String outputText = "";
+				for (String filter : selectedFilters.values()) {
+					outputText += filter + "; \n";
+				}
+
+				filtersAppliedText.setText(outputText);
+
+			  }
+			});
+		
+		
+		cityInput.getDocument().addDocumentListener(new DocumentListener() {
+			  public void changedUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void removeUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void insertUpdate(DocumentEvent e) {
+				    changed();
+				  }
+
+				  public void changed() {
+				     if (cityInput.getText().equals("")){
+
+				     }
+				     else {
+				    	//First we must check if the location is valid
+							String gps = GPSLocator.getGeolocationCity(cityInput.getText());
+							if(gps == null){
+								selectedFilters.put(FilteredSearch.GEOFILTER, "Could not find city: " + cityInput.getText() );
+							}else{
+								if(gps.length()<30 ){
+									selectedFilters.put(FilteredSearch.GEOFILTER, gps + " - " + cityInput.getText() + " - " + radiusInput.getText());					
+								}else{
+									selectedFilters.replace(FilteredSearch.GEOFILTER, "Could not find city: " + cityInput.getText() );
+								}
+							}
+							String outputText = "";
+							for (String filter : selectedFilters.values()) {
+								outputText += filter + "; \n";
+							}
+
+							filtersAppliedText.setText(outputText);
+				    }
+
+				  }
+				});
+		
+		radiusInput.getDocument().addDocumentListener(new DocumentListener() {
+			  public void changedUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void removeUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void insertUpdate(DocumentEvent e) {
+				    changed();
+				  }
+
+				  public void changed() {
+				     if (cityInput.getText().equals("")){
+
+				     }
+				     else {
+				    	//First we must check if the location is valid
+							String gps = GPSLocator.getGeolocationCity(cityInput.getText());
+							if(gps == null){
+								selectedFilters.put(FilteredSearch.GEOFILTER, "Could not find city: " + cityInput.getText() );
+							}else{
+								if(gps.length()<30 ){
+									selectedFilters.put(FilteredSearch.GEOFILTER, gps + " - " + cityInput.getText() + " - " + radiusInput.getText());					
+								}else{
+									selectedFilters.replace(FilteredSearch.GEOFILTER, "Could not find city: " + cityInput.getText() );
+								}
+							}
+							String outputText = "";
+							for (String filter : selectedFilters.values()) {
+								outputText += filter + "; \n";
+							}
+
+							filtersAppliedText.setText(outputText);
+				    }
+
+				  }
+				});
 	}
 	public JPanel drawSearchMenu(){
 		JPanel searchPanel = new JPanel(new FlowLayout());
@@ -172,6 +286,7 @@ public class FilterGui extends JPanel {
 		filterAddPanel.setLayout(new GridLayout(10, 1));
 		filterAddPanel.setPreferredSize(new Dimension(100, 500));
 		filterAddPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		filterAddPanel.add(getKeyWordPanel());
 		filterAddPanel.add(getGelocationPanel());
 		filtersAppliedText.setPreferredSize(new Dimension(450, 450));
 		filterAddPanel.add(getPeriodPanel());
@@ -199,18 +314,33 @@ public class FilterGui extends JPanel {
 		
 		return panel;
 	}
+	
+	private JPanel getKeyWordPanel(){
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 10));
+
+		keyWordInput.setColumns(15);
+
+		JLabel keyword = new JLabel("Keyword: ");
+		Font font = keyword.getFont();
+		keyword.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
+		keyword.setPreferredSize(new Dimension(100, 20));
+		panel.add(keyword);
+		panel.add(keyWordInput);
+
+		return panel;
+		
+	}
+	
 	private JPanel getGelocationPanel(){
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 10));
 
 		cityInput.setColumns(15);
 		radiusInput.setColumns(5);
-		applyGeoFilter.setActionCommand("APPLYGEOFILTER");
-		applyGeoFilter.addActionListener(mouseListener);
 
 		JLabel city = new JLabel("City: ");
 		Font font = city.getFont();
 		city.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
-		city.setPreferredSize(new Dimension(60, 20));
+		city.setPreferredSize(new Dimension(100, 20));
 
 		panel.add(city);
 
@@ -223,18 +353,17 @@ public class FilterGui extends JPanel {
 
 		panel.add(radius);
 		panel.add(radiusInput);
-		panel.add(applyGeoFilter);
 
 		return panel;
-		
 	}
+	
 	private JPanel getPeriodPanel(){
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 10));
 		JLabel from = new JLabel("Year: ");
 
 		Font font = from.getFont();
 		from.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
-		from.setPreferredSize(new Dimension(60, 20));
+		from.setPreferredSize(new Dimension(100, 20));
 
 		panel.add(from);
 
@@ -639,6 +768,11 @@ public class FilterGui extends JPanel {
 		public void mouseReleased(MouseEvent e){
 
 		}
+	}
+	
+	public String getKeyWordText() {
+		return keyWordInput.getText();
+		
 	}
 	
 	

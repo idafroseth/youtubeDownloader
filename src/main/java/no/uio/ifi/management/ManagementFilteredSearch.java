@@ -229,13 +229,25 @@ public class ManagementFilteredSearch {
 		public void run() {
 			try {
 				RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();
+				List<SearchResult> result;
+				
+				
 				loop:
-				while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
-					List<SearchResult> result = filterSearch.searchBy(randomGenerator.getNextRandom());
+					while(NUMBER_OF_VIDEOS_RETRIVED< NUMBER_OF_VIDEOS_TO_SEARCH){
+						
+						if ( gui.getKeyWordText().length() != 0) {
+							result = filterSearch.searchBy(gui.getKeyWordText());
+						}
+							
+						else {
+							String rnd =randomGenerator.getNextRandom();
+							result = filterSearch.searchBy(rnd);
+
+						}
 	
 					innerLoop:
 					for(SearchResult res : result){
-						Thread.sleep(1);
+						Thread.sleep(10);
 						String videoId = res.getId().getVideoId();
 						if(!videoInfoResult.containsKey(videoId)&&res.getId()!=null){
 							NUMBER_OF_VIDEOS_RETRIVED++;
