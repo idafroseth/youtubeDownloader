@@ -69,7 +69,7 @@ public class FilteredSearch extends Search{
 
 	private YouTube.Search.List search;
 
-	//public static final long NUMBER_OF_VIDEOS_RETURNED = 25;
+	public static final long NUMBER_OF_VIDEOS_RETURNED = 50;
 	
 	/**
 	 * 
@@ -329,7 +329,7 @@ public class FilteredSearch extends Search{
 			
 			search.setQ(randomInput);
 			search.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
-
+			System.out.println("random search input " + randomInput);
 			String nextToken ="";
 			do {
 				search.setPageToken(nextToken);

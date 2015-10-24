@@ -1,21 +1,15 @@
 package no.uio.ifi.management;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-
-import org.json.JSONObject;
-import org.json.XML;
-
 import java.awt.BorderLayout;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JPanel;
+
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
@@ -239,6 +233,10 @@ public class ManagementFilteredSearch {
 		}
 
 		@Override
+		
+		// check if keyword is entered in the UI -> keyword search
+		// otherwise allrandom
+		
 		public void run() {
 			try {
 				RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();
@@ -251,9 +249,10 @@ public class ManagementFilteredSearch {
 					}
 
 					else {
+						
 						String rnd = randomGenerator.getNextRandom();
-						result = filterSearch.searchBy(rnd);
-
+						result = filterSearch.searchBy("" + "\"" + "watch?v="  + rnd + "\"");
+						System.out.println("RANDOM SEARCH watch?v=" + rnd);
 					}
 
 					innerLoop: for (SearchResult res : result) {
@@ -294,5 +293,5 @@ public class ManagementFilteredSearch {
 		}
 
 	}
-
+	
 }
