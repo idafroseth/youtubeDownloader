@@ -141,7 +141,10 @@ public void onTextFieldChange() {
 
 			  public void changed() {
 			     if (keyWordInput.getText().equals("")){
-			      
+			    	 
+			    	if( selectedFilters.containsKey((FilteredSearch.KEYWORDFILTER))) {
+			    		 selectedFilters.remove(FilteredSearch.KEYWORDFILTER);
+			    	 }
 			     }
 			     else {
 			    	 
@@ -171,8 +174,7 @@ public void onTextFieldChange() {
 			  }
 
 			  public void changed() {
-			     if (startDateTextField.getText().equals("")){
-			      
+			     if (startDateTextField.getText().equals("") ){
 			     }
 			     else {
 			    	checkForYear();
@@ -216,7 +218,10 @@ public void onTextFieldChange() {
 
 				  public void changed() {
 				     if (cityInput.getText().equals("")){
-
+				    	 if( selectedFilters.containsKey((FilteredSearch.GEOFILTER))) {
+				    		 selectedFilters.remove(FilteredSearch.GEOFILTER);
+								filtersAppliedText.setText("");
+				    	 }
 				     }
 				     else {
 				    	//First we must check if the location is valid
@@ -254,7 +259,11 @@ public void onTextFieldChange() {
 
 				  public void changed() {
 				     if (cityInput.getText().equals("")){
+				    	 if( selectedFilters.containsKey((FilteredSearch.GEOFILTER))) {
+				    		 selectedFilters.remove(FilteredSearch.GEOFILTER);
+							filtersAppliedText.setText("");
 
+				    	 }
 				     }
 				     else {
 				    	//First we must check if the location is valid
@@ -593,55 +602,55 @@ public void onTextFieldChange() {
 				}
 				filtersAppliedText.setText(o);
 				break;
-			case "PERIOD":
-				String dateFrom = startDateTextField.getText();//+"T00:00:00Z";
-				String dateTo = endDateTextField.getText();//+"T00:00:00Z";
-			
-				dateFrom = dateFrom+"-01-01";
-				dateTo = dateTo+"-12-31";
-				
-					LocalDate from = null;
-					LocalDate to = null;
-					DateTimeFormatter dfs = new DateTimeFormatterBuilder()
-	                        .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd"))                                                                 
-	                        .appendOptional(DateTimeFormatter.ofPattern("dd.MM.yyyy"))                                                                                     
-	                        .toFormatter();
-					if(!dateFrom.contains("YY")){//&&dateFrom.length()>0){
-						try{
-							from = LocalDate.parse(dateFrom, dfs);
-						}catch(DateTimeParseException ex){
-							outputPeriodVideos.setText("From date has wrong format");
-							System.out.println("Wrong fromat");
-							break;
-						}
-					}
-					if(!dateTo.contains("YY")){//&&dateTo.length()>0 ){
-						try{
-							to = LocalDate.parse(dateTo, dfs);
-						}catch(DateTimeParseException ex){
-							outputPeriodVideos.setText("To date has wrong format");
-							System.out.println("Wrong fromat");
-							break;
-						}
-					}
-					if(!dateTo.contains("YY") && !dateFrom.contains("YY")){
-						if(to.compareTo(from)<=0){
-							outputPeriodVideos.setText("StartDate is less then EndDate");
-							break;
-						}
-					}
-					
-					String period = from + "|" + to;
-					selectedFilters.put(FilteredSearch.TIMEFILTER, period);
-					outputPeriodVideos.setText("");
-			
-					String ot = "";
-					for (String filter : selectedFilters.values()) {
-						ot += filter + "; \n";
-					}
-
-					filtersAppliedText.setText(ot);
-				
+//			case "PERIOD":
+//				String dateFrom = startDateTextField.getText();//+"T00:00:00Z";
+//				String dateTo = endDateTextField.getText();//+"T00:00:00Z";
+//			
+//				dateFrom = dateFrom+"-01-01";
+//				dateTo = dateTo+"-12-31";
+//				
+//					LocalDate from = null;
+//					LocalDate to = null;
+//					DateTimeFormatter dfs = new DateTimeFormatterBuilder()
+//	                        .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd"))                                                                 
+//	                        .appendOptional(DateTimeFormatter.ofPattern("dd.MM.yyyy"))                                                                                     
+//	                        .toFormatter();
+//					if(!dateFrom.contains("YY")){//&&dateFrom.length()>0){
+//						try{
+//							from = LocalDate.parse(dateFrom, dfs);
+//						}catch(DateTimeParseException ex){
+//							outputPeriodVideos.setText("From date has wrong format");
+//							System.out.println("Wrong fromat");
+//							break;
+//						}
+//					}
+//					if(!dateTo.contains("YY")){//&&dateTo.length()>0 ){
+//						try{
+//							to = LocalDate.parse(dateTo, dfs);
+//						}catch(DateTimeParseException ex){
+//							outputPeriodVideos.setText("To date has wrong format");
+//							System.out.println("Wrong fromat");
+//							break;
+//						}
+//					}
+//					if(!dateTo.contains("YY") && !dateFrom.contains("YY")){
+//						if(to.compareTo(from)<=0){
+//							outputPeriodVideos.setText("StartDate is less then EndDate");
+//							break;
+//						}
+//					}
+//					
+//					String period = from + "|" + to;
+//					selectedFilters.put(FilteredSearch.TIMEFILTER, period);
+//					outputPeriodVideos.setText("");
+//			
+//					String ot = "";
+//					for (String filter : selectedFilters.values()) {
+//						ot += filter + "; \n";
+//					}
+//
+//					filtersAppliedText.setText(ot);
+//				
 			}
 		}
 	}
@@ -651,36 +660,45 @@ public void onTextFieldChange() {
 		String dateFrom = startDateTextField.getText();//+"T00:00:00Z";
 		String dateTo = endDateTextField.getText();//+"T00:00:00Z";
 	
-		dateFrom = dateFrom+"-01-01";
-		dateTo = dateTo+"-12-31";
-		
+		if (dateFrom.length()== 4) {
+			dateFrom = dateFrom+"-01-01";
+		}
+		if (dateTo.length()==4) {
+			dateTo = dateTo+"-12-31";
+		}
 			LocalDate from = null;
 			LocalDate to = null;
 			DateTimeFormatter dfs = new DateTimeFormatterBuilder()
                     .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd"))                                                                 
                     .appendOptional(DateTimeFormatter.ofPattern("dd.MM.yyyy"))                                                                                     
                     .toFormatter();
-			if(!dateFrom.contains("YY")){//&&dateFrom.length()>0){
-				try{
-					from = LocalDate.parse(dateFrom, dfs);
-				}catch(DateTimeParseException ex){
-					outputPeriodVideos.setText("From date has wrong format");
-					System.out.println("Wrong fromat");
+			if (dateFrom.length() >= 10) {
+				if(!dateFrom.contains("YY")){//&&dateFrom.length()>0){
+					try{
+						from = LocalDate.parse(dateFrom, dfs);
+					}catch(DateTimeParseException ex){
+						outputPeriodVideos.setText("From date has wrong format");
+						System.out.println("Wrong fromat");
+					}
 				}
 			}
-			if(!dateTo.contains("YY")){//&&dateTo.length()>0 ){
-				try{
-					to = LocalDate.parse(dateTo, dfs);
-				}catch(DateTimeParseException ex){
-					outputPeriodVideos.setText("To date has wrong format");
-					System.out.println("Wrong fromat");
+		
+			if (dateTo.length() >=10 ){
+				if(!dateTo.contains("YY")){//&&dateTo.length()>0 ){
+					try{
+						to = LocalDate.parse(dateTo, dfs);
+					}catch(DateTimeParseException ex){
+						outputPeriodVideos.setText("To date has wrong format");
+						System.out.println("Wrong fromat");
+					}
+				}
+				if(!dateTo.contains("YY") && !dateFrom.contains("YY")){
+					if(to.compareTo(from)<=0){
+						outputPeriodVideos.setText("StartDate is less then EndDate");
+					}
 				}
 			}
-//			if(!dateTo.contains("YY") && !dateFrom.contains("YY")){
-//				if(to.compareTo(from)<=0){
-//					outputPeriodVideos.setText("StartDate is less then EndDate");
-//				}
-//			}
+		
 			String period = from + "|" + to;
 			selectedFilters.put(FilteredSearch.TIMEFILTER, period);
 			outputPeriodVideos.setText("");
