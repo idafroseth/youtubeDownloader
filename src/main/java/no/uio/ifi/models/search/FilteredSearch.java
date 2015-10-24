@@ -1,16 +1,16 @@
 package no.uio.ifi.models.search;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.YouTube.I18nRegions;
-import com.google.api.services.youtube.YouTube.Videos;
 import com.google.api.services.youtube.model.GuideCategory;
 import com.google.api.services.youtube.model.GuideCategoryListResponse;
 import com.google.api.services.youtube.model.I18nLanguage;
@@ -23,7 +23,6 @@ import com.google.api.services.youtube.model.VideoCategory;
 import com.google.api.services.youtube.model.VideoCategoryListResponse;
 
 import no.uio.ifi.Auth;
-import no.uio.ifi.guis.FilteredSearchGui;
 
 /**
  * 
@@ -321,31 +320,33 @@ public class FilteredSearch extends Search{
 	 * @return
 	 */
 	
-	public String inputString = "";
-	String nextPageToken = "";
+
 	
 	public List<SearchResult> searchBy(String randomInput){
 		try {
-			System.out.println("random input " + randomInput);
-			List<SearchResult> searchResultList = null;
-			System.out.println("Next Token " + nextPageToken);
+			List<SearchResult> searchResultList = new ArrayList<SearchResult>();
 
-			
-			if (inputString.equals(randomInput)) {
-				search.setPageToken(nextPageToken);
-			}
 			
 			search.setQ(randomInput);
 			search.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
 
-			// Call the API and print results.
-			SearchListResponse searchResponse = search.execute();
-			if (searchResponse.getNextPageToken() != null) {
-				nextPageToken = searchResponse.getNextPageToken();
-			}
-			searchResultList = searchResponse.getItems();
+			String nextToken ="";
+			do {
+				search.setPageToken(nextToken);
+				SearchListResponse searchResponse = search.execute();
+				searchResultList.addAll(searchResponse.getItems());
+				nextToken = searchResponse.getNextPageToken();
+				System.out.println("Next Token " + nextToken);
 
-			inputString=randomInput;
+			} while (nextToken != null);
+			
+			// Call the API and print results.
+//			SearchListResponse searchResponse = search.execute();
+//			if (searchResponse.getNextPageToken() != null) {
+//				nextPageToken = searchResponse.getNextPageToken();
+//			}
+//			searchResultList = searchResponse.getItems();
+
 
 			return searchResultList;
 
