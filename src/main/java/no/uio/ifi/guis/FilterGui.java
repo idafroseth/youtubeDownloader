@@ -80,8 +80,8 @@ public class FilterGui extends JPanel {
 	private JTextField radiusInput = new JTextField();
 
 	
-	private JTextField startDateTextField = new JTextField("YYYY-MM-DD");
-	private JTextField endDateTextField = new JTextField("YYYY-MM-DD");
+	private JTextField startDateTextField = new JTextField("YYYY");
+	private JTextField endDateTextField = new JTextField("YYYY");
 	private JLabel outputPeriodVideos = new JLabel("");
 	
 	private JTextField numberOfVideosInput = new JTextField("100 000");
@@ -159,6 +159,49 @@ public void onTextFieldChange() {
 			  }
 			});
 		
+		startDateTextField.getDocument().addDocumentListener(new DocumentListener() {
+			  public void changedUpdate(DocumentEvent e) {
+			    changed();
+			  }
+			  public void removeUpdate(DocumentEvent e) {
+			    changed();
+			  }
+			  public void insertUpdate(DocumentEvent e) {
+			    changed();
+			  }
+
+			  public void changed() {
+			     if (startDateTextField.getText().equals("")){
+			      
+			     }
+			     else {
+			    	checkForYear();
+			    }
+
+			  }
+			});
+		
+		endDateTextField.getDocument().addDocumentListener(new DocumentListener() {
+			  public void changedUpdate(DocumentEvent e) {
+			    changed();
+			  }
+			  public void removeUpdate(DocumentEvent e) {
+			    changed();
+			  }
+			  public void insertUpdate(DocumentEvent e) {
+			    changed();
+			  }
+
+			  public void changed() {
+			     if (endDateTextField.getText().equals("")){
+			      
+			     }
+			     else {
+			    	checkForYear();
+			    }
+
+			  }
+			});
 		
 		cityInput.getDocument().addDocumentListener(new DocumentListener() {
 			  public void changedUpdate(DocumentEvent e) {
@@ -371,13 +414,14 @@ public void onTextFieldChange() {
 		startDateTextField.setColumns(8);
 		endDateTextField.setColumns(8);
 		panel.add(startDateTextField);
-		panel.add(new JLabel("To:"));
+		
+		JLabel toLabel = new JLabel("To: ");
+		font = toLabel.getFont();
+		toLabel.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
+		toLabel.setPreferredSize(new Dimension(30, 20));
+		panel.add(toLabel);
+		
 		panel.add(endDateTextField);
-
-		JButton apply = new JButton("Apply");
-		apply.setActionCommand("PERIOD");
-		apply.addActionListener(mouseListener);
-		panel.add(apply);
 		panel.add(outputPeriodVideos);
 		return panel;
 	}
@@ -508,25 +552,25 @@ public void onTextFieldChange() {
 				System.out.println(returnVal);
 				System.out.println(fc.getSelectedFile());
 				break;
-			case "APPLYGEOFILTER":
-				//First we must check if the location is valid
-				String gps =  GPSLocator.getGeolocationCity(cityInput.getText());
-				if(gps == null){
-					selectedFilters.put(FilteredSearch.GEOFILTER, "Could not find city: " + cityInput.getText() );
-				}else{
-					if(gps.length()<30 ){
-						selectedFilters.put(FilteredSearch.GEOFILTER, gps + " - " + cityInput.getText() + " - " + radiusInput.getText());					
-					}else{
-						selectedFilters.replace(FilteredSearch.GEOFILTER, "Could not find city: " + cityInput.getText() );
-					}
-				}
-				String outputText = "";
-				for (String filter : selectedFilters.values()) {
-					outputText += filter + "; \n";
-				}
-
-				filtersAppliedText.setText(outputText);
-				break;
+//			case "APPLYGEOFILTER":
+//				//First we must check if the location is valid
+//				String gps =  GPSLocator.getGeolocationCity(cityInput.getText());
+//				if(gps == null){
+//					selectedFilters.put(FilteredSearch.GEOFILTER, "Could not find city: " + cityInput.getText() );
+//				}else{
+//					if(gps.length()<30 ){
+//						selectedFilters.put(FilteredSearch.GEOFILTER, gps + " - " + cityInput.getText() + " - " + radiusInput.getText());					
+//					}else{
+//						selectedFilters.replace(FilteredSearch.GEOFILTER, "Could not find city: " + cityInput.getText() );
+//					}
+//				}
+//				String outputText = "";
+//				for (String filter : selectedFilters.values()) {
+//					outputText += filter + "; \n";
+//				}
+//
+//				filtersAppliedText.setText(outputText);
+//				break;
 			case "NUMVIDEOS":
 				String number = numberOfVideosInput.getText().replaceAll("\\s+","");
 				try {
@@ -552,6 +596,9 @@ public void onTextFieldChange() {
 			case "PERIOD":
 				String dateFrom = startDateTextField.getText();//+"T00:00:00Z";
 				String dateTo = endDateTextField.getText();//+"T00:00:00Z";
+			
+				dateFrom = dateFrom+"-01-01";
+				dateTo = dateTo+"-12-31";
 				
 					LocalDate from = null;
 					LocalDate to = null;
@@ -584,7 +631,6 @@ public void onTextFieldChange() {
 						}
 					}
 					
-				
 					String period = from + "|" + to;
 					selectedFilters.put(FilteredSearch.TIMEFILTER, period);
 					outputPeriodVideos.setText("");
@@ -598,6 +644,53 @@ public void onTextFieldChange() {
 				
 			}
 		}
+	}
+	
+	
+	public void checkForYear() {
+		String dateFrom = startDateTextField.getText();//+"T00:00:00Z";
+		String dateTo = endDateTextField.getText();//+"T00:00:00Z";
+	
+		dateFrom = dateFrom+"-01-01";
+		dateTo = dateTo+"-12-31";
+		
+			LocalDate from = null;
+			LocalDate to = null;
+			DateTimeFormatter dfs = new DateTimeFormatterBuilder()
+                    .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd"))                                                                 
+                    .appendOptional(DateTimeFormatter.ofPattern("dd.MM.yyyy"))                                                                                     
+                    .toFormatter();
+			if(!dateFrom.contains("YY")){//&&dateFrom.length()>0){
+				try{
+					from = LocalDate.parse(dateFrom, dfs);
+				}catch(DateTimeParseException ex){
+					outputPeriodVideos.setText("From date has wrong format");
+					System.out.println("Wrong fromat");
+				}
+			}
+			if(!dateTo.contains("YY")){//&&dateTo.length()>0 ){
+				try{
+					to = LocalDate.parse(dateTo, dfs);
+				}catch(DateTimeParseException ex){
+					outputPeriodVideos.setText("To date has wrong format");
+					System.out.println("Wrong fromat");
+				}
+			}
+//			if(!dateTo.contains("YY") && !dateFrom.contains("YY")){
+//				if(to.compareTo(from)<=0){
+//					outputPeriodVideos.setText("StartDate is less then EndDate");
+//				}
+//			}
+			String period = from + "|" + to;
+			selectedFilters.put(FilteredSearch.TIMEFILTER, period);
+			outputPeriodVideos.setText("");
+	
+			String ot = "";
+			for (String filter : selectedFilters.values()) {
+				ot += filter + "; \n";
+			}
+
+			filtersAppliedText.setText(ot);
 	}
 
 	/**

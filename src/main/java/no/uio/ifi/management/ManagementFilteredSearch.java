@@ -149,11 +149,18 @@ public class ManagementFilteredSearch {
 			filterSearch.setFilter(key, filtersApplied.get(key));
 		}
 		wait = new DownloadProgressBar(this, NUMBER_OF_VIDEOS_TO_SEARCH, "Crawling YouTube", tg);
+		
+		if(gui.getKeyWordText().length() == 0 || gui.getKeyWordText() ==null) {
+			setSearchThreadNumber(5);
+		}
+		else {
+			setSearchThreadNumber(1);
+		}
 		search();
 	}
+	
 
 	private void search() {
-		RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();
 
 		threadCount = NUMBER_OF_THREADS;
 		for (int i = 0; i < NUMBER_OF_THREADS; i++) {
@@ -233,10 +240,10 @@ public class ManagementFilteredSearch {
 		}
 
 		@Override
-		
+
 		// check if keyword is entered in the UI -> keyword search
 		// otherwise allrandom
-		
+
 		public void run() {
 			try {
 				RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();
@@ -249,14 +256,14 @@ public class ManagementFilteredSearch {
 					}
 
 					else {
-						
+
 						String rnd = randomGenerator.getNextRandom();
-						result = filterSearch.searchBy("" + "\"" + "watch?v="  + rnd + "\"");
+						result = filterSearch.searchBy("" + "\"" + "watch?v=" + rnd + "\"");
 						System.out.println("RANDOM SEARCH watch?v=" + rnd);
 					}
 
 					innerLoop: for (SearchResult res : result) {
-						Thread.sleep(10);
+						Thread.sleep(1);
 						String videoId = res.getId().getVideoId();
 						if (!videoInfoResult.containsKey(videoId) && res.getId() != null) {
 							NUMBER_OF_VIDEOS_RETRIVED++;
@@ -294,4 +301,8 @@ public class ManagementFilteredSearch {
 
 	}
 	
+	public void setSearchThreadNumber(int number) {
+		NUMBER_OF_THREADS = number;
+	}
+
 }
