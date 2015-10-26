@@ -6,6 +6,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -20,9 +22,11 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
@@ -37,7 +41,8 @@ import no.uio.ifi.management.ManagementFilteredSearch;
 public class FilteredSearchGui extends JFrame{
 		public JPanel contentPane = new JPanel();
 		
-		private FilterGui searchWindow;
+		private FilterGui apiWindow;
+		private FilterGui jsoupWindow;
 		private Statistics statsWindow;
 		
 		private MouseClickListener mouseListener = new MouseClickListener();
@@ -48,9 +53,15 @@ public class FilteredSearchGui extends JFrame{
 		public static final Integer WINDOW_HEIGHT = 600;
 		public static final Dimension CONTENT_PANE_SIZE = new Dimension(WINDOW_WIDTH,WINDOW_HEIGHT);
 		public static final Dimension MENU_BUTTON_SIZE = new Dimension(150,30);
+		JPanel searchContentPane = new JPanel();
 		Color menuColor = Color.LIGHT_GRAY;
 		JLabel activeButton;
 		Font menuButtonFont =   new Font("Arial", Font.PLAIN, 10);
+		
+		JRadioButton apiSearchButton = new JRadioButton();
+		JRadioButton jsoupSearchButton = new JRadioButton();
+		Boolean apiSearch;
+		
 		
 		Border border = LineBorder.createGrayLineBorder();// BorderFactory.createRaisedBevelBorder();
 
@@ -71,7 +82,11 @@ public class FilteredSearchGui extends JFrame{
 		 */
 		public FilteredSearchGui(ManagementFilteredSearch mng){
 			this.mng = mng;
-			this.searchWindow = new FilterGui(this.mng);
+			this.apiWindow = new FilterGui(this.mng);
+			apiWindow.init();
+			this.jsoupWindow = new JsoupSearchGui(this.mng);
+			jsoupWindow.init();
+			
 			this.statsWindow = new Statistics();
 		}
 		
@@ -81,7 +96,7 @@ public class FilteredSearchGui extends JFrame{
 		public void initWindow(){
 			contentPane.setLayout(new CardLayout());
 			contentPane.setPreferredSize(CONTENT_PANE_SIZE);
-			contentPane.add(searchWindow, "SEARCH");
+			contentPane.add(getSearchWindow(), "SEARCH");
 			contentPane.add(getResultPanel(), "RESULT");
 			contentPane.add(statsWindow, "STATS");
 			
@@ -95,6 +110,40 @@ public class FilteredSearchGui extends JFrame{
 //			changeFont(this, new Font("Courier New", Font.PLAIN, 15));
 		
 			pack();
+		}
+		
+		public JPanel getSearchWindow(){
+			JPanel searchWindow = new JPanel();
+			
+			searchWindow.setLayout(new BorderLayout());
+
+			//Action listeners
+			apiSearchButton.setActionCommand("APISEARCH");
+			jsoupSearchButton.setActionCommand("JSOUPSEARCH");
+			SearchTypeListener s = new SearchTypeListener();
+			apiSearchButton.addActionListener(s);
+			jsoupSearchButton.addActionListener(s);
+			
+			
+			JPanel searchCoose = new JPanel();
+			searchCoose.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 10));
+			
+			searchCoose.add(new JLabel("APi Search"));
+			searchCoose.add(apiSearchButton);
+			searchCoose.add(new JLabel("Jsoup Search"));
+			searchCoose.add(jsoupSearchButton);
+			
+			
+			searchWindow.add(searchCoose, BorderLayout.PAGE_START);
+			searchWindow.add(searchContentPane);
+			searchContentPane.setLayout(new CardLayout());
+			searchContentPane.setPreferredSize(CONTENT_PANE_SIZE);
+			apiWindow.setBorder(BorderFactory.createTitledBorder("APi Search"));
+			jsoupSearchButton.setBorder(BorderFactory.createTitledBorder("Jsoup Search"));
+			searchContentPane.add(apiWindow, "APISEARCH");
+			searchContentPane.add(jsoupWindow, "JSOUPSEARCH");
+			drawApiSearch();
+			return searchWindow;
 		}
 		
 		/**
@@ -140,11 +189,10 @@ public class FilteredSearchGui extends JFrame{
 			menuPanel.add(resultMenu);
 			menuPanel.add(statsMenu);
 			
-			
-			
 			pack();
 			return menuPanel;
 		}
+		
 		/**
 		 * Draw that search tab. This is invoked when the search menu button is hit
 		 */
@@ -168,7 +216,24 @@ public class FilteredSearchGui extends JFrame{
 			setButtonAsActive(statsMenu);
 			setTitle("YTDownloader ~ Statistics");
 			((CardLayout) contentPane.getLayout()).show(contentPane, "STATS");
-
+		}
+		
+		public void drawApiSearch(){
+			apiSearch = true;
+			apiSearchButton.setSelected(true);
+			jsoupSearchButton.setSelected(false);
+			((CardLayout) searchContentPane.getLayout()).show(searchContentPane, "APISEARCH");	
+		}
+		
+		public void drawJsoupSearch(){
+			apiSearch = false;
+			apiSearchButton.setSelected(false);
+			jsoupSearchButton.setSelected(true);
+			((CardLayout) searchContentPane.getLayout()).show(searchContentPane, "JSOUPSEARCH");	
+		}
+		
+		public boolean isApiSearch(){
+			return apiSearch;
 		}
 		/**
 		 * Add a filterbox to the search GUI
@@ -178,7 +243,7 @@ public class FilteredSearchGui extends JFrame{
 		 * @return
 		 */
 		public boolean addFilterBox(Map<String, String> filter, String filterName, Integer filterType){
-			boolean result =  (searchWindow.addFilterBox(filter, filterName, filterType));
+			boolean result =  (apiWindow.addFilterBox(filter, filterName, filterType));
 			return result;
 		}
 		
@@ -187,7 +252,7 @@ public class FilteredSearchGui extends JFrame{
 		 * @return
 		 */
 		public HashMap<Integer,String> getSelectedFilters(){
-			return searchWindow.getSelectedFilters();
+			return apiWindow.getSelectedFilters();
 		}
 		
 		/*
@@ -235,6 +300,8 @@ public class FilteredSearchGui extends JFrame{
 			this.statsWindow = new Statistics();
 			contentPane.add(statsWindow, "STATS");
 		}
+		
+
 
 		private class MouseClickListener implements MouseListener{
 			JLabel hovered = new JLabel();
@@ -291,10 +358,23 @@ public class FilteredSearchGui extends JFrame{
 				
 			}
 		}
-		public void addResultPanel(){
-			
+	
+		private class SearchTypeListener implements ActionListener{
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				String action = e.getActionCommand();
+				switch(action){		
+					case "APISEARCH":
+						drawApiSearch();
+						break;
+					case "JSOUPSEARCH":
+						drawJsoupSearch();
+						break;
+				}
+			}
 		}
-		
 		
 		/* when perform the search, the result must be a list of Video ==============BEGIN RESULT PART================= */
 		public JPanel resultPartInGUI(List<Video> listOfvideo){
@@ -473,7 +553,7 @@ public class FilteredSearchGui extends JFrame{
 		}
 		
 		public String getKeyWordText() {
-			return searchWindow.getKeyWordText();
+			return apiWindow.getKeyWordText();
 		}
 		
 		
@@ -486,7 +566,14 @@ public class FilteredSearchGui extends JFrame{
 			
 			return jscrollResultDown;
 		}
-		
+
+
+//		@Override
+//		public void actionPerformed(ActionEvent e) {
+//			// TODO Auto-generated method stub
+//			
+//		}
+//		
 		
 		/*=================================================END RESULT PART==========================================================*/
 }

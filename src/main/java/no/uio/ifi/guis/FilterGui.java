@@ -98,6 +98,9 @@ public class FilterGui extends JPanel {
 
 	private JTextArea filtersAppliedText = new JTextArea("No filter");
 	
+	public static final Integer PANEL_WIDTH = FilteredSearchGui.WINDOW_WIDTH-15;
+	public static final Integer PANEL_HEIGHT = FilteredSearchGui.WINDOW_HEIGHT -190;
+	
 	//======== FOR THE RESULT JPANEL =======
 			JPanel mainResultPanel;
 			JScrollPane jscrollResultUp,jscrollResultDown;
@@ -113,17 +116,32 @@ public class FilterGui extends JPanel {
 	 */
 	public FilterGui(ManagementFilteredSearch mng) {
 		this.mng = mng;
-		init();
+		filterPanel.setPreferredSize(new Dimension( PANEL_WIDTH,  PANEL_HEIGHT));
+		//	this.setBorder(LineBorder.createGrayLineBorder());
+		//TEST ===========================
+		searchKeywordTest.setActionCommand("SEARCHBUTTONTEST");
+		searchKeywordTest.addActionListener(mouseListener);
+		searchKeywordTest.setPreferredSize(new Dimension(SEARCH_HEIGHT, 30));
+		//=================================
+		
+		searchButton.setActionCommand("SEARCHBUTTON");
+		searchButton.addActionListener(mouseListener);
+		searchButton.setPreferredSize(new Dimension(100, 30));
+		
+	
+		
 	}
 
 	public void init(){
-		this.setPreferredSize(FilteredSearchGui.CONTENT_PANE_SIZE);
+		System.out.println("Initialize the filter gui");
+		this.setPreferredSize(new Dimension( PANEL_WIDTH,  PANEL_HEIGHT));//(FilteredSearchGui.CONTENT_PANE_SIZE);
 		this.setLayout(new BorderLayout());
 		this.add(drawSearchMenu(), BorderLayout.PAGE_END);
 		this.add(drawFilterMenu(), BorderLayout.CENTER);
 		selectedFilters.replace(FilteredSearch.GEOFILTER, "No City");
 		onTextFieldChange();
 	}
+	
 	
 	
 public void onTextFieldChange() {	
@@ -317,30 +335,22 @@ public void onTextFieldChange() {
 	 */
 	public JPanel drawFilterMenu() {
 		JPanel panel =  new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-	//	this.setBorder(LineBorder.createGrayLineBorder());
-		//TEST ===========================
-		searchKeywordTest.setActionCommand("SEARCHBUTTONTEST");
-		searchKeywordTest.addActionListener(mouseListener);
-		searchKeywordTest.setPreferredSize(new Dimension(SEARCH_HEIGHT, 30));
-		//=================================
-		
-		searchButton.setActionCommand("SEARCHBUTTON");
-		searchButton.addActionListener(mouseListener);
-		searchButton.setPreferredSize(new Dimension(100, 30));
-		panel.add(getNumberOfVideosPanel());
-		filterPanel.setPreferredSize(new Dimension(FilteredSearchGui.WINDOW_WIDTH, FilteredSearchGui.WINDOW_HEIGHT -100));
-		filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
+
+
+	//	filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
 		filterPanel.setLayout(new GridLayout(1, 2));
+		
 		filterPanel.add(filterAddPanel);
 		filterPanel.add(filterActivePanel);
 	
 		filtersAppliedText.setBackground(Color.WHITE);
 		filterAddPanel.setLayout(new GridLayout(10, 1));
 		filterAddPanel.setPreferredSize(new Dimension(100, 500));
+		filterAddPanel.add(getNumberOfVideosPanel());
 		filterAddPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		filterAddPanel.add(getKeyWordPanel());
 		filterAddPanel.add(getGelocationPanel());
-		filtersAppliedText.setPreferredSize(new Dimension(450, 450));
+		filtersAppliedText.setPreferredSize(new Dimension(PANEL_WIDTH/2, PANEL_HEIGHT-1));
 		filterAddPanel.add(getPeriodPanel());
 		filterAddPanel.setPreferredSize(new Dimension(400, 500));
 		filtersAppliedText.setBorder(BorderFactory.createTitledBorder("Applied filters"));
@@ -511,21 +521,7 @@ public void onTextFieldChange() {
 		public void actionPerformed(ActionEvent e) {
 			//get the choise
 			String action = e.getActionCommand();
-			switch(action){
-//			case "SEARCHBUTTONTEST": //=========================TEST======
-//				String keysearch = numberOfVideosInput.getText();
-//				String address = cityInput.getText();
-//				String distance = radiusInput.getText();
-//				JPanel resultcontain = null;
-//				if(address.equals("")) resultcontain = resultPartInGUI(mng.preformKeywordSearch(keysearch));
-//				else {
-//					distance = (distance.equals("")) ? "100km" : distance;
-//					if(distance.charAt(distance.length()-1) != 'm') distance+="km";
-//					resultcontain = resultPartInGUI(mng.performKeywordSearchWithGeolocation(keysearch, address, distance));
-//				}
-//				mng.displayresultFromKeySearch(resultcontain);
-//				break;
-			
+			switch(action){			
 			case "SEARCHBUTTON":
 				String videoInfo = "";
 				String videoQuality = "";
@@ -551,7 +547,7 @@ public void onTextFieldChange() {
 						return;
 					}
 				}
-				mng.preformFilteredSearch( videoInfo, videoQuality, filePath);
+				mng.preformFilteredSearch( videoInfo, videoQuality, filePath, true);
 				break;
 			case "FILECHOOSER":
 				final JFileChooser fc = new JFileChooser();

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -15,7 +16,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import no.uio.ifi.guis.Statistics;
+import com.google.api.services.youtube.model.Video;
+import com.google.api.services.youtube.model.VideoSnippet;
+import com.google.api.services.youtube.model.VideoStatistics;
+
+//import no.uio.ifi.guis.Statistics;
+import no.uio.ifi.management.ManagementFilteredSearch;
 import no.uio.ifi.models.Export;
 import no.uio.ifi.models.Export.ExportType;
 import no.uio.ifi.models.PageYouTube;
@@ -39,22 +45,59 @@ public class CrawlerStefan {
 	private Map<String, Integer> authors = new HashMap<String, Integer>();
 	private Map<String, Integer> dates = new HashMap<String, Integer>();
 	private Map<String, Integer> years = new HashMap<String, Integer>();
+
 	
-	public CrawlerStefan(String startUrl) {
+	private ManagementFilteredSearch mng;
+	
+	public CrawlerStefan(String startUrl, ManagementFilteredSearch mng) {
 		this.startUrl = startUrl;
 		arr = new ArrayList<String>();
 		crawledPages = new HashMap<String, PageYouTube>();
+		this.mng = mng;
 	}
 
 	public static void main(String[] args){
-		CrawlerStefan myCrawler = new CrawlerStefan("https://www.youtube.com");
-		myCrawler.crawl();
-		Statistics stat = new Statistics();
-		stat.addBarChart(myCrawler.genres, "Generes");
-		stat.addBarChart(myCrawler.years, "Years");
+
+		CrawlerStefan myCrawler = new CrawlerStefan("https://www.youtube.com", null);
+		
+		int count = 0;
+		PageYouTube li = null;// = myCrawler.crawlPage("https://www.youtube.com");
+		LinkedList<String> queue = new LinkedList<String>();
+		queue.add("https://www.youtube.com");
+		while(count < 100){
+				li = myCrawler.crawlPage(queue.removeFirst());
+				if(li == null){
+					continue;
+				}
+				for(String url : li.getLinkedUrls()){
+					//add all the ref for this url to the queue
+					if(!queue.contains(url)){
+						queue.add(url);
+					}
+					System.out.println(count + " - Next to crawl: " + url);
+				}
+				count++;
+				System.out.println(li.getVideoID());
+				Export.toXML();
+//				myCrawler.writeToFile(li, ExportType.XML);
+				System.out.println("Getting next values");
+//				Export.closeXML();
+		}
+	//	Statistics stat = new Statistics();
+	//	stat.addBarChart(myCrawler.genres, "Generes");
+	//	stat.addBarChart(myCrawler.years, "Years");
+	}
+	
+	public Map<String, Integer> getGenres(){
+		return this.genres;
 	}
 
-	public void crawl() {
+	public Map<String, Integer> getYears(){
+		return this.years;
+	}
+	/**
+	public List<String> crawl() {
+		
 		Export.toXML();
 //		Export.toCSV();
 		Document webSite = null;
@@ -84,8 +127,9 @@ public class CrawlerStefan {
 			}
 		}
 		crawlLinks();
+		return arr;
 	}
-
+	
 	private void crawlLinks() {
 		for (int i = 0; i < numberVideosToCrawl && i < arr.size(); i++) {
 			System.out.println(i + ". " + arr.get(i));
@@ -138,8 +182,12 @@ public class CrawlerStefan {
 		Export.closeXML();
 //		Export.closeCSV();
 	}
+	**/
 
-	private void crawlPage(String url) {
+	/**
+	 * Crawl a specified youtube url and return a list of new linkes.
+	 */
+	public PageYouTube crawlPage(String url) {
 	  	Document webSite = null;
 		boolean connectionError = false;
 		do{
@@ -161,15 +209,17 @@ public class CrawlerStefan {
 			String videoID = webSite.select("meta[itemprop=videoId]").attr("content");
 //			List<String> linkedVideos = getLinkedVideos(webSite.select("a[href]"));
 			Elements linkedUrls = webSite.select("a[href]");
-			
+			PageYouTube YTPage = new PageYouTube();
 			if(!crawledPages.containsKey(videoID)){
-				PageYouTube YTPage = new PageYouTube();
-				crawledPages.put(videoID, YTPage);
+			
 				
 				List<String> keywords = convertKeywords(webSite.select("meta[property=og:video:tag]"));
 				String title = webSite.select("meta[itemprop=name]").attr("content");
+
 				boolean familyFriendly = (webSite.select("meta[itemprop=isFamilyFriendly]").attr("content").equals(true) ? true : false);
+				
 				String regionsAllowed = webSite.select("meta[itemprop=regionsAllowed]").attr("content");
+				
 				String views = placeDotInNumber(webSite.select("meta[itemprop=interactionCount]").attr("content"));
 				String datePublished = webSite.select("meta[itemprop=datePublished]").attr("content");
 				String genre = webSite.select("meta[itemprop=genre]").attr("content");
@@ -179,6 +229,7 @@ public class CrawlerStefan {
 				if(!likesRAW.isEmpty())
 					likes = likesRAW.get(0).childNode(0).childNode(0).toString();
 				//dislikes need -1
+				System.out.println("" + likes);
 				Elements dislikesRAW = webSite.select("button[class=yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup like-button-renderer-dislike-button like-button-renderer-dislike-button-clicked yt-uix-button-toggled  hid yt-uix-tooltip]");
 				String dislikes = "0";
 				if(!dislikesRAW.isEmpty())
@@ -217,38 +268,15 @@ public class CrawlerStefan {
 				YTPage.setVideoID(videoID);
 				YTPage.setViews(views);
 				
-				writeToFile(YTPage, ExportType.XML);
-//				writeToFile(YTPage, ExportType.CSV);
-				
-				
-				if(genres.containsKey(genre)){
-					genres.put(genre, genres.get(genre) + 1);
-				}else{
-					genres.put(genre, 1);
-				}
-				if(authors.containsKey(author)){
-					authors.put(author, authors.get(author) + 1);
-				}else{
-					authors.put(author, 1);
-				}
-				if(dates.containsKey(datePublished)){
-					dates.put(datePublished, dates.get(datePublished) + 1);
-				}else{
-					dates.put(datePublished, 1);
-				}
 				String y = "";
 				if(!datePublished.equals("")){
 					y = findPattern("\\d+", datePublished);
 				}
-				
-				if(years.containsKey(y)){
-					years.put(y, years.get(y) + 1);
-				}else{
-					years.put(y, 1);
-				}
-				
+				crawledPages.put(videoID, YTPage);
+				return YTPage;
 			}
 			
+	/**		
 			for (Element link : linkedUrls) {
 				if (link.toString().contains("watch?v")) {
 					try {
@@ -276,8 +304,12 @@ public class CrawlerStefan {
 						System.err.println("Could not write");
 					}
 				}
-			}
+		
+			}**/
+			return YTPage;
 		}
+		return null;
+		
 	}
 
 	private List<String> getLinkedVideos(Elements linkedUrls){
@@ -407,6 +439,10 @@ public class CrawlerStefan {
 			}
 		}
 		return keywords;
+	}
+	
+	public Map<String, PageYouTube> getCrawledPages(){
+		return this.crawledPages;
 	}
 	
 	private void writeToFile(PageYouTube YTPage, Export.ExportType type){

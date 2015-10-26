@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -36,6 +38,8 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import com.google.api.services.youtube.model.Video;
+
+import no.uio.ifi.models.PageYouTube;
 
 public class Statistics extends JPanel {
 	//ChartFactory myChartFactory = new ChartFactory();
@@ -62,7 +66,7 @@ public class Statistics extends JPanel {
 	}
 
 	public void addCount(BigInteger count, String countName){
-		JLabel counter = new JLabel("Average " +countName+ " per video is: " + count);
+		JLabel counter = new JLabel(countName + count);
 		counterPanel.add(counter);
 	}
 	/**
@@ -211,8 +215,9 @@ public class Statistics extends JPanel {
 	 * 
 	 * @param videoInfoResult
 	 */
-	public void computeStatistics(Map<String, Video> videoInfoResult, Map<String, String> availableCategoriesReverse ){
+	public void computeStatistics(Integer numberOfRetrieved, Map<String, Video> videoInfoResult, Map<String, String> availableCategoriesReverse ){
 		//Likes values 
+		Map<String, BigInteger> totalNumberOfVideos = new HashMap<String, BigInteger>();
 		HashMap<String, BigInteger> likesStat = new HashMap<String, BigInteger>(2);
 		likesStat.put("Likes", new BigInteger("0"));
 		likesStat.put("Dislikes", new BigInteger("0"));
@@ -225,6 +230,7 @@ public class Statistics extends JPanel {
 		countStat.put("Views", new BigInteger("0"));
 		//countStat.put("Favorite", new BigInteger("0"));
 		//countStat.put("Comments", new BigInteger("0"));
+
 		BigInteger viewCount = new BigInteger("0");
 		BigInteger favoritesCount = new BigInteger("0");
 		BigInteger commentCount = new BigInteger("0");
@@ -269,33 +275,84 @@ public class Statistics extends JPanel {
 		addBarChart(categoryStats, "Categories");
 		addBarChart(yearStats, "Years");
 		System.out.println(viewCount);
-		addCount(viewCount.divide(new BigInteger(likesVideos.toString())), "views");
-		addCount(favoritesCount.divide(new BigInteger(likesVideos.toString())), "favorites");
-		addCount(commentCount.divide(new BigInteger(likesVideos.toString())), "comments");
+		addCount(new BigInteger(numberOfRetrieved.toString()),  "Total number of videos retrieved: ");
+		addCount(viewCount.divide(new BigInteger(likesVideos.toString())), "Average views per video is: ");
+		addCount(favoritesCount.divide(new BigInteger(likesVideos.toString())),  "Average favorites per video is: ");
+		addCount(commentCount.divide(new BigInteger(likesVideos.toString())), "Average comments per video is: ");
 
 	}
+	public void computeStatistics(Integer numberOfVideosRetrieved, Map<String, PageYouTube> videoJsoupInfoResult){
+		System.out.println("******Computing statistics********");
+		Map<String, BigInteger> totalNumberOfVideos = new HashMap<String, BigInteger>();
+		HashMap<String, BigInteger> likesStat = new HashMap<String, BigInteger>(2);
+		likesStat.put("Likes", new BigInteger("0"));
+		likesStat.put("Dislikes", new BigInteger("0"));
+		Integer likesVideos = 0;
+		
+		Map<String, Integer> categoryStats = new HashMap<String, Integer>();
+		Map<String, Integer> yearStats = new HashMap<String, Integer>();
+		
+		HashMap<String, BigInteger> countStat = new HashMap<String, BigInteger>(2);
+		countStat.put("Views", new BigInteger("0"));
+		//countStat.put("Favorite", new BigInteger("0"));
+		//countStat.put("Comments", new BigInteger("0"));
+
+		BigInteger viewCount = new BigInteger("0");
+		BigInteger favoritesCount = new BigInteger("0");
+		BigInteger commentCount = new BigInteger("0");
 	
-//	public static void main(String[] args){
-//		JFrame jf = new JFrame();
-//		Statistics chart = new Statistics();
+		Integer viewNum = 0;
+		
+		for(PageYouTube video : videoJsoupInfoResult.values() ){
+			System.out.println("Likes: " + video.getLikes());
+			System.out.println("Dislikes: "+video.getDislikes());
+//			likesStat.replace("Likes", likesStat.get("Likes").add(new BigInteger(video.getLikes())));
+//			likesStat.replace("Dislikes", likesStat.get("Dislikes").add(new BigInteger(video.getDislikes())));
+			likesVideos++;
+			
+		
+			String view =  video.getViews().replaceAll("\\W", "");
+//			System.out.println("view" +view);
+			
+			if(view.length()>0 && view != null){
+				viewCount = viewCount.add(new BigInteger(view));
+			}
+//			
+			String category = video.getGenre();
+			if(categoryStats.containsKey(category)){
+				categoryStats.replace(category,categoryStats.get(category)+1);
+			}else{
+				categoryStats.put(category,1);
+			}
+			
+			
+			String year = video.getDatePublished().split("-")[0];
+			System.out.println(year);
+		
+			if(yearStats.containsKey(year)){
+				//We must update
+				yearStats.replace(year,yearStats.get(year)+1);
+			}else{
+				yearStats.put(year,1);
+			}
 //		
-//		Map<String, Integer> categoryMap = new HashMap<String, Integer>();
-//		Map<String, Integer> likes = new HashMap<String, Integer>();
-//		Map<String, Integer> third = new HashMap<String, Integer>();
-//		third.put("Likes", 85);
-//		third.put("dislike", 12);
-//		categoryMap.put("Sport", 15);
-//		categoryMap.put("Entertainment", 80);
-//		categoryMap.put("GameShow", 40);
-//		likes.put("Likes", 85);
-//		likes.put("dislike", 12);
-//		chart.addBarChart(categoryMap, "Categories frequency");
-//		chart.addBarChart(likes, "LIKES");
-//		chart.addBarChart(third, "Third example");
-//		jf.setVisible(true);
-//		jf.add(chart);
-//		jf.pack();
-//	}
+	
+		//	video.getStatistics().getLikeCount();
+		}
+		System.out.println("done computing statistics, drawing");
+		System.out.println("Number of videos " + videoJsoupInfoResult.size());
+	//	Statistics stat = gui.getStatWindow();
+//		addBarChart(likesStat, "Likes", likesVideos);
+		addBarChart(categoryStats, "Categories");
+		addBarChart(yearStats, "Years");
+//		System.out.println(viewCount);
+//		addCount(new BigInteger(numberOfVideosRetrieved.toString()),  "Total number of videos retrieved: ");
+		addCount(viewCount.divide(new BigInteger(likesVideos.toString())), "Average views per video is: ");
+//		addCount(favoritesCount.divide(new BigInteger(likesVideos.toString())),  "Average favorites per video is: ");
+//		addCount(commentCount.divide(new BigInteger(likesVideos.toString())), "Average comments per video is: ");
+
+	}
+
 }
 /**
  * I have mainly used SQL and Javascript in different student projects. One project I built a Student System web application using Java, JavaScript and a PostgreSQL database.  Are working on a very interesting project right now where we use SQL to store downloaded metadata and user content from YouTube which later would be used in multimodal analysis in a smart City context.

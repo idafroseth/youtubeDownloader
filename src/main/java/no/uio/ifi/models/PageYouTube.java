@@ -26,6 +26,7 @@ public class PageYouTube {
 	private String likes;
 	private String dislikes;
 	private List<String> description;
+	private String year;
 	
 	public void setLinkedUrls(List<String> linkedUrls){
 		this.linkedUrls = linkedUrls;

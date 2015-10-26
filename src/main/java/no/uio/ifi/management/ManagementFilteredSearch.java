@@ -4,20 +4,30 @@ import java.awt.BorderLayout;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JPanel;
 
+import org.json.JSONObject;
+import org.json.XML;
+
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Video;
 
 import no.uio.ifi.guis.DownloadProgressBar;
 import no.uio.ifi.guis.FilteredSearchGui;
+import no.uio.ifi.guis.Statistics;
 import no.uio.ifi.guis.WaitDialog;
+import no.uio.ifi.models.Export;
+import no.uio.ifi.models.PageYouTube;
+import no.uio.ifi.models.Export.ExportType;
+import no.uio.ifi.models.downloader.CommentExtractor;
 import no.uio.ifi.models.downloader.DownloadLinkExtractor;
 import no.uio.ifi.models.downloader.VideoInfoExtracter;
+import no.uio.ifi.models.search.CrawlerStefan;
 import no.uio.ifi.models.search.FilteredSearch;
 import no.uio.ifi.models.search.GeolocationSearch;
 import no.uio.ifi.models.search.RandomVideoIdGenerator;
@@ -50,8 +60,8 @@ public class ManagementFilteredSearch {
 
 	File filepath;
 	long startTime;
-	String videoInfo;
-	String videoFormat;
+	public String videoInfo;
+	public String videoFormat;
 
 	DownloadProgressBar wait;
 
@@ -59,9 +69,9 @@ public class ManagementFilteredSearch {
 	ArrayList<SearchResult> resultCache = new ArrayList<SearchResult>();
 	ArrayList<Video> videoCache = new ArrayList<Video>();
 
-	// VideoInfoExtracter infoExtracter = new VideoInfoExtracter();
-
 	Map<String, Video> videoInfoResult;
+	Map<String, PageYouTube> videoJsoupInfoResult;
+	
 	int count = 0;
 	ThreadGroup tg = new ThreadGroup("Download");
 
@@ -95,41 +105,15 @@ public class ManagementFilteredSearch {
 		gui.addFilterBox(availableDuration, "Duration:", FilteredSearch.VIDEODURATIONFILTER);
 		gui.addFilterBox(availableVideoDefinitions, "Defintion:", FilteredSearch.VIDEODEFINITONFILTER);
 		gui.addFilterBox(availableVideoTypes, "Type:", FilteredSearch.VIDEOTYPEFILTER);
-
-		// ADDED
-		// HashMap<String, String> availableVideoDimension = (HashMap<String,
-		// String>) filterSearch.getAvailableVideoDimension();
-		// HashMap<String, String> availableVideoDefinition = (HashMap<String,
-		// String>) filterSearch.getAvailableVideoDefinition();
-		// HashMap<String, String> availableVideoOrder = (HashMap<String,
-		// String>) filterSearch.getAvailableVideoOrder();
-
-		// gui.addFilterBox(availableCategories, "Category",
-		// FilteredSearch.CATEGORYFILTER);
-		// gui.addFilterBox(availableLanguages, "Language",
-		// FilteredSearch.LANGUAGEFILTER);
-		// gui.addFilterBox(availableRegions, "Region",
-		// FilteredSearch.REGIONFILTER);
-		// gui.addFilterBox(availableDuration, "Duration",
-		// FilteredSearch.VIDEODURATIONFILTER);
-		// gui.addFilterBox(availableVideoTypes, "Video types",
-		// FilteredSearch.VIDEOTYPEFILTER);
-		// gui.addFilterBox(availableVideoDefinition, "Video definition",
-		// FilteredSearch.VIDEODEFINITIONFILTER);
-		// gui.addFilterBox(availableVideoDimension, "Video Dimension",
-		// FilteredSearch.VIDEODIMENSIONFILTER);
-		// gui.addFilterBox(availableVideoOrder, "Order by",
-		// FilteredSearch.VIDEOORDERBY);
-
 		wait.setVisible(false);
 		gui.pack();
 
 	}
 
 	/**
-	 * Applying choosen filters and start the search.
+	 * Applying chosen filters and start the search.
 	 */
-	public void preformFilteredSearch(String videoInfo, String videoQuality, File filepath) {
+	public void preformFilteredSearch(String videoInfo, String videoQuality, File filepath, boolean apiSearchCheckbox) {
 		startTime = System.currentTimeMillis();
 		videoInfoResult = new HashMap<String, Video>();
 		gui.wipeStatWindow();
@@ -142,6 +126,16 @@ public class ManagementFilteredSearch {
 
 		NUMBER_OF_VIDEOS_RETRIVED = 0;
 
+		
+		if(gui.isApiSearch()){
+			apiSearch();
+		}
+		else{
+			jsoupSearch();
+		}
+	}
+
+	public void apiSearch(){
 		HashMap<Integer, String> filtersApplied = gui.getSelectedFilters();
 		filterSearch.init();
 		for (Integer key : filtersApplied.keySet()) {
@@ -151,28 +145,21 @@ public class ManagementFilteredSearch {
 		wait = new DownloadProgressBar(this, NUMBER_OF_VIDEOS_TO_SEARCH, "Crawling YouTube", tg);
 		
 		if(gui.getKeyWordText().length() == 0 || gui.getKeyWordText() ==null) {
+			System.out.println("Using 5 threads");
 			setSearchThreadNumber(5);
 		}
 		else {
 			setSearchThreadNumber(1);
 		}
-		search();
-	}
-	
-
-	private void search() {
-
 		threadCount = NUMBER_OF_THREADS;
 		for (int i = 0; i < NUMBER_OF_THREADS; i++) {
-			(new SearchThread(tg, "SearchThread_" + i, this)).start();
+			(new ApiSearchThread(tg, "SearchThread_" + i, this)).start();
 		}
-
 	}
-
-	/**
-	 * This method should take a keyword and preform a search in a loop until we
-	 * get the number of videos the user want.
-	 */
+	public void jsoupSearch(){
+		wait = new DownloadProgressBar(this, NUMBER_OF_VIDEOS_TO_SEARCH, "Crawling YouTube", tg);
+		(new JsoupSearchThread(tg, "SearchThread_" + 1, this)).start();
+	}
 
 	public List<Video> preformKeywordSearch(String keyword) {
 		return (new Search()).getVideoLinkFromKeyWord(keyword);
@@ -191,33 +178,36 @@ public class ManagementFilteredSearch {
 	 * are displayed
 	 */
 	public void finishedSearch() {
-
 		tg.interrupt();
 		// wait.setVisible(true);
 		long estimatedTime = System.currentTimeMillis() - startTime;
 		System.out.println("Estimated time is :" + estimatedTime / 1000 + " sec");
-		gui.getStatWindow().computeStatistics(videoInfoResult, filterSearch.getAvailableCategoriesReverse());
+		gui.getStatWindow().computeStatistics(NUMBER_OF_VIDEOS_RETRIVED, videoInfoResult, filterSearch.getAvailableCategoriesReverse());
 		gui.drawStatistics();
 		gui.resultPartInGUI(videoCache);
-		// for(SearchResult res : resultCache){
-		// gui.updateTheResultToGUI(res);
-		// }
+
 	}
+	public void finishedJsoupSearch(){
+
+//		Statistics stat = new Statistics();
+//		stat.addBarChart(myCrawler.getGenres(), "Generes");
+//		stat.addBarChart(myCrawler.getYears(), "Years");
+		gui.getStatWindow().computeStatistics(NUMBER_OF_VIDEOS_RETRIVED, videoJsoupInfoResult);
+		gui.drawStatistics();
+		wait.setVisible(false);
+	}
+	
 
 	public static void main(String[] args) {
 		ManagementFilteredSearch fs = new ManagementFilteredSearch();
 		// fs.preformKeyWordSearch("","",null,"hello");
 	}
 
-	class SearchThread extends Thread {
+	class ApiSearchThread extends Thread {
 		ManagementFilteredSearch mng;
 		VideoInfoExtracter infoExtracter;
 
-		public SearchThread(ThreadGroup tg, String s, ManagementFilteredSearch mng) {// ,
-																						// CountDownLatch
-																						// startSignal,
-																						// CountDownLatch
-																						// doneSignal){
+		public ApiSearchThread(ThreadGroup tg, String s, ManagementFilteredSearch mng) {
 			super(tg, s);
 			infoExtracter = new VideoInfoExtracter(videoInfo);
 			this.mng = mng;
@@ -238,18 +228,14 @@ public class ManagementFilteredSearch {
 				break;
 			}
 		}
-
-		@Override
-
-		// check if keyword is entered in the UI -> keyword search
-		// otherwise allrandom
-
+		
 		public void run() {
 			try {
 				RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();
 				List<SearchResult> result;
 
-				loop: while (NUMBER_OF_VIDEOS_RETRIVED < NUMBER_OF_VIDEOS_TO_SEARCH) {
+				loop: 
+				while (NUMBER_OF_VIDEOS_RETRIVED < NUMBER_OF_VIDEOS_TO_SEARCH) {
 
 					if (gui.getKeyWordText().length() != 0) {
 						result = filterSearch.searchBy(gui.getKeyWordText());
@@ -272,6 +258,7 @@ public class ManagementFilteredSearch {
 							videoCache.add(v);
 							resultCache.add(res);
 							videoInfoResult.put(videoId, v);
+						
 							// System.out.println("*****"
 							// +res.getSnippet().getTitle());
 						}
@@ -299,6 +286,92 @@ public class ManagementFilteredSearch {
 
 		}
 
+	}
+		
+	class JsoupSearchThread extends Thread {
+		//gui.getJsoupGui().getStartPage();
+		CrawlerStefan myCrawler;
+
+		CommentExtractor commentExtractor = new  CommentExtractor(5L);
+		ManagementFilteredSearch mng;
+//			VideoInfoExtracter infoExtracter;
+
+		public JsoupSearchThread(ThreadGroup tg, String s, ManagementFilteredSearch mng) {// ,
+																		// doneSignal){
+			super(tg, s);
+			this.mng = mng;
+			myCrawler = new CrawlerStefan("https://www.youtube.com", mng);
+		}
+
+		@Override
+		public void run() {
+			try {
+
+				//CrawlerStefan myCrawler = new CrawlerStefan("https://www.youtube.com", null);
+				
+				int count = 0;
+				PageYouTube video = null;// = myCrawler.crawlPage("https://www.youtube.com");
+				LinkedList<String> queue = new LinkedList<String>();
+				queue.add("https://www.youtube.com");
+				while(count < 100){
+						video = myCrawler.crawlPage(queue.removeFirst());
+						if(video == null){
+							continue;
+						}
+						for(String url : video.getLinkedUrls()){
+							//add all the ref for this url to the queue
+							if(!queue.contains(url)){
+								queue.add(url);
+							}
+							System.out.println(count + " - Next to crawl: " + url);
+						}
+						String comments = commentExtractor.getTopLevelComments(video.getVideoID());
+						System.out.println(comments);
+						if(comments.length()>2){
+							JSONObject jsonObject = new JSONObject(comments.substring(1));
+							String xml = XML.toString(jsonObject, "video");
+						}
+	
+//						saveMetaData(xml);
+						
+						count++;
+						System.out.println(video.getVideoID());
+						Export.toXML();
+						Thread.sleep(1);
+//						myCrawler.writeToFile(li, ExportType.XML);
+						System.out.println("Getting next values");
+						Export.closeXML();
+						NUMBER_OF_VIDEOS_RETRIVED++;
+						wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED);
+						
+				}
+
+				videoJsoupInfoResult = myCrawler.getCrawledPages();
+				
+				System.out.println("Finished CRAWLNG + " + videoJsoupInfoResult.size());
+				mng.finishedJsoupSearch();
+				wait.setVisible(false);
+				
+
+			} catch (InterruptedException v) {
+				System.out.println("Thread Interrupted");
+				
+				// System.out.println(resultCache.size());
+				videoJsoupInfoResult = myCrawler.getCrawledPages();
+				System.out.println("Thread Interrupted + " + videoJsoupInfoResult.size());
+
+				mng.finishedJsoupSearch();
+				
+//				threadCount--;
+//				if (threadCount == 0) {
+//					mng.finishedSearch();
+//					wait.setVisible(false);
+//				}
+			}
+
+		}
+
+		
 	}
 	
 	public void setSearchThreadNumber(int number) {
