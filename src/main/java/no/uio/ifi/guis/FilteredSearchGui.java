@@ -58,8 +58,8 @@ public class FilteredSearchGui extends JFrame{
 		JLabel activeButton;
 		Font menuButtonFont =   new Font("Arial", Font.PLAIN, 10);
 		
-		JRadioButton apiSearchButton = new JRadioButton();
-		JRadioButton jsoupSearchButton = new JRadioButton();
+		JButton apiSearchButton = new JButton("APi Search");
+		JButton jsoupSearchButton = new JButton("Jsoup Search");
 		Boolean apiSearch;
 		
 		
@@ -128,9 +128,9 @@ public class FilteredSearchGui extends JFrame{
 			JPanel searchCoose = new JPanel();
 			searchCoose.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 10));
 			
-			searchCoose.add(new JLabel("APi Search"));
+//			searchCoose.add(new JLabel("APi Search"));
 			searchCoose.add(apiSearchButton);
-			searchCoose.add(new JLabel("Jsoup Search"));
+//			searchCoose.add(new JLabel("Jsoup Search"));
 			searchCoose.add(jsoupSearchButton);
 			
 			
@@ -139,7 +139,7 @@ public class FilteredSearchGui extends JFrame{
 			searchContentPane.setLayout(new CardLayout());
 			searchContentPane.setPreferredSize(CONTENT_PANE_SIZE);
 			apiWindow.setBorder(BorderFactory.createTitledBorder("APi Search"));
-			jsoupSearchButton.setBorder(BorderFactory.createTitledBorder("Jsoup Search"));
+			jsoupWindow.setBorder(BorderFactory.createTitledBorder("Jsoup Search"));
 			searchContentPane.add(apiWindow, "APISEARCH");
 			searchContentPane.add(jsoupWindow, "JSOUPSEARCH");
 			drawApiSearch();

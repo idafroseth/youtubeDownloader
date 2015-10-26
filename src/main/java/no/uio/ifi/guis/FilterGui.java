@@ -58,9 +58,9 @@ import no.uio.ifi.models.search.FilteredSearch;
 public class FilterGui extends JPanel {
 
 	private static final long serialVersionUID = -7018213359683528690L;
-	private JPanel filterPanel = new JPanel();
-	private JPanel filterAddPanel = new JPanel();
-	private JPanel filterActivePanel = new JPanel();
+	protected JPanel filterPanel = new JPanel();
+	protected JPanel filterAddPanel = new JPanel();
+	protected JPanel filterActivePanel = new JPanel();
 	private JButton searchButton = new JButton("Search");
 	
 	private JButton searchKeywordTest = new JButton("Test Search Kword");
@@ -96,7 +96,7 @@ public class FilterGui extends JPanel {
 //	
 	private HashMap<Integer, String> selectedFilters = new HashMap<Integer, String>(10);
 
-	private JTextArea filtersAppliedText = new JTextArea("No filter");
+	protected JTextArea filtersAppliedText = new JTextArea("No filter");
 	
 	public static final Integer PANEL_WIDTH = FilteredSearchGui.WINDOW_WIDTH-15;
 	public static final Integer PANEL_HEIGHT = FilteredSearchGui.WINDOW_HEIGHT -190;
@@ -359,21 +359,20 @@ public void onTextFieldChange() {
 		panel.add(filterPanel);
 		return panel;
 	}
-	private JPanel getNumberOfVideosPanel(){
+	protected JPanel getNumberOfVideosPanel(){
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
 		JButton setNumVideos = new JButton("Apply");
 		setNumVideos.setActionCommand("NUMVIDEOS");
 		outputNumberOfVideos.setForeground(Color.RED);
 		setNumVideos.addActionListener(mouseListener);
 		numberOfVideosInput.setColumns(8);
-		//numberOfVideosInput.addActionListener(l);
-		//panel.setBorder(BorderFactory.createTitledBorder("# of videos"));
-		panel.add(new JLabel("# Videos to search:"));
+		JLabel videosToSearchLabel = new JLabel("# Videos to search:");
+		panel.add(videosToSearchLabel);
 		panel.add(numberOfVideosInput);
 		panel.add(setNumVideos);
 		panel.add(outputNumberOfVideos);
-		FontFactory.changeFont(panel, new Font("Arial", Font.PLAIN, 15));
-		
+		Font font = videosToSearchLabel.getFont();
+		videosToSearchLabel.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));
 		return panel;
 	}
 	
@@ -388,11 +387,12 @@ public void onTextFieldChange() {
 		keyword.setPreferredSize(new Dimension(100, 20));
 		panel.add(keyword);
 		panel.add(keyWordInput);
+		panel.add(new JLabel("No random search"));
 
 		return panel;
 		
 	}
-	
+
 	private JPanel getGelocationPanel(){
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 10));
 

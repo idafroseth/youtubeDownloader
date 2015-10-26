@@ -1,6 +1,7 @@
 package no.uio.ifi.models;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -36,22 +37,35 @@ public class Export {
 //		pw.println("<?xml version=\"1.0\"?>");
 //		pw.println("\t<videoList>");
 //	}
-	
-	public static void toXML() {
+
+	public static void init(File filePath, String filenm){
 		Writer fw = null;
 		try {
-			fw = new FileWriter("res/" + fileName + "." + ExportType.XML.name().toLowerCase());
+			fw = new FileWriter(filePath+"/" + filenm);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		Writer bw = new BufferedWriter(fw);
 		pw = new PrintWriter(bw);
 		
+	}
+	public static void toXML() {
+		if(pw == null){
+		//	init("", "FILES");
+			return;
+		}
+		
 		pw.println("<?xml version=\"1.0\"?>");
 		pw.println("<videoList>");
 	}
 
 	public static void writeXML(PageYouTube YTPage) {
+		System.out.println(pw);
+
+		if( YTPage.getVideoID() == null){
+			System.out.println("NULL");
+			return;
+		}
 		pw.println("\t<video>");
 		pw.println("\t\t<ID>" + YTPage.getVideoID() + "</ID>");
 		pw.println("\t\t<title>" + YTPage.getTitle() + "</title>");

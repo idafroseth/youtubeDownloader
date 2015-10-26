@@ -67,7 +67,7 @@ public class FilteredSearch extends Search{
 	
 	private Map<String, String> availableCategoriesReverse =  new HashMap<String, String>();
 
-	private YouTube.Search.List search;
+	public YouTube.Search.List search;
 
 	public static final long NUMBER_OF_VIDEOS_RETURNED = 50;
 	

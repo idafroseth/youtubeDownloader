@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -240,7 +241,6 @@ public class ManagementFilteredSearch {
 					if (gui.getKeyWordText().length() != 0) {
 						result = filterSearch.searchBy(gui.getKeyWordText());
 					}
-
 					else {
 
 						String rnd = randomGenerator.getNextRandom();
@@ -251,10 +251,12 @@ public class ManagementFilteredSearch {
 					innerLoop: for (SearchResult res : result) {
 						Thread.sleep(1);
 						String videoId = res.getId().getVideoId();
+					
 						if (!videoInfoResult.containsKey(videoId) && res.getId() != null) {
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							System.out.println(res.getId().getVideoId());
 							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath, dlExtractor);
+							
 							videoCache.add(v);
 							resultCache.add(res);
 							videoInfoResult.put(videoId, v);
@@ -297,8 +299,9 @@ public class ManagementFilteredSearch {
 //			VideoInfoExtracter infoExtracter;
 
 		public JsoupSearchThread(ThreadGroup tg, String s, ManagementFilteredSearch mng) {// ,
-																		// doneSignal){
-			super(tg, s);
+			super(tg, s);			
+			
+			
 			this.mng = mng;
 			myCrawler = new CrawlerStefan("https://www.youtube.com", mng);
 		}
@@ -306,6 +309,22 @@ public class ManagementFilteredSearch {
 		@Override
 		public void run() {
 			try {
+				switch (videoInfo) {
+				case "JSON":
+					Export.init(filepath, "/videoInfo.json");
+					break;
+				case "XML":
+					Export.init(filepath, "/videoInfo.xml");
+					System.out.println("init.xml");
+					break;
+				case "CSV":
+					Export.init(filepath, "/videoInfo.csv");
+					System.out.println("init.csv");
+					break;
+				default:
+					// do nothing
+					break;
+				}
 
 				//CrawlerStefan myCrawler = new CrawlerStefan("https://www.youtube.com", null);
 				
@@ -313,39 +332,63 @@ public class ManagementFilteredSearch {
 				PageYouTube video = null;// = myCrawler.crawlPage("https://www.youtube.com");
 				LinkedList<String> queue = new LinkedList<String>();
 				queue.add("https://www.youtube.com");
+				loop:
 				while(count < 100){
+				
 						video = myCrawler.crawlPage(queue.removeFirst());
+			
 						if(video == null){
-							continue;
+							System.out.println("video is null");
+							continue loop;
 						}
-						for(String url : video.getLinkedUrls()){
-							//add all the ref for this url to the queue
-							if(!queue.contains(url)){
-								queue.add(url);
+						int i = 0;
+						List<String> links = video.getLinkedUrls();
+						if(links != null){
+							for(String url : links){
+							
+								if(!queue.contains(url)){
+									queue.add(url);
+								}
 							}
-							System.out.println(count + " - Next to crawl: " + url);
 						}
-						String comments = commentExtractor.getTopLevelComments(video.getVideoID());
-						System.out.println(comments);
-						if(comments.length()>2){
-							JSONObject jsonObject = new JSONObject(comments.substring(1));
-							String xml = XML.toString(jsonObject, "video");
-						}
-	
+						
+						//To extract the comments uncomment this:
+//						String comments = commentExtractor.getTopLevelComments(video.getVideoID());
+//						System.out.println(comments);
+//						if(comments.length()>2){
+//							JSONObject jsonObject = new JSONObject(comments.substring(1));
+//							String xml = XML.toString(jsonObject, "video");
+//						}
 //						saveMetaData(xml);
 						
 						count++;
-						System.out.println(video.getVideoID());
-						Export.toXML();
-						Thread.sleep(1);
-//						myCrawler.writeToFile(li, ExportType.XML);
-						System.out.println("Getting next values");
-						Export.closeXML();
+						switch (videoInfo) {
+						case "JSON":
+//							Export.writeJSON(video);
+							break;
+						case "XML":
+							Export.writeXML(video);
+							break;
+						case "CSV":
+							Export.writeCSV(video);
+							break;
+						default:
+							// do nothing
+							break;
+						}
+//						myCrawler.writeToFile(video, ExportType.XML);
+//						System.out.println("Getting next values");
+						
 						NUMBER_OF_VIDEOS_RETRIVED++;
 						wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED);
+						Thread.sleep(1);
 						
 				}
-
+				if(videoInfo=="XML"){
+					Export.closeXML();
+				}else{
+					Export.closeCSV();
+				}
 				videoJsoupInfoResult = myCrawler.getCrawledPages();
 				
 				System.out.println("Finished CRAWLNG + " + videoJsoupInfoResult.size());
@@ -354,19 +397,17 @@ public class ManagementFilteredSearch {
 				
 
 			} catch (InterruptedException v) {
+				if(videoInfo=="XML"){
+					Export.closeXML();
+				}else{
+					Export.closeCSV();
+				}
 				System.out.println("Thread Interrupted");
-				
-				// System.out.println(resultCache.size());
+				Export.closeXML();
 				videoJsoupInfoResult = myCrawler.getCrawledPages();
-				System.out.println("Thread Interrupted + " + videoJsoupInfoResult.size());
+				System.out.println("Thread Interrupted with " + videoJsoupInfoResult.size() + " videos");
 
 				mng.finishedJsoupSearch();
-				
-//				threadCount--;
-//				if (threadCount == 0) {
-//					mng.finishedSearch();
-//					wait.setVisible(false);
-//				}
 			}
 
 		}

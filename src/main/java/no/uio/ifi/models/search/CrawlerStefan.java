@@ -56,37 +56,37 @@ public class CrawlerStefan {
 		this.mng = mng;
 	}
 
-	public static void main(String[] args){
-
-		CrawlerStefan myCrawler = new CrawlerStefan("https://www.youtube.com", null);
-		
-		int count = 0;
-		PageYouTube li = null;// = myCrawler.crawlPage("https://www.youtube.com");
-		LinkedList<String> queue = new LinkedList<String>();
-		queue.add("https://www.youtube.com");
-		while(count < 100){
-				li = myCrawler.crawlPage(queue.removeFirst());
-				if(li == null){
-					continue;
-				}
-				for(String url : li.getLinkedUrls()){
-					//add all the ref for this url to the queue
-					if(!queue.contains(url)){
-						queue.add(url);
-					}
-					System.out.println(count + " - Next to crawl: " + url);
-				}
-				count++;
-				System.out.println(li.getVideoID());
-				Export.toXML();
-//				myCrawler.writeToFile(li, ExportType.XML);
-				System.out.println("Getting next values");
-//				Export.closeXML();
-		}
+//	public static void main(String[] args){
+//
+//		CrawlerStefan myCrawler = new CrawlerStefan("https://www.youtube.com", null);
+//		
+//		int count = 0;
+//		PageYouTube li = null;// = myCrawler.crawlPage("https://www.youtube.com");
+//		LinkedList<String> queue = new LinkedList<String>();
+//		queue.add("https://www.youtube.com");
+//		while(count < 100){
+//				li = myCrawler.crawlPage(queue.removeFirst());
+//				if(li == null){
+//					continue;
+//				}
+//				for(String url : li.getLinkedUrls()){
+//					//add all the ref for this url to the queue
+//					if(!queue.contains(url)){
+//						queue.add(url);
+//					}
+//					System.out.println(count + " - Next to crawl: " + url);
+//				}
+//				count++;
+//				System.out.println(li.getVideoID());
+////				Export.toXML();
+////				myCrawler.writeToFile(li, ExportType.XML);
+//				System.out.println("Getting next values");
+////				Export.closeXML();
+//		}
 	//	Statistics stat = new Statistics();
 	//	stat.addBarChart(myCrawler.genres, "Generes");
 	//	stat.addBarChart(myCrawler.years, "Years");
-	}
+//	}
 	
 	public Map<String, Integer> getGenres(){
 		return this.genres;
@@ -210,8 +210,12 @@ public class CrawlerStefan {
 //			List<String> linkedVideos = getLinkedVideos(webSite.select("a[href]"));
 			Elements linkedUrls = webSite.select("a[href]");
 			PageYouTube YTPage = new PageYouTube();
+			if(videoID == null){
+				return null;
+			}
 			if(!crawledPages.containsKey(videoID)){
-			
+				
+				crawledPages.put(videoID, YTPage);
 				
 				List<String> keywords = convertKeywords(webSite.select("meta[property=og:video:tag]"));
 				String title = webSite.select("meta[itemprop=name]").attr("content");
@@ -252,6 +256,7 @@ public class CrawlerStefan {
 //				String length = convertLength(findPattern("length_seconds\":\".*?\",", webSite.body().toString()));
 				String length = convertLength(webSite.select("meta[itemprop=duration]").attr("content"));
 				
+				
 				YTPage.setAuthor(author);
 				YTPage.setDatePublished(datePublished);
 				YTPage.setDescription(description);
@@ -272,7 +277,7 @@ public class CrawlerStefan {
 				if(!datePublished.equals("")){
 					y = findPattern("\\d+", datePublished);
 				}
-				crawledPages.put(videoID, YTPage);
+				
 				return YTPage;
 			}
 			
@@ -445,17 +450,17 @@ public class CrawlerStefan {
 		return this.crawledPages;
 	}
 	
-	private void writeToFile(PageYouTube YTPage, Export.ExportType type){
-		switch (type){
-		case XML:
-			Export.writeXML(YTPage);
-			break;
-		case CSV:
-			Export.writeCSV(YTPage);
-			break;
-		case JASON:
-			break;
-		}
-	}
-	
+//	private void writeToFile(PageYouTube YTPage, Export.ExportType type){
+//		switch (type){
+//		case XML:
+//			Export.writeXML(YTPage);
+//			break;
+//		case CSV:
+//			Export.writeCSV(YTPage);
+//			break;
+//		case JASON:
+//			break;
+//		}
+//	}
+//	
 }
