@@ -15,7 +15,11 @@ import javax.swing.JPanel;
 import org.json.JSONObject;
 import org.json.XML;
 
+import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.SearchResultSnippet;
+import com.google.api.services.youtube.model.Thumbnail;
+import com.google.api.services.youtube.model.ThumbnailDetails;
 import com.google.api.services.youtube.model.Video;
 
 import no.uio.ifi.guis.DownloadProgressBar;
@@ -147,7 +151,7 @@ public class ManagementFilteredSearch {
 		
 		if(gui.getKeyWordText().length() == 0 || gui.getKeyWordText() ==null) {
 			System.out.println("Using 5 threads");
-			setSearchThreadNumber(5);
+			setSearchThreadNumber(1);
 		}
 		else {
 			setSearchThreadNumber(1);
@@ -352,6 +356,7 @@ public class ManagementFilteredSearch {
 							}
 						}
 						
+						
 						//To extract the comments uncomment this:
 //						String comments = commentExtractor.getTopLevelComments(video.getVideoID());
 //						System.out.println(comments);
@@ -376,6 +381,26 @@ public class ManagementFilteredSearch {
 							// do nothing
 							break;
 						}
+						
+						//Since the dl expects a YTSearchResult we have to put the result in a YouTube.SearchResult object
+						SearchResult res = new SearchResult();
+						SearchResultSnippet srs = new SearchResultSnippet();
+						srs.setTitle(video.getTitle());
+						//add thumbnail
+						Thumbnail tumb = new Thumbnail();
+						tumb.setUrl(video.getLinkPreviewImage());
+						ThumbnailDetails td = new ThumbnailDetails();
+						td.setDefault(tumb);
+						srs.setThumbnails(td);
+						
+						res.setSnippet(srs);
+						ResourceId ri = new ResourceId();
+						ri.setVideoId(video.getVideoID());
+						res.setId(ri);
+						
+						
+						dlExtractor.extract(res);
+						
 //						myCrawler.writeToFile(video, ExportType.XML);
 //						System.out.println("Getting next values");
 						

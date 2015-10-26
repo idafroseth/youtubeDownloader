@@ -9,6 +9,7 @@ import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -24,18 +25,17 @@ public class JsoupSearchGui extends FilterGui{
 	
 	@Override
 	public void init(){
+		videoInfoFormats = new  JComboBox(new String[]{"CSV", "XML"});//, "JSON"});
+		videoFormats = new JComboBox(new String[]{"Download Video files"});
+		
 		System.out.println("Initialize the jsoup gui");
 		this.setPreferredSize(FilteredSearchGui.CONTENT_PANE_SIZE);
 		this.setLayout(new BorderLayout());
-//		add(getNumberOfVideosPanel(), BorderLayout.PAGE_START);
 		this.add(drawSearchMenu(), BorderLayout.PAGE_END);
 		this.add(drawFilterMenu(), BorderLayout.CENTER);
 		onTextFieldChange();
 		String infoText="The JSoup crawler does not use the YouTube APi, and will provide a result that more reflect what the user is met by";
-//		add(getSearchAlternative());
-		
-//		add(new JLabel(), BorderLayout.AFTER_LAST_LINE);
-	
+
 	}
 	public JPanel getSearchAlternative(){
 		JPanel panel = new JPanel();

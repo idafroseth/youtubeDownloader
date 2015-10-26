@@ -106,7 +106,7 @@ public class VideoInfoExtracter extends Search {
 				for (Video v : videoList) {
 					String jsonString;
 			
-					jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+videoUrlJson+"}";
+					jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+videoUrlJson+"}}";
 						
 					videoJSON = v;
 					

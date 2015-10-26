@@ -68,8 +68,8 @@ public class FilterGui extends JPanel {
 	private JCheckBox videoInfoDL = new JCheckBox();
 	private JCheckBox videoDownload  = new JCheckBox();
 
-	private JComboBox videoInfoFormats = new JComboBox(new String[]{"JSON", "XML", "CSV"});
-	private JComboBox videoFormats = new JComboBox(new String[]{"Store video download link in metadata", "Download Video files"});
+	protected JComboBox videoInfoFormats = new JComboBox(new String[]{"JSON", "XML", "CSV"});
+	protected JComboBox videoFormats = new JComboBox(new String[]{"Store video download link in metadata", "Download Video files"});
 	private JButton fileChooserButton = new JButton("Choose path");
 	private JFileChooser fileChooser = new JFileChooser();
 

@@ -31,7 +31,6 @@ import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoListResponse;
 
 import no.uio.ifi.Auth;
-import no.uio.ifi.management.ManagementAllRandom;
 import no.uio.ifi.management.ManagementFilteredSearch;
 
 /**
