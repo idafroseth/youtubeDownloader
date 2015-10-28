@@ -238,14 +238,21 @@ public class Statistics extends JPanel {
 		
 		for(Video video : videoInfoResult.values() ){
 			//Like statistics
-			if(video.getStatistics()!=null && video.getStatistics().getLikeCount()!= null){
-				likesStat.replace("Likes", likesStat.get("Likes").add(video.getStatistics().getLikeCount()));
-				likesStat.replace("Dislikes", likesStat.get("Dislikes").add(video.getStatistics().getDislikeCount()));
-				likesVideos++;
-				
-				viewCount = viewCount.add(video.getStatistics().getViewCount());
-				favoritesCount = favoritesCount.add(video.getStatistics().getFavoriteCount());
-				commentCount = commentCount.add(video.getStatistics().getCommentCount());
+			if(video == null){
+				continue;
+			}
+			if(video.getStatistics()!=null){
+				if(video.getStatistics().getLikeCount()!= null){
+//					System.out.println(likesStat);
+					likesStat.put("Likes", likesStat.get("Likes").add(video.getStatistics().getLikeCount()));
+					likesStat.put("Dislikes", likesStat.get("Dislikes").add(video.getStatistics().getDislikeCount()));
+					likesVideos++;
+				}
+					
+					viewCount = viewCount.add(video.getStatistics().getViewCount());
+					favoritesCount = favoritesCount.add(video.getStatistics().getFavoriteCount());
+					commentCount = commentCount.add(video.getStatistics().getCommentCount());
+//				}
 			}
 			
 			

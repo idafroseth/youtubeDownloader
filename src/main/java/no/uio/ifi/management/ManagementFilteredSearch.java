@@ -151,7 +151,7 @@ public class ManagementFilteredSearch {
 		
 		if(gui.getKeyWordText().length() == 0 || gui.getKeyWordText() ==null) {
 			System.out.println("Using 5 threads");
-			setSearchThreadNumber(1);
+			setSearchThreadNumber(5);
 		}
 		else {
 			setSearchThreadNumber(1);
@@ -238,11 +238,13 @@ public class ManagementFilteredSearch {
 			try {
 				RandomVideoIdGenerator randomGenerator = new RandomVideoIdGenerator();
 				List<SearchResult> result;
+				NUMBER_OF_VIDEOS_RETRIVED=0;
 
 				loop: 
 				while (NUMBER_OF_VIDEOS_RETRIVED < NUMBER_OF_VIDEOS_TO_SEARCH) {
 
 					if (gui.getKeyWordText().length() != 0) {
+						System.out.println("KEYWORDSEARCH");
 						result = filterSearch.searchBy(gui.getKeyWordText());
 					}
 					else {
@@ -259,22 +261,22 @@ public class ManagementFilteredSearch {
 						if (!videoInfoResult.containsKey(videoId) && res.getId() != null) {
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							System.out.println(res.getId().getVideoId());
-							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath, dlExtractor);
-							
-							videoCache.add(v);
-							resultCache.add(res);
+							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath, dlExtractor, false);
 							videoInfoResult.put(videoId, v);
-						
-							// System.out.println("*****"
-							// +res.getSnippet().getTitle());
+							videoCache.add(v);
+							resultCache.add(res);	
 						}
 					}
 					wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED);
+					Thread.sleep(1);
 
 				}
 
 				threadCount--;
 				if (threadCount == 0) {
+					if(videoInfo.equals("JSON")){
+						infoExtracter.closeJSONOutputFile();
+					}
 					mng.finishedSearch();
 					wait.setVisible(false);
 				}
@@ -284,6 +286,9 @@ public class ManagementFilteredSearch {
 				// System.out.println(resultCache.size());
 				threadCount--;
 				if (threadCount == 0) {
+					if(videoInfo.equals("JSON")){
+						infoExtracter.closeJSONOutputFile();
+					}
 					dlExtractor.stopCall();
 					mng.finishedSearch();
 					wait.setVisible(false);

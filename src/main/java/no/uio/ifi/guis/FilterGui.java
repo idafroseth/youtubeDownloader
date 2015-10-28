@@ -421,7 +421,7 @@ public void onTextFieldChange() {
 	
 	private JPanel getPeriodPanel(){
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 10));
-		JLabel from = new JLabel("Year: ");
+		JLabel from = new JLabel("Period: ");
 
 		Font font = from.getFont();
 		from.setFont(font.deriveFont(font.getStyle() ^ Font.BOLD));

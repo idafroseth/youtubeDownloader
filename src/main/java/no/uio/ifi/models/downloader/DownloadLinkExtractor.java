@@ -49,7 +49,7 @@ public class DownloadLinkExtractor {
 				+ "\"downloadLink\":[{";
 		int count = 0;
 		for(String s : links.keySet()){
-			System.out.println("********s " + s + " key " + links.get(s));
+//			System.out.println("********s " + s + " key " + links.get(s));
 			json += "\"itag\":\""+s+"\",\"url\":\""+links.get(s).downloadLink+"\"}";
 			count++;
 			if(count == links.size()){
@@ -271,14 +271,14 @@ class StatusDownload implements Runnable{
             int readedbytes = 0;
             byte[] bytesBuffRead = new byte[9192];
             int nrBytesRead  = breader.read(bytesBuffRead);
-            System.out.println("DOWNLOADDING.....");
+//            System.out.println("DOWNLOADDING.....");
             while(nrBytesRead > 0){
             	readedbytes+=nrBytesRead;
             	dlThrd.status[this.threadnr].setText(readedbytes+"/"+((urlStreamObj.len=="") ? "unknown" : urlStreamObj.len));
                 fileOutputStream.write(bytesBuffRead,0,nrBytesRead);
                 nrBytesRead  = breader.read(bytesBuffRead);
             }
-            System.out.println("DOWNLOAD FINISHED");
+//            System.out.println("DOWNLOAD FINISHED");
             dlThrd.status[this.threadnr].setText("FINISHED!!!");
             breader.close();
             fileOutputStream.close();
@@ -303,7 +303,7 @@ class YoutubeDownloader{
     public HashMap<String,SingleVideoINFO> get_single_video_info(){
     	HashMap<String,SingleVideoINFO> listSingleVideo = new HashMap<String,SingleVideoINFO>();
     	String html = getContentHtmlOfLink(urlIn);
-        
+//        System.out.println(urlIn);
         ArrayList<String> listStreamLinks = listStreamRaw(html);
         
         for(String urlFull : listStreamLinks){
@@ -328,7 +328,7 @@ class YoutubeDownloader{
 	        Matcher matchItag = patItag.matcher(urlFull);
 	        if (matchItag.find()) itag = matchItag.group(1);
 	        if(itag == null){
-	        	System.out.println(urlFull);
+//	        	System.out.println(urlFull);
 	        	itag = "";
 	        }
 	        
@@ -409,15 +409,16 @@ class YoutubeDownloader{
 
     public ArrayList<String> get_adaptive_fmts(String htmlContent){
     	System.out.println("DOWNLOAD MINIFEST...");
+    	
         Pattern url_adaptive_fmts = Pattern.compile("\"adaptive_fmts\":\"([^\"]*)\"");
         Matcher url_adaptive_fmts_Match = url_adaptive_fmts.matcher(htmlContent);
-
+        
         ArrayList<String> urlMedia = new ArrayList<String>();
-
+        System.out.println(urlMedia);
         if (url_adaptive_fmts_Match.find()) {
             String adaptive_fmts = url_adaptive_fmts_Match.group(1);
             
-            //System.out.println(adaptive_fmts);
+            System.out.println("ADAPTIVE "+adaptive_fmts);
             
             get_video(urlMedia,adaptive_fmts);
         }
@@ -435,7 +436,7 @@ class YoutubeDownloader{
         if (url_efsm_match.find()) {
             String url_e_f_s_m = url_efsm_match.group(1);
             
-            //System.out.println(url_e_f_s_m);
+//            System.out.println(url_e_f_s_m); 
             
             get_video(urlMedia,url_e_f_s_m);
         }

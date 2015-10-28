@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:mpeg:DASH:schema:MPD:2011"
+	xmlns:yt="http://youtube.com/yt/2012/10/10" xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd"
+	minBufferTime="PT1.500S" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011"
+	type="static" mediaPresentationDuration="PT1982.798S">
+	<Period>
+		<AdaptationSet id="0" mimeType="audio/mp4"
+			subsegmentAlignment="true">
+			<Role schemeIdUri="urn:mpeg:DASH:role:2011" value="main" />
+			<Representation id="140" codecs="mp4a.40.2"
+				audioSamplingRate="44100" startWithSAP="1" bandwidth="98848">
+				<AudioChannelConfiguration
+					schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011"
+					value="1" />
+				<BaseURL yt:contentLength="23901088">https://r3---sn-xpqnp85-vnae.googlevideo.com/videoplayback?id=429cbe1c738c6752&amp;itag=140&amp;source=youtube&amp;requiressl=yes&amp;ms=au&amp;mv=m&amp;pl=19&amp;mn=sn-xpqnp85-vnae&amp;mm=31&amp;ratebypass=yes&amp;mime=audio/mp4&amp;gir=yes&amp;clen=23901088&amp;lmt=1427204986031801&amp;dur=1982.798&amp;mt=1446039161&amp;sver=3&amp;upn=vtURf3Dv6wc&amp;key=dg_yt0&amp;signature=0ECE2A7AEF0BA2E000569C41BAE9F654B6F76EAA.6CECDE7069B4CAA6BD2988B93EC2E4CE9304BA5B&amp;fexp=9408214,9408710,9414764,9416126,9417010,9417707,9418201,9419426,9419743,9420436,9420473,9420539,9421169,9421667,9421786,9422113,9422597,9422862&amp;ip=82.147.52.246&amp;ipbits=0&amp;expire=1446060913&amp;sparams=ip,ipbits,expire,id,itag,source,requiressl,ms,mv,pl,mn,mm,ratebypass,mime,gir,clen,lmt,dur
+				</BaseURL>
+				<SegmentBase indexRange="592-3011" indexRangeExact="true">
+					<Initialization range="0-591" />
+				</SegmentBase>
+			</Representation>
+			<Representation id="141" codecs="mp4a.40.2"
+				audioSamplingRate="44100" startWithSAP="1" bandwidth="194824">
+				<AudioChannelConfiguration
+					schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011"
+					value="1" />
+				<BaseURL yt:contentLength="47694668">https://r3---sn-xpqnp85-vnae.googlevideo.com/videoplayback?id=429cbe1c738c6752&amp;itag=141&amp;source=youtube&amp;requiressl=yes&amp;ms=au&amp;mv=m&amp;pl=19&amp;mn=sn-xpqnp85-vnae&amp;mm=31&amp;ratebypass=yes&amp;mime=audio/mp4&amp;gir=yes&amp;clen=47694668&amp;lmt=1427204985940740&amp;dur=1982.798&amp;mt=1446039161&amp;sver=3&amp;upn=vtURf3Dv6wc&amp;key=dg_yt0&amp;signature=9010130605D726724C976FEDD040B844A3CE270F.984B0BC4BF436338CEF110874D7DCC8B6DE0C918&amp;fexp=9408214,9408710,9414764,9416126,9417010,9417707,9418201,9419426,9419743,9420436,9420473,9420539,9421169,9421667,9421786,9422113,9422597,9422862&amp;ip=82.147.52.246&amp;ipbits=0&amp;expire=1446060913&amp;sparams=ip,ipbits,expire,id,itag,source,requiressl,ms,mv,pl,mn,mm,ratebypass,mime,gir,clen,lmt,dur
+				</BaseURL>
+				<SegmentBase indexRange="592-3011" indexRangeExact="true">
+					<Initialization range="0-591" />
+				</SegmentBase>
+			</Representation>
+		</AdaptationSet>
+		<AdaptationSet id="1" mimeType="video/mp4"
+			subsegmentAlignment="true">
+			<Role schemeIdUri="urn:mpeg:DASH:role:2011" value="main" />
+			<Representation id="133" codecs="avc1.4d4015" width="426"
+				height="240" startWithSAP="1" maxPlayoutRate="1" bandwidth="252525"
+				frameRate="30">
+				<BaseURL yt:contentLength="60641944">https://r3---sn-xpqnp85-vnae.googlevideo.com/videoplayback?id=429cbe1c738c6752&amp;itag=133&amp;source=youtube&amp;requiressl=yes&amp;ms=au&amp;mv=m&amp;pl=19&amp;mn=sn-xpqnp85-vnae&amp;mm=31&amp;ratebypass=yes&amp;mime=video/mp4&amp;gir=yes&amp;clen=60641944&amp;lmt=1427205006307603&amp;dur=1982.747&amp;mt=1446039161&amp;sver=3&amp;upn=vtURf3Dv6wc&amp;key=dg_yt0&amp;signature=8999CE4E18DB8F15037E2B7240D7B7C7B9388AD3.3072CA9E64E8D6A4E46B0F37FA0733721CE67B05&amp;fexp=9408214,9408710,9414764,9416126,9417010,9417707,9418201,9419426,9419743,9420436,9420473,9420539,9421169,9421667,9421786,9422113,9422597,9422862&amp;ip=82.147.52.246&amp;ipbits=0&amp;expire=1446060913&amp;sparams=ip,ipbits,expire,id,itag,source,requiressl,ms,mv,pl,mn,mm,ratebypass,mime,gir,clen,lmt,dur
+				</BaseURL>
+				<SegmentBase indexRange="673-5168" indexRangeExact="true">
+					<Initialization range="0-672" />
+				</SegmentBase>
+			</Representation>
+			<Representation id="134" codecs="avc1.4d401e" width="640"
+				height="360" startWithSAP="1" maxPlayoutRate="1" bandwidth="611425"
+				frameRate="30">
+				<BaseURL yt:contentLength="139591567">https://r3---sn-xpqnp85-vnae.googlevideo.com/videoplayback?id=429cbe1c738c6752&amp;itag=134&amp;source=youtube&amp;requiressl=yes&amp;ms=au&amp;mv=m&amp;pl=19&amp;mn=sn-xpqnp85-vnae&amp;mm=31&amp;ratebypass=yes&amp;mime=video/mp4&amp;gir=yes&amp;clen=139591567&amp;lmt=1427205226618341&amp;dur=1982.747&amp;mt=1446039161&amp;sver=3&amp;upn=vtURf3Dv6wc&amp;key=dg_yt0&amp;signature=6C9B673F7EDA2F5B9F47E73FBA07F3AACF4F30A0.872CBE65CA801A39C4A75CDA5EB812633E97689F&amp;fexp=9408214,9408710,9414764,9416126,9417010,9417707,9418201,9419426,9419743,9420436,9420473,9420539,9421169,9421667,9421786,9422113,9422597,9422862&amp;ip=82.147.52.246&amp;ipbits=0&amp;expire=1446060913&amp;sparams=ip,ipbits,expire,id,itag,source,requiressl,ms,mv,pl,mn,mm,ratebypass,mime,gir,clen,lmt,dur
+				</BaseURL>
+				<SegmentBase indexRange="709-5204" indexRangeExact="true">
+					<Initialization range="0-708" />
+				</SegmentBase>
+			</Representation>
+			<Representation id="135" codecs="avc1.4d401f" width="854"
+				height="480" startWithSAP="1" maxPlayoutRate="1" bandwidth="1117648"
+				frameRate="30">
+				<BaseURL yt:contentLength="261077864">https://r3---sn-xpqnp85-vnae.googlevideo.com/videoplayback?id=429cbe1c738c6752&amp;itag=135&amp;source=youtube&amp;requiressl=yes&amp;ms=au&amp;mv=m&amp;pl=19&amp;mn=sn-xpqnp85-vnae&amp;mm=31&amp;ratebypass=yes&amp;mime=video/mp4&amp;gir=yes&amp;clen=261077864&amp;lmt=1427205326942420&amp;dur=1982.747&amp;mt=1446039161&amp;sver=3&amp;upn=vtURf3Dv6wc&amp;key=dg_yt0&amp;signature=83DD8C7C080AC21AD3B979CF37FBECF14E98BEFA.6E68EA1117DF136BD9BC5D0B79D7AE47F590550D&amp;fexp=9408214,9408710,9414764,9416126,9417010,9417707,9418201,9419426,9419743,9420436,9420473,9420539,9421169,9421667,9421786,9422113,9422597,9422862&amp;ip=82.147.52.246&amp;ipbits=0&amp;expire=1446060913&amp;sparams=ip,ipbits,expire,id,itag,source,requiressl,ms,mv,pl,mn,mm,ratebypass,mime,gir,clen,lmt,dur
+				</BaseURL>
+				<SegmentBase indexRange="709-5204" indexRangeExact="true">
+					<Initialization range="0-708" />
+				</SegmentBase>
+			</Representation>
+			<Representation id="160" codecs="avc1.42c00c" width="256"
+				height="144" startWithSAP="1" maxPlayoutRate="1" bandwidth="116793"
+				frameRate="15">
+				<BaseURL yt:contentLength="27032553">https://r3---sn-xpqnp85-vnae.googlevideo.com/videoplayback?id=429cbe1c738c6752&amp;itag=160&amp;source=youtube&amp;requiressl=yes&amp;ms=au&amp;mv=m&amp;pl=19&amp;mn=sn-xpqnp85-vnae&amp;mm=31&amp;ratebypass=yes&amp;mime=video/mp4&amp;gir=yes&amp;clen=27032553&amp;lmt=1427205010714983&amp;dur=1982.780&amp;mt=1446039161&amp;sver=3&amp;upn=vtURf3Dv6wc&amp;key=dg_yt0&amp;signature=6F428E64BFEF5BB0D143933AF7B87851E1AA4437.864E2E28C590C0F0A59B5FADD90F4F126341C53C&amp;fexp=9408214,9408710,9414764,9416126,9417010,9417707,9418201,9419426,9419743,9420436,9420473,9420539,9421169,9421667,9421786,9422113,9422597,9422862&amp;ip=82.147.52.246&amp;ipbits=0&amp;expire=1446060913&amp;sparams=ip,ipbits,expire,id,itag,source,requiressl,ms,mv,pl,mn,mm,ratebypass,mime,gir,clen,lmt,dur
+				</BaseURL>
+				<SegmentBase indexRange="671-5166" indexRangeExact="true">
+					<Initialization range="0-670" />
+				</SegmentBase>
+			</Representation>
+			<Representation id="136" codecs="avc1.4d401f" width="1280"
+				height="720" startWithSAP="1" maxPlayoutRate="1" bandwidth="2234382"
+				frameRate="30">
+				<BaseURL yt:contentLength="523326461">https://r3---sn-xpqnp85-vnae.googlevideo.com/videoplayback?id=429cbe1c738c6752&amp;itag=136&amp;source=youtube&amp;requiressl=yes&amp;ms=au&amp;mv=m&amp;pl=19&amp;mn=sn-xpqnp85-vnae&amp;mm=31&amp;ratebypass=yes&amp;mime=video/mp4&amp;gir=yes&amp;clen=523326461&amp;lmt=1427205594566730&amp;dur=1982.747&amp;mt=1446039161&amp;sver=3&amp;upn=vtURf3Dv6wc&amp;key=dg_yt0&amp;signature=2A74ABA816DE4F2279CF832CF040FC74CDA9F93E.02360EF6AF2AA7264A64DF091863BA3C92162061&amp;fexp=9408214,9408710,9414764,9416126,9417010,9417707,9418201,9419426,9419743,9420436,9420473,9420539,9421169,9421667,9421786,9422113,9422597,9422862&amp;ip=82.147.52.246&amp;ipbits=0&amp;expire=1446060913&amp;sparams=ip,ipbits,expire,id,itag,source,requiressl,ms,mv,pl,mn,mm,ratebypass,mime,gir,clen,lmt,dur
+				</BaseURL>
+				<SegmentBase indexRange="709-5204" indexRangeExact="true">
+					<Initialization range="0-708" />
+				</SegmentBase>
+			</Representation>
+		</AdaptationSet>
+	</Period>
+</MPD>

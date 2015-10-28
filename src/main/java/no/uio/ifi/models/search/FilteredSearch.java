@@ -329,14 +329,14 @@ public class FilteredSearch extends Search{
 			
 			search.setQ(randomInput);
 			search.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
-			System.out.println("random search input " + randomInput);
+			//System.out.println("random search input " + randomInput);
 			String nextToken ="";
 			do {
 				search.setPageToken(nextToken);
 				SearchListResponse searchResponse = search.execute();
 				searchResultList.addAll(searchResponse.getItems());
 				nextToken = searchResponse.getNextPageToken();
-				System.out.println("Next Token " + nextToken);
+			//	System.out.println("Next Token " + nextToken);
 
 			} while (nextToken != null);
 			
@@ -399,10 +399,15 @@ public class FilteredSearch extends Search{
 			String[] period = id.split("\\|");
 			System.out.println(period[0]);
 			System.out.println(period[1]);
-			DateTime start = new DateTime(period[0]+"T00:00:00Z");
-			DateTime end = new DateTime(period[1]+"T00:00:00Z");
-			search.setPublishedBefore(end);
-			search.setPublishedAfter(start);
+			if(!period[0].contains("null")){
+				DateTime start = new DateTime(period[0]+"T00:00:00Z");
+				search.setPublishedAfter(start);
+			}
+			if(!period[1].contains("null")){
+				DateTime end = new DateTime(period[1]+"T00:00:00Z");
+				search.setPublishedBefore(end);
+			}
+			
 			break;
 		case VIDEODURATIONFILTER:
 			System.out.println("Adding duration filters");

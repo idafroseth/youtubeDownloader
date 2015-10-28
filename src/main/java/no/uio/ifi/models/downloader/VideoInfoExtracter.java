@@ -36,7 +36,7 @@ import no.uio.ifi.models.search.Search;
  */
 public class VideoInfoExtracter extends Search {
 	private YouTube.Videos.List searchContent;
-	BufferedWriter writer;
+	static BufferedWriter writer;
 	String fileType;
 	Map<String, Video> videoJSON = new HashMap<String, Video>();
 	CommentExtractor commentExtractor = new  CommentExtractor(5L);
@@ -80,7 +80,7 @@ public class VideoInfoExtracter extends Search {
 	 * @param videoId
 	 * @return
 	 */
-	public Video getVideoInfo(SearchResult res, String getVideo, File filePath, DownloadLinkExtractor dlExtractor) {
+	public Video getVideoInfo(SearchResult res, String getVideo, File filePath, DownloadLinkExtractor dlExtractor, boolean comments) {
 		Video videoJSON = null; 
 		
 		try {
@@ -106,7 +106,11 @@ public class VideoInfoExtracter extends Search {
 				for (Video v : videoList) {
 					String jsonString;
 			
-					jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+videoUrlJson+"}}";
+					if(comments){
+						jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+videoUrlJson+"}}";
+					}else{
+						jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+videoUrlJson+"}}";
+					}
 						
 					videoJSON = v;
 					
@@ -114,7 +118,7 @@ public class VideoInfoExtracter extends Search {
 			//		String jsonString = v.toPrettyString();
 					switch(fileType){
 					case "JSON":
-						saveMetaData( v.toPrettyString());
+						saveMetaData(jsonString.substring(1, jsonString.length()-1)+",");
 						break;
 					case "XML":
 						JSONObject jsonObject = new JSONObject(jsonString);
@@ -157,16 +161,33 @@ public class VideoInfoExtracter extends Search {
 			File utskrift = new File(filePath + filename);
 			//System.out.println(utskrift);
 			writer = new BufferedWriter(new FileWriter(utskrift));
+		
+			if(filename.contains("json")){
+				writer.write("{");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	public void closeJSONOutputFile() {
+			
+				try {
+					writer.write("}");
+					writer.flush();
+					writer.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				
+			}
+		
 	}
 	
 	/**
 	 * Method that writes to the specified file. Takes a string as input, so it doesn´t matter if its json, xml or whatever
 	 * @param videoInfo
 	 */
-	public void saveMetaData(String videoInfo) {
+	public static synchronized void saveMetaData(String videoInfo) {
 
 		try {
 			writer.write(videoInfo);

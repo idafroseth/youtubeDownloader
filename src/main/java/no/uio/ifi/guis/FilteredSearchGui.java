@@ -279,7 +279,7 @@ public class FilteredSearchGui extends JFrame{
 		//=========================================================================
 		public synchronized void updateTheResultToGUI(SearchResult res ){
 
-			System.out.println(jpanelR_UP);
+//			System.out.println(jpanelR_UP);
 			jpanelR_UP.add(new ResultElem(res));
 			revalidate();
 		}
@@ -384,26 +384,31 @@ public class FilteredSearchGui extends JFrame{
 		}
 		
 		public JScrollPane createJPanelResultUp(List<Video> listOfvideo){
-			
-			JPanel jpanelR_UP = new JPanel();
-			jscrollResultUp = new JScrollPane(jpanelR_UP, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-			jpanelR_UP.setLayout(new BoxLayout(jpanelR_UP, BoxLayout.PAGE_AXIS));
-			ResultElem[] outerScope = new ResultElem[listOfvideo.size()];//DETERMINE THIS LATER --------------
-			
-			int cnt = 0;
-			if(listOfvideo != null){
-				ListIterator<Video> listIter = listOfvideo.listIterator();
-				Iterator<Video> it = (Iterator<Video>)listIter;
-				while (it.hasNext()) {
-		            Video sVideo = it.next();
-		            if (sVideo.getKind().equals("youtube#video")) {
-		            	ResultElem re = new ResultElem(sVideo, outerScope);
-		            	outerScope[cnt++] = re;
-		            	jpanelR_UP.add(re);
-		            }
-		        }
+			try{	
+				JPanel jpanelR_UP = new JPanel();
+				jscrollResultUp = new JScrollPane(jpanelR_UP, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+				jpanelR_UP.setLayout(new BoxLayout(jpanelR_UP, BoxLayout.PAGE_AXIS));
+				ResultElem[] outerScope = new ResultElem[listOfvideo.size()];//DETERMINE THIS LATER --------------
+				
+				int cnt = 0;
+				if(listOfvideo != null){
+					ListIterator<Video> listIter = listOfvideo.listIterator();
+					Iterator<Video> it = (Iterator<Video>)listIter;
+					while (it.hasNext()) {
+			            Video sVideo = it.next();
+			            if (sVideo.getKind().equals("youtube#video")) {
+			            	ResultElem re = new ResultElem(sVideo, outerScope);
+			            	outerScope[cnt++] = re;
+			            	jpanelR_UP.add(re);
+			            }
+			        }
+				}
+				return jscrollResultUp;
+			}catch(NullPointerException e){
+				System.out.println(e);
+				return jscrollResultUp;
 			}
-			return jscrollResultUp;
+			
 		}
 		
 		public class ResultElem extends JPanel implements MouseListener{
@@ -469,13 +474,13 @@ public class FilteredSearchGui extends JFrame{
 				this.setLayout(new BorderLayout());
 				
 				String urlThumbnail = svideo.getSnippet().getThumbnails().getDefault().getUrl();
-				System.out.println("Tumbnail"+urlThumbnail);
+//				System.out.println("Tumbnail"+urlThumbnail);
 				videoLink = "https://www.youtube.com/watch?v="+svideo.getId();
 				//System.out.println(videoLink);
 				String title = svideo.getSnippet().getTitle();
 				URL url = null;
 				BufferedImage image =null;
-				System.out.println("Title"+title);
+//				System.out.println("Title"+title);
 				try{
 					url = new URL(urlThumbnail);
 					image = ImageIO.read(url);

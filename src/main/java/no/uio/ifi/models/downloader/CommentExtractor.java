@@ -120,7 +120,7 @@ public class CommentExtractor extends Search{
                   
               }
 			json += "]}";
-		//	System.out.println(json);
+//			System.out.println(json);
 			return json;
 		   } catch (IOException e) {
 			// TODO Auto-generated catch block
