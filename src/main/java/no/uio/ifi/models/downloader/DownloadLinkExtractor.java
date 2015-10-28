@@ -152,7 +152,13 @@ class DownloadThread extends JFrame implements Runnable{
 		while(!dlmonitor.stopdl || dlmonitor.linkstoDL.size() > 0){
 			dlmonitor.vent();
 			set_of_sglVideoinfo = dlmonitor.linkstoDL.remove(0);
+			
 			res = dlmonitor.forSaveOnly.get(set_of_sglVideoinfo);
+			
+			//The links will expire therefore We just do JUST IN TIME extract download-link :)
+			YoutubeDownloader yt = new YoutubeDownloader("https://www.youtube.com/watch?v="+res.getId().getVideoId());
+			set_of_sglVideoinfo = yt.get_single_video_info();
+			
 			dl_init();
 		}
 		
@@ -457,8 +463,8 @@ class YoutubeDownloader{
             URL url = new URL(linkYoutube);
             HttpURLConnection connect = (HttpURLConnection)url.openConnection();
             connect.setRequestProperty("User-Agent", "DASH-Group1-INF5090");
-            connect.setConnectTimeout(20000);
-            connect.setReadTimeout(20000);
+            connect.setConnectTimeout(200000);
+            connect.setReadTimeout(9999999);
                
             String encode = connect.getContentEncoding();
             //force UTF8 encoding if not found encoding
