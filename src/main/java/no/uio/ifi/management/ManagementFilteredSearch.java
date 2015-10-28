@@ -29,6 +29,7 @@ import no.uio.ifi.guis.WaitDialog;
 import no.uio.ifi.models.Export;
 import no.uio.ifi.models.PageYouTube;
 import no.uio.ifi.models.Export.ExportType;
+import no.uio.ifi.models.downloader.CommentDensity;
 import no.uio.ifi.models.downloader.CommentExtractor;
 import no.uio.ifi.models.downloader.DownloadLinkExtractor;
 import no.uio.ifi.models.downloader.VideoInfoExtracter;
@@ -184,6 +185,7 @@ public class ManagementFilteredSearch {
 	 */
 	public void finishedSearch() {
 		tg.interrupt();
+		System.out.println("Comment density is: " + CommentDensity.getVideoCount()/NUMBER_OF_VIDEOS_RETRIVED);
 		// wait.setVisible(true);
 		long estimatedTime = System.currentTimeMillis() - startTime;
 		System.out.println("Estimated time is :" + estimatedTime / 1000 + " sec");
@@ -261,7 +263,7 @@ public class ManagementFilteredSearch {
 						if (!videoInfoResult.containsKey(videoId) && res.getId() != null) {
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							System.out.println(res.getId().getVideoId());
-							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath, dlExtractor, false);
+							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath, dlExtractor, true);
 							videoInfoResult.put(videoId, v);
 							videoCache.add(v);
 							resultCache.add(res);	

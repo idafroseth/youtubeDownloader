@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -104,13 +105,21 @@ public class VideoInfoExtracter extends Search {
 				
 				
 				for (Video v : videoList) {
-					String jsonString;
-			
+					String jsonString="";
+
 					if(comments){
-						jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+videoUrlJson+"}}";
+						if(v.getStatistics().getCommentCount().compareTo(new BigInteger("0"))>0){
+							CommentDensity.addComment();
+							jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+commentExtractor.getTopLevelComments(v.getId())+videoUrlJson+"}}";
+						
+						}else{
+							jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+videoUrlJson+"}}";
+						}
 					}else{
 						jsonString = "{\"video\":" +v.toPrettyString().substring(0, v.toPrettyString().length()-1)+videoUrlJson+"}}";
 					}
+					
+					
 						
 					videoJSON = v;
 					
