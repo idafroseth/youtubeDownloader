@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
@@ -28,10 +29,12 @@ public class DownloadProgressBar extends JDialog  implements PreformingSearchDia
 	ManagementFilteredSearch mng;
 	ThreadGroup tg;
 	StopListener mouseListener = new StopListener();
+	JLabel infoOutput = new JLabel("Wait while crawling");
 	
 	public DownloadProgressBar(ManagementFilteredSearch mng, int max, String title, ThreadGroup tg){
 		this.setLocation((Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - getWidth() / 2,
 				(Toolkit.getDefaultToolkit().getScreenSize().height) / 4 - getHeight() / 2);
+		this.setAlwaysOnTop(true);
 		this.tg = tg;
 		this.mng = mng;
 		this.setTitle(title);
@@ -65,7 +68,9 @@ public class DownloadProgressBar extends JDialog  implements PreformingSearchDia
 		buttonPanel.add(cancelButton);
 		content.add(buttonPanel, BorderLayout.PAGE_END);
 	
+		progressPanel.add(infoOutput, BorderLayout.PAGE_START);
 		progressPanel.add(progressBar);
+		
 		content.add(progressPanel, BorderLayout.CENTER);
 		this.setPreferredSize(new Dimension(500, 150));
 		this.add(content);
@@ -81,6 +86,11 @@ public class DownloadProgressBar extends JDialog  implements PreformingSearchDia
 	public void updateProgressBar(int numberOfVideosRetrived) {
 		progressBar.setValue(numberOfVideosRetrived);
 	}
+	
+	public void printMessage(String message){
+		infoOutput.setText(message);
+	}
+	
 	class StopListener implements ActionListener{
 
 		@Override

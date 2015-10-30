@@ -376,7 +376,7 @@ class YoutubeDownloader{
 	        SingleVideoINFO videoinfo = new SingleVideoINFO(downloadLink,itag,type,dur,len,size,quality_label);
 	        listSingleVideo.put(itag, videoinfo);
         }
-        System.out.println("FINISHED GET INFO FROM SINGLE VIDEO");
+//        System.out.println("FINISHED GET INFO FROM SINGLE VIDEO");
         return listSingleVideo;
         
     }
@@ -414,13 +414,13 @@ class YoutubeDownloader{
     }
 
     public ArrayList<String> get_adaptive_fmts(String htmlContent){
-    	System.out.println("DOWNLOAD MINIFEST...");
+//    	System.out.println("DOWNLOAD MANIFEST...");
     	
         Pattern url_adaptive_fmts = Pattern.compile("\"adaptive_fmts\":\"([^\"]*)\"");
         Matcher url_adaptive_fmts_Match = url_adaptive_fmts.matcher(htmlContent);
         
         ArrayList<String> urlMedia = new ArrayList<String>();
-        System.out.println(urlMedia);
+//        System.out.println(urlMedia);
         if (url_adaptive_fmts_Match.find()) {
             String adaptive_fmts = url_adaptive_fmts_Match.group(1);
             
@@ -433,7 +433,7 @@ class YoutubeDownloader{
     }
 
     public ArrayList<String> get_url_encoded_fmt_stream_map(String htmlContent){
-    	System.out.println("DOWNLOAD MINIFEST...");
+//    	System.out.println("DOWNLOAD MINIFEST...");
         Pattern url_efsm = Pattern.compile("\"url_encoded_fmt_stream_map\":\"([^\"]*)\"");
         Matcher url_efsm_match = url_efsm.matcher(htmlContent);
 

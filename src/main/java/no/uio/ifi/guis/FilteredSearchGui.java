@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,6 +29,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
@@ -533,7 +536,7 @@ public class FilteredSearchGui extends JFrame{
 				if(jscrollResultDown != null) mainResultPanel.remove(jscrollResultDown);
 				jscrollResultDown = createResultBelow(this);
 				
-				mainResultPanel.add(jscrollResultDown, BorderLayout.PAGE_END);
+				mainResultPanel.add(jscrollResultDown, BorderLayout.AFTER_LAST_LINE);
 				jscrollResultDown.revalidate();
 				mainResultPanel.revalidate();
 				revalidate();
@@ -565,9 +568,16 @@ public class FilteredSearchGui extends JFrame{
 		/*The information of the selected video will be displayed here*/
 		JScrollPane createResultBelow(ResultElem relem){
 			JPanel jpanelR_down = new JPanel();
-			jscrollResultDown = new JScrollPane(jpanelR_down, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+			jscrollResultDown = new JScrollPane(jpanelR_down, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 			
-			jpanelR_down.add(new JLabel("THE VIDEO INFO WILL BE HERE "+relem.svideo.getSnippet().getTitle()));
+			try {
+				JTextArea videoInfo = new JTextArea("Video info: \n"+relem.svideo.toPrettyString());
+				videoInfo.setPreferredSize( new Dimension(WINDOW_WIDTH,WINDOW_HEIGHT/2));
+				jpanelR_down.add(videoInfo);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			return jscrollResultDown;
 		}

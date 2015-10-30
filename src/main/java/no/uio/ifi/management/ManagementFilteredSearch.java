@@ -127,9 +127,18 @@ public class ManagementFilteredSearch {
 		this.filepath = filepath;
 		this.videoInfo = videoInfo;
 		this.videoFormat = videoQuality;
-
-		dlExtractor = new DownloadLinkExtractor(filepath == null ? null : filepath.getAbsolutePath());
-
+		
+		System.out.println("*******" + videoQuality);
+		switch(videoQuality){
+			case("VIDEOFILE"):
+				dlExtractor = new DownloadLinkExtractor(filepath ==null ? null : filepath.getAbsolutePath());
+				break;
+			default:
+				System.out.println("****VIDEOINFO*****");
+				dlExtractor = new DownloadLinkExtractor(null);
+				break;
+		}
+	
 		NUMBER_OF_VIDEOS_RETRIVED = 0;
 
 		
@@ -189,9 +198,12 @@ public class ManagementFilteredSearch {
 		// wait.setVisible(true);
 		long estimatedTime = System.currentTimeMillis() - startTime;
 		System.out.println("Estimated time is :" + estimatedTime / 1000 + " sec");
+		wait.printMessage("Search finished, wait while doing statistics");
 		gui.getStatWindow().computeStatistics(NUMBER_OF_VIDEOS_RETRIVED, videoInfoResult, filterSearch.getAvailableCategoriesReverse());
 		gui.drawStatistics();
+		wait.printMessage("Statistics finished, populating the result window");
 		gui.resultPartInGUI(videoCache);
+		wait.setVisible(false);
 
 	}
 	public void finishedJsoupSearch(){
@@ -263,17 +275,18 @@ public class ManagementFilteredSearch {
 						if (!videoInfoResult.containsKey(videoId) && res.getId() != null) {
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							System.out.println(res.getId().getVideoId());
-							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath, dlExtractor, true);
+							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath, dlExtractor, false);
 							videoInfoResult.put(videoId, v);
 							videoCache.add(v);
 							resultCache.add(res);	
 						}
 					}
+					wait.printMessage("Fetched and saved metadata for: " + NUMBER_OF_VIDEOS_RETRIVED +" of " + NUMBER_OF_VIDEOS_TO_SEARCH + " videos");
 					wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED);
 					Thread.sleep(1);
 
 				}
-
+				wait.printMessage("Reaching " + NUMBER_OF_VIDEOS_TO_SEARCH + " please wait for the videos links to download");
 				threadCount--;
 				if (threadCount == 0) {
 					if(videoInfo.equals("JSON")){
@@ -389,6 +402,7 @@ public class ManagementFilteredSearch {
 							break;
 						}
 						
+						
 						//Since the dl expects a YTSearchResult we have to put the result in a YouTube.SearchResult object
 						SearchResult res = new SearchResult();
 						SearchResultSnippet srs = new SearchResultSnippet();
@@ -404,9 +418,17 @@ public class ManagementFilteredSearch {
 						ResourceId ri = new ResourceId();
 						ri.setVideoId(video.getVideoID());
 						res.setId(ri);
+						switch(videoFormat){
+						case("VIDEOLINK"):
+							break;
+						case("VIDEOFILE"):
+							dlExtractor.extract(res);
+							break;
+						default:
+						}
 						
 						
-						dlExtractor.extract(res);
+						
 						
 //						myCrawler.writeToFile(video, ExportType.XML);
 //						System.out.println("Getting next values");

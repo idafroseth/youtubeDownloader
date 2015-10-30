@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -52,7 +53,7 @@ import no.uio.ifi.models.search.FilteredSearch;
  * all the possible filters, one holding the chosen filters and the last one
  * containing the search button
  * 
- * @author Ida Marie Frøseth
+ * @author Ida Marie Frøseth & Thi Viet Tran
  *
  */
 public class FilterGui extends JPanel {
@@ -770,7 +771,6 @@ public void onTextFieldChange() {
 			System.out.println("SELECTED "+svideo.getSnippet().getTitle());
 			String videoTittle = svideo.getSnippet().getTitle();
 			
-			
 			for(int i = 0; i < outerScope.length; i++){
 				if(outerScope[i] != null && outerScope[i].selected == true){
 					outerScope[i].jp_tail.setBackground(Color.WHITE);
@@ -785,6 +785,7 @@ public void onTextFieldChange() {
 			jjLink.setFont(new Font("Serif", Font.ROMAN_BASELINE, 19));
 			jp_tail.setBackground(Color.PINK);
 			if(jscrollResultDown != null) mainResultPanel.remove(jscrollResultDown);
+		
 			jscrollResultDown = createResultBelow(this);
 			
 			mainResultPanel.add(jscrollResultDown, BorderLayout.PAGE_END);
@@ -822,7 +823,13 @@ public void onTextFieldChange() {
 		JPanel jpanelR_down = new JPanel();
 		jscrollResultDown = new JScrollPane(jpanelR_down, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		
-		jpanelR_down.add(new JLabel("THE VIDEO INFO WILL BE HERE "+relem.svideo.getSnippet().getTitle()));
+		try {
+			jpanelR_down.add(new JLabel("VideoInfo: \n" + relem.svideo.toPrettyString()));
+			System.out.println("Trying to write to the video info vindow...");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		return jscrollResultDown;
 	}

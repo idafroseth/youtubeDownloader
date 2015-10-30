@@ -92,17 +92,10 @@ public class VideoInfoExtracter extends Search {
 				videoList = listResponse.getItems();
 				
 				String videoUrlJson = "";
-				switch(getVideo){
-				case("VIDEOLINK"):
+				if(getVideo.contains("VIDEO")){
+//					System.out.println("EXTRACTOR" + dlExtractor);
 					videoUrlJson += dlExtractor.extract(res);
-					break;
-				case("VIDEOFILE"):
-					videoUrlJson += dlExtractor.extract(res);
-					break;
-				default:
-					videoUrlJson = "";
 				}
-				
 				
 				for (Video v : videoList) {
 					String jsonString="";

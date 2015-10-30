@@ -313,8 +313,8 @@ public class Statistics extends JPanel {
 		for(PageYouTube video : videoJsoupInfoResult.values() ){
 			System.out.println("Likes: " + video.getLikes());
 			System.out.println("Dislikes: "+video.getDislikes());
-//			likesStat.replace("Likes", likesStat.get("Likes").add(new BigInteger(video.getLikes())));
-//			likesStat.replace("Dislikes", likesStat.get("Dislikes").add(new BigInteger(video.getDislikes())));
+			likesStat.replace("Likes", likesStat.get("Likes").add(new BigInteger(video.getLikes())));
+			likesStat.replace("Dislikes", likesStat.get("Dislikes").add(new BigInteger(video.getDislikes())));
 			likesVideos++;
 			
 		
