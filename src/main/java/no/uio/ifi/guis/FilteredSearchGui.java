@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -56,6 +57,7 @@ public class FilteredSearchGui extends JFrame{
 		public static final Integer WINDOW_HEIGHT = 600;
 		public static final Dimension CONTENT_PANE_SIZE = new Dimension(WINDOW_WIDTH,WINDOW_HEIGHT);
 		public static final Dimension MENU_BUTTON_SIZE = new Dimension(150,30);
+		
 		JPanel searchContentPane = new JPanel();
 		Color menuColor = Color.LIGHT_GRAY;
 		JLabel activeButton;
@@ -68,7 +70,6 @@ public class FilteredSearchGui extends JFrame{
 		
 		Border border = LineBorder.createGrayLineBorder();// BorderFactory.createRaisedBevelBorder();
 
-		//private JTextArea resultIdList = new JTextArea();
 		public JPanel resultPanel;
 		private ManagementFilteredSearch mng;
 		
@@ -76,6 +77,8 @@ public class FilteredSearchGui extends JFrame{
 		public JPanel mainResultPanel;
 		public JScrollPane jscrollResultUp,jscrollResultDown;
 		public JPanel jpanelR_UP, jpanelR_DOWN;
+		int counter = 0;
+		int numberOfVideos = 0;
 	    //======================================
 		
 		
@@ -380,13 +383,15 @@ public class FilteredSearchGui extends JFrame{
 		}
 		
 		/* when perform the search, the result must be a list of Video ==============BEGIN RESULT PART================= */
-		public JPanel resultPartInGUI(List<Video> listOfvideo){
+		public JPanel resultPartInGUI(Set<Video> listOfvideo){
+			counter = 0;
+			numberOfVideos = listOfvideo.size();
 			mainResultPanel.removeAll();
 			mainResultPanel.add(createJPanelResultUp(listOfvideo),BorderLayout.CENTER);
 			return mainResultPanel;
 		}
 		
-		public JScrollPane createJPanelResultUp(List<Video> listOfvideo){
+		public JScrollPane createJPanelResultUp(Set<Video> listOfvideo){
 			try{	
 				JPanel jpanelR_UP = new JPanel();
 				jscrollResultUp = new JScrollPane(jpanelR_UP, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -395,8 +400,8 @@ public class FilteredSearchGui extends JFrame{
 				
 				int cnt = 0;
 				if(listOfvideo != null){
-					ListIterator<Video> listIter = listOfvideo.listIterator();
-					Iterator<Video> it = (Iterator<Video>)listIter;
+					Iterator<Video> it = listOfvideo.iterator();
+//					Iterator<Video> it = (Iterator<Video>)listIter;
 					while (it.hasNext()) {
 			            Video sVideo = it.next();
 			            if (sVideo.getKind().equals("youtube#video")) {
@@ -414,6 +419,12 @@ public class FilteredSearchGui extends JFrame{
 			
 		}
 		
+		public String getKeyWordText() {
+			return apiWindow.getKeyWordText();
+		}
+		
+		
+		
 		public class ResultElem extends JPanel implements MouseListener{
 			Video svideo;
 			SearchResult res;
@@ -426,6 +437,7 @@ public class FilteredSearchGui extends JFrame{
 			ResultElem[] outerScope;
 			boolean selected = false;
 			
+			
 			public ResultElem(Video svideo, ResultElem[] outerScope){
 				this.svideo = svideo;
 				this.outerScope = outerScope;
@@ -437,41 +449,45 @@ public class FilteredSearchGui extends JFrame{
 			public ResultElem(SearchResult res){
 				this.res = res;
 				setBorder(BorderFactory.createLineBorder(Color.GRAY));
-				createInfoVideoRES();
+				createInfoVideo();
 				addMouseListener(this);
 			}
-			
-			public void createInfoVideoRES(){
-				this.setLayout(new BorderLayout());
-				
-				String urlThumbnail = res.getSnippet().getThumbnails().getDefault().getUrl();
-				videoLink = "https://www.youtube.com/watch?v="+res.getId().getVideoId();
-				//System.out.println(videoLink);
-				String title = res.getSnippet().getTitle();
-				URL url = null;
-				BufferedImage image =null;
-				try{
-					url = new URL(urlThumbnail);
-					image = ImageIO.read(url);
-				}catch(Exception e){}
-				
-				jicon = new JLabel(new ImageIcon(image));
-				this.add(jicon, BorderLayout.LINE_START);
-				
-				jp_tail = new JPanel();
-				jp_tail.setBackground(Color.WHITE);
-				jp_tail.setLayout(new BoxLayout(jp_tail, BoxLayout.PAGE_AXIS));
-				
-				jjtitle = new JLabel(title);
-				jjtitle.setFont(new Font("Serif", Font.BOLD, 18));
-				jp_tail.add(jjtitle);
-				
-				jjLink = new JLabel(videoLink);
-				jjLink.setFont(new Font("Serif", Font.ROMAN_BASELINE, 16));
-				jp_tail.add(jjLink);
-				
-				this.add(jp_tail, BorderLayout.CENTER);
-			}
+//			
+//			public void createInfoVideoRES(){
+//				this.setLayout(new BorderLayout());
+//				
+//				String urlThumbnail = res.getSnippet().getThumbnails().getDefault().getUrl();
+//				videoLink = "https://www.youtube.com/watch?v="+res.getId().getVideoId();
+//				//System.out.println(videoLink);
+//				String title = res.getSnippet().getTitle();
+//				URL url = null;
+//				BufferedImage image =null;
+////				try{
+////					url = new URL(urlThumbnail);
+////					image = ImageIO.read(url);
+////				}catch(Exception e){}
+////				
+//				counter++;
+//				jicon = new JLabel(counter + ": ");
+//				jicon.setBackground(Color.WHITE);
+//				jicon.setFont(new Font("Serif", Font.BOLD, 30));
+//				
+//				this.add(jicon, BorderLayout.LINE_START);
+//				
+//				jp_tail = new JPanel();
+//				jp_tail.setBackground(Color.WHITE);
+//				jp_tail.setLayout(new BoxLayout(jp_tail, BoxLayout.PAGE_AXIS));
+//				
+//				jjtitle = new JLabel(title);
+//				jjtitle.setFont(new Font("Serif", Font.BOLD, 18));
+//				jp_tail.add(jjtitle);
+//				
+//				jjLink = new JLabel(videoLink);
+//				jjLink.setFont(new Font("Serif", Font.ROMAN_BASELINE, 16));
+//				jp_tail.add(jjLink);
+//				
+//				this.add(jp_tail, BorderLayout.CENTER);
+//			}
 			
 			public void createInfoVideo(){
 				this.setLayout(new BorderLayout());
@@ -483,17 +499,27 @@ public class FilteredSearchGui extends JFrame{
 				String title = svideo.getSnippet().getTitle();
 				URL url = null;
 				BufferedImage image =null;
-//				System.out.println("Title"+title);
-				try{
-					url = new URL(urlThumbnail);
-					image = ImageIO.read(url);
-				}catch(Exception e){
-					System.out.println("Tumbnail not available..");
-					e.printStackTrace();
-					return;
-				}
 				
-				jicon = new JLabel(new ImageIcon(image));
+				if(numberOfVideos>100){
+					counter++;
+					jicon = new JLabel(counter + ": ");
+					jicon.setBackground(Color.WHITE);
+					jicon.setFont(new Font("Serif", Font.BOLD, 20));
+				}else{
+					System.out.println("Title"+title);
+					try{
+						url = new URL(urlThumbnail);
+						image = ImageIO.read(url);
+					}catch(Exception e){
+						System.out.println("Tumbnail not available..");
+						e.printStackTrace();
+						return;
+					}
+					jicon = new JLabel(new ImageIcon(image));
+				}
+//				
+
+				
 				this.add(jicon, BorderLayout.LINE_START);
 				
 				jp_tail = new JPanel();
@@ -559,13 +585,10 @@ public class FilteredSearchGui extends JFrame{
 
 			}
 		}
-		
-		public String getKeyWordText() {
-			return apiWindow.getKeyWordText();
-		}
-		
-		
+
+	
 		/*The information of the selected video will be displayed here*/
+	
 		JScrollPane createResultBelow(ResultElem relem){
 			JPanel jpanelR_down = new JPanel();
 			jscrollResultDown = new JScrollPane(jpanelR_down, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);

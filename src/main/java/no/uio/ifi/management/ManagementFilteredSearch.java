@@ -73,7 +73,7 @@ public class ManagementFilteredSearch {
 
 	CountDownLatch latch;
 	ArrayList<SearchResult> resultCache = new ArrayList<SearchResult>();
-	ArrayList<Video> videoCache = new ArrayList<Video>();
+	HashSet<Video> videoCache;
 
 	Map<String, Video> videoInfoResult;
 	Map<String, PageYouTube> videoJsoupInfoResult;
@@ -120,6 +120,7 @@ public class ManagementFilteredSearch {
 	 * Applying chosen filters and start the search.
 	 */
 	public void preformFilteredSearch(String videoInfo, String videoQuality, File filepath, boolean apiSearchCheckbox) {
+		videoCache = new HashSet<Video>();
 		startTime = System.currentTimeMillis();
 		videoInfoResult = new HashMap<String, Video>();
 		gui.wipeStatWindow();

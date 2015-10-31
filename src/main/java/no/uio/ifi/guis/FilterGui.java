@@ -641,6 +641,11 @@ public void onTextFieldChange() {
 
 			filtersAppliedText.setText(ot);
 	}
+	public String getKeyWordText() {
+		return keyWordInput.getText();
+		
+	}
+	
 
 	/**
 	 * Listen when the user choose one of the filters
@@ -671,7 +676,8 @@ public void onTextFieldChange() {
 	}
 	
 	/* when perform the search, the result must be a list of Video ==============BEGIN RESULT PART================= */
-	JPanel resultPartInGUI(List<Video> listOfvideo){
+	
+	/**JPanel resultPartInGUI(List<Video> listOfvideo){
 		if(mainResultPanel == null){
 			mainResultPanel = new JPanel(new BorderLayout());
 			mainResultPanel.add(createJPanelResultUp(listOfvideo), BorderLayout.CENTER);
@@ -708,11 +714,14 @@ public void onTextFieldChange() {
 		return jscrollResultUp;
 	}
 	
+	
+
 	/**
 	 * 
 	 * @author Viet Thi Tran
 	 *
 	 */
+	/**
 	class ResultElem extends JPanel implements MouseListener{
 		Video svideo;
 		
@@ -811,14 +820,11 @@ public void onTextFieldChange() {
 
 		}
 	}
-	
-	public String getKeyWordText() {
-		return keyWordInput.getText();
-		
-	}
-	
+
+	**/
 	
 	/*The information of the selected video will be displayed here*/
+	/**
 	JScrollPane createResultBelow(ResultElem relem){
 		JPanel jpanelR_down = new JPanel();
 		jscrollResultDown = new JScrollPane(jpanelR_down, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -834,7 +840,7 @@ public void onTextFieldChange() {
 		return jscrollResultDown;
 	}
 	
-	
+	**/
 	/*=================================================END RESULT PART==========================================================*/
 	
 	

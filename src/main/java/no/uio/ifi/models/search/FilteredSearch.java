@@ -241,23 +241,6 @@ public class FilteredSearch extends Search{
 		}
 		return availableVideoDefinition;
 	}
-//	public Map<String, String> getAvailableVideoDimension() {
-//		if (availableVideoDimension.size() < 1) {
-//			availableVideoDimension.put("2d", "2d");
-//			availableVideoDimension.put("3d", "3d");
-//		}
-//		return availableVideoDimension;
-//	}	
-//	public Map<String, String> getAvailableVideoOrder() {
-//		if (availableVideoOrder.size() < 1) {
-//			availableVideoOrder.put("Date", "date");
-//			availableVideoOrder.put("Rating", "rating");
-//			availableVideoOrder.put("Relevance", "relevance");
-//			availableVideoOrder.put("Title", "title");
-//			availableVideoOrder.put("View count", "viewCount");
-//		}
-//		return availableVideoOrder;
-//	}
 	
 
 	/**
