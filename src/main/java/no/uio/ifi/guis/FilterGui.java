@@ -86,6 +86,7 @@ public class FilterGui extends JPanel {
 	private JLabel outputPeriodVideos = new JLabel("");
 	
 	private JTextField numberOfVideosInput = new JTextField("100 000");
+
 	// limited to 10 filters
 	private ArrayList<Integer> filters = new ArrayList<Integer>(10);
 	private SelectorListener filterListener = new SelectorListener();
@@ -95,7 +96,7 @@ public class FilterGui extends JPanel {
 	
 	public File filePath = null;
 //	
-	private HashMap<Integer, String> selectedFilters = new HashMap<Integer, String>(10);
+	HashMap<Integer, String> selectedFilters = new HashMap<Integer, String>(10);
 
 	protected JTextArea filtersAppliedText = new JTextArea("No filter");
 	
@@ -225,6 +226,7 @@ public void onTextFieldChange() {
 			});
 		
 		cityInput.getDocument().addDocumentListener(new DocumentListener() {
+			
 			  public void changedUpdate(DocumentEvent e) {
 				    changed();
 				  }

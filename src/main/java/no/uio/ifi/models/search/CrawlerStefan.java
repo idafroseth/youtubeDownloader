@@ -50,7 +50,7 @@ public class CrawlerStefan {
 	private ManagementFilteredSearch mng;
 	
 	public CrawlerStefan(String startUrl, ManagementFilteredSearch mng) {
-		this.startUrl = startUrl;
+		this.startUrl = "https://www.youtube.com";
 		arr = new ArrayList<String>();
 		crawledPages = new HashMap<String, PageYouTube>();
 		this.mng = mng;
@@ -74,7 +74,7 @@ public class CrawlerStefan {
 //					if(!queue.contains(url)){
 //						queue.add(url);
 //					}
-//					System.out.println(count + " - Next to crawl: " + url);
+//					//System.out.println(count + " - Next to crawl: " + url);
 //				}
 //				count++;
 //				System.out.println(li.getVideoID());
@@ -202,19 +202,24 @@ public class CrawlerStefan {
 			} catch (InterruptedException e) {
 				connectionError = false;
 				System.out.println("Thread sleep problem");
+			} catch (IllegalArgumentException e){
+				System.out.println(" Illegeal argument");
+				return null;
 			}
 		}while(connectionError);
-		
+//		System.out.println("Website: " + webSite);
 		if(webSite != null){
-			String videoID = webSite.select("meta[itemprop=videoId]").attr("content");
+			String videoID =url.split("=")[1];
 //			List<String> linkedVideos = getLinkedVideos(webSite.select("a[href]"));
 			Elements linkedUrls = webSite.select("a[href]");
 			PageYouTube YTPage = new PageYouTube();
+			System.out.println("Fetched video id is" + videoID);
 			if(videoID == null){
+				System.out.println("Video id is null");
 				return null;
 			}
 			if(!crawledPages.containsKey(videoID)){
-				
+				//System.out.println("Crawled pages does not contain" + videoID);
 				crawledPages.put(videoID, YTPage);
 				
 				List<String> keywords = convertKeywords(webSite.select("meta[property=og:video:tag]"));
@@ -239,25 +244,13 @@ public class CrawlerStefan {
 				if(!dislikesRAW.isEmpty())
 					dislikes = disLikes(dislikesRAW.get(0).childNode(0).childNode(0).toString());
 				List<String> description = getDescription(webSite.select("p[id=eow-description]"));
-				String author = null;
-				try{
-				author = findPattern("author\":\".*?\",", webSite.body().toString());
-				author = author.substring(9, author.length()-2);
-				}catch(IllegalStateException e){
-					try{
-						author = findPattern("<a href=\"[[/user/]|[/channel/]].*?alt=\".*?\"", webSite.body().toString());
-						author = findPattern("alt=\".*?\"", author);
-						author = author.substring(5, author.length()-1);
-					}catch(IllegalStateException ex){
-						author = "";
-					}
-				}
+
 				//lengthSeconds -1
 //				String length = convertLength(findPattern("length_seconds\":\".*?\",", webSite.body().toString()));
 				String length = convertLength(webSite.select("meta[itemprop=duration]").attr("content"));
 				
 				
-				YTPage.setAuthor(author);
+				
 				YTPage.setDatePublished(datePublished);
 				YTPage.setDescription(description);
 				YTPage.setDislikes(dislikes);
@@ -278,40 +271,32 @@ public class CrawlerStefan {
 					y = findPattern("\\d+", datePublished);
 				}
 				
+				String author = null;
+				try{
+				author = findPattern("author\":\".*?\",", webSite.body().toString());
+				author = author.substring(9, author.length()-2);
+				}catch(IllegalStateException e){
+					
+					try{
+						author = findPattern("<a href=\"[[/user/]|[/channel/]].*?alt=\".*?\"", webSite.body().toString());
+						author = findPattern("alt=\".*?\"", author);
+						author = author.substring(5, author.length()-1);
+					}catch(IllegalStateException ex){
+						author = "";
+						YTPage.setAuthor(author);
+						return YTPage;
+					}
+					return YTPage;
+				}
+				YTPage.setAuthor(author);
+	
+				
 				return YTPage;
 			}
-			
-	/**		
-			for (Element link : linkedUrls) {
-				if (link.toString().contains("watch?v")) {
-					try {
-						if(link.attr("href").contains("http")){
-							if(link.attr("href").contains("https")){
-								if (!arr.contains(link.attr("href"))) {
-									arr.add(link.attr("href"));
-									fw.write(link.attr("href"));
-									fw.append(System.getProperty("line.separator")); // e.g. // "\n"
-								}
-							}else{
-								String linkNew = new StringBuffer(link.attr("href")).insert(4, "s").toString();
-								if (!arr.contains(linkNew)) {
-									arr.add(linkNew);
-									fw.write(linkNew);
-									fw.append(System.getProperty("line.separator")); // e.g. // "\n"
-								}
-							}
-						}else if(!arr.contains(startUrl + link.attr("href"))) {
-							arr.add(startUrl + link.attr("href"));
-							fw.write(startUrl + link.attr("href"));
-							fw.append(System.getProperty("line.separator")); // e.g. // "\n"
-						}
-					} catch (IOException e) {
-						System.err.println("Could not write");
-					}
-				}
-		
-			}**/
-			return YTPage;
+			else{
+				//System.out.println("ALREADY CRAWLED "+ crawledPages.containsKey(videoID) + " video id " + videoID);
+			}
+
 		}
 		return null;
 		
@@ -328,17 +313,20 @@ public class CrawlerStefan {
 							if (!arr.contains(link.attr("href"))) {
 								arr.add(link.attr("href"));
 								linkedVideos.add(link.attr("href"));
+								//System.out.println("adding link video " + link.attr("href"));
 							}
 						}else{
 							String linkNew = new StringBuffer(link.attr("href")).insert(4, "s").toString();
 							if (!arr.contains(linkNew)) {
 								arr.add(linkNew);
+								//System.out.println("adding link video2 " + linkNew);
 								linkedVideos.add(link.attr(linkNew));
 							}
 						}
 					}else if(!arr.contains(startUrl + link.attr("href"))) {
 						arr.add(startUrl + link.attr("href"));
 						linkedVideos.add(startUrl + link.attr("href"));
+						//System.out.println("adding link video2 " + startUrl + link.attr("href"));
 					}
 				}
 			}

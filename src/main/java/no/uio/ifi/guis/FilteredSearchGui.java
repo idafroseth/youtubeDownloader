@@ -118,6 +118,9 @@ public class FilteredSearchGui extends JFrame{
 			pack();
 		}
 		
+		public String getJsoupStartUrl(){
+			return ((JsoupSearchGui)jsoupWindow).getStartUrl();
+		}
 		public JPanel getSearchWindow(){
 			JPanel searchWindow = new JPanel();
 			

@@ -42,6 +42,7 @@ public class FilteredSearch extends Search{
 	public static final int NUMBERTOSEARCHFILTER = 9;
 	public static final int VIDEODEFINITONFILTER = 10;
 	public static final int KEYWORDFILTER = 11;
+	public static final int JSOUPSTARTURL = 12;
 
 
 //	public static final int VIDEODIMENSIONFILTER = 12;

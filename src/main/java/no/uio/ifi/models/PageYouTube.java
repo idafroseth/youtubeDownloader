@@ -148,4 +148,23 @@ public class PageYouTube {
 		return this.description;
 	}
 	
+	@Override
+	public String toString(){
+		return "linked Urls" + linkedUrls + " title: " + title + "videoID: " + videoID +" keywords: " + keywords + " author " + author + "length " +length
+				+"familyFriendly " + familyFriendly + " year: " + year;
+//		private String ;
+//		private List<String> ;
+//		private String ;
+//		private String ;
+//		private boolean ;
+//		private String regionsAllowed;
+//		private String views;
+//		private String datePublished;
+//		private String genre;
+//		private String linkPreviewImage;
+//		private String likes;
+//		private String dislikes;
+//		private List<String> description;
+//		private String ;
+	}
 }

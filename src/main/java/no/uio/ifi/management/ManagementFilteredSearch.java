@@ -5,6 +5,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -174,7 +176,13 @@ public class ManagementFilteredSearch {
 	}
 	public void jsoupSearch(){
 		wait = new DownloadProgressBar(this, NUMBER_OF_VIDEOS_TO_SEARCH, "Crawling YouTube", tg);
-		(new JsoupSearchThread(tg, "SearchThread_" + 1, this)).start();
+		String startUrl = gui.getJsoupStartUrl();
+		if(startUrl.contains("valid")){
+			System.out.println("Not valid url go for the default");
+			startUrl = "https://www.youtube.com";
+		}
+		System.out.println("Starting from " +startUrl );
+		(new JsoupSearchThread(tg, "SearchThread_" + 1, this, startUrl )).start();
 	}
 
 	public List<Video> preformKeywordSearch(String keyword) {
@@ -321,14 +329,17 @@ public class ManagementFilteredSearch {
 
 		CommentExtractor commentExtractor = new  CommentExtractor(5L);
 		ManagementFilteredSearch mng;
+		String startUrl = "https://www.youtube.com/";
 //			VideoInfoExtracter infoExtracter;
 
-		public JsoupSearchThread(ThreadGroup tg, String s, ManagementFilteredSearch mng) {// ,
+		public JsoupSearchThread(ThreadGroup tg, String s, ManagementFilteredSearch mng, String startUrl) {// ,
 			super(tg, s);			
 			
-			
 			this.mng = mng;
-			myCrawler = new CrawlerStefan("https://www.youtube.com", mng);
+			myCrawler = new CrawlerStefan(startUrl, mng);
+			this.startUrl = startUrl;
+			System.out.println("Start url: " + startUrl);
+			
 		}
 
 		@Override
@@ -354,40 +365,42 @@ public class ManagementFilteredSearch {
 				//CrawlerStefan myCrawler = new CrawlerStefan("https://www.youtube.com", null);
 				
 				int count = 0;
-				PageYouTube video = null;// = myCrawler.crawlPage("https://www.youtube.com");
-				LinkedList<String> queue = new LinkedList<String>();
-				queue.add("https://www.youtube.com");
-				loop:
-				while(count < 100){
-				
-						video = myCrawler.crawlPage(queue.removeFirst());
+		
+//				PageYouTube video = myCrawler.crawlPage(startUrl);
+				PageYouTube video = null;
+				LinkedList<String> viQueue = new LinkedList<String>();
+				viQueue.add(startUrl);
 			
-						if(video == null){
-							System.out.println("video is null");
+				loop:
+				while(count < NUMBER_OF_VIDEOS_TO_SEARCH ){
+//					
+						String crawlUrl = viQueue.getFirst();
+						viQueue.remove(crawlUrl);
+						//System.out.println("First in queue before " + crawlUrl);
+						video = myCrawler.crawlPage(crawlUrl);
+						if(video == null ){
+							//System.out.println("video is null");
 							continue loop;
 						}
+
 						int i = 0;
+						
 						List<String> links = video.getLinkedUrls();
 						if(links != null){
 							for(String url : links){
-							
-								if(!queue.contains(url)){
-									queue.add(url);
+								if(!viQueue.contains(url)){
+									//System.out.println("adding to queue " + url);
+									viQueue.add(url);
+								}else{
+									//System.out.println("Queue contains " + url);
 								}
 							}
+						}else{
+							//System.out.println("No links!!");
 						}
-						
-						
-						//To extract the comments uncomment this:
-//						String comments = commentExtractor.getTopLevelComments(video.getVideoID());
-//						System.out.println(comments);
-//						if(comments.length()>2){
-//							JSONObject jsonObject = new JSONObject(comments.substring(1));
-//							String xml = XML.toString(jsonObject, "video");
-//						}
-//						saveMetaData(xml);
-						
 						count++;
+						System.out.println(count + ": " +video.getVideoID());
+						//System.out.println(count + " Video : " +video );
 						switch (videoInfo) {
 						case "JSON":
 //							Export.writeJSON(video);
@@ -428,11 +441,6 @@ public class ManagementFilteredSearch {
 						default:
 						}
 						
-						
-						
-						
-//						myCrawler.writeToFile(video, ExportType.XML);
-//						System.out.println("Getting next values");
 						
 						NUMBER_OF_VIDEOS_RETRIVED++;
 						wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED);

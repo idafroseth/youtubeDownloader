@@ -221,7 +221,7 @@ public class Statistics extends JPanel {
 		HashMap<String, BigInteger> likesStat = new HashMap<String, BigInteger>(2);
 		likesStat.put("Likes", new BigInteger("0"));
 		likesStat.put("Dislikes", new BigInteger("0"));
-		Integer likesVideos = 0;
+		Integer likesVideos = 1;
 		
 		Map<String, Integer> categoryStats = new HashMap<String, Integer>();
 		Map<String, Integer> yearStats = new HashMap<String, Integer>();
