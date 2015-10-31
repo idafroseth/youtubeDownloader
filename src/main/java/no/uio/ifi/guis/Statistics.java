@@ -311,11 +311,16 @@ public class Statistics extends JPanel {
 		Integer viewNum = 0;
 		
 		for(PageYouTube video : videoJsoupInfoResult.values() ){
-			System.out.println("Likes: " + video.getLikes());
-			System.out.println("Dislikes: "+video.getDislikes());
-			likesStat.replace("Likes", likesStat.get("Likes").add(new BigInteger(video.getLikes())));
-			likesStat.replace("Dislikes", likesStat.get("Dislikes").add(new BigInteger(video.getDislikes())));
-			likesVideos++;
+			try{
+				System.out.println("Likes: " + video.getLikes());
+				System.out.println("Dislikes: "+video.getDislikes());
+				likesStat.replace("Likes", likesStat.get("Likes").add(new BigInteger(video.getLikes())));
+				likesStat.replace("Dislikes", likesStat.get("Dislikes").add(new BigInteger(video.getDislikes())));
+				likesVideos++;
+			}catch(NumberFormatException e){
+				System.out.println("The likes stat were not valid");
+				
+			}
 			
 		
 			String view =  video.getViews().replaceAll("\\W", "");
@@ -349,14 +354,14 @@ public class Statistics extends JPanel {
 		System.out.println("done computing statistics, drawing");
 		System.out.println("Number of videos " + videoJsoupInfoResult.size());
 	//	Statistics stat = gui.getStatWindow();
-//		addBarChart(likesStat, "Likes", likesVideos);
+		addBarChart(likesStat, "Likes", likesVideos);
 		addBarChart(categoryStats, "Categories");
 		addBarChart(yearStats, "Years");
 //		System.out.println(viewCount);
-//		addCount(new BigInteger(numberOfVideosRetrieved.toString()),  "Total number of videos retrieved: ");
+		addCount(new BigInteger(numberOfVideosRetrieved.toString()),  "Total number of videos retrieved: ");
 		addCount(viewCount.divide(new BigInteger(likesVideos.toString())), "Average views per video is: ");
-//		addCount(favoritesCount.divide(new BigInteger(likesVideos.toString())),  "Average favorites per video is: ");
-//		addCount(commentCount.divide(new BigInteger(likesVideos.toString())), "Average comments per video is: ");
+		addCount(favoritesCount.divide(new BigInteger(likesVideos.toString())),  "Average favorites per video is: ");
+		addCount(commentCount.divide(new BigInteger(likesVideos.toString())), "Average comments per video is: ");
 
 	}
 

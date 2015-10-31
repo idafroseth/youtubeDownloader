@@ -249,7 +249,16 @@ public class CrawlerStefan {
 //				String length = convertLength(findPattern("length_seconds\":\".*?\",", webSite.body().toString()));
 				String length = convertLength(webSite.select("meta[itemprop=duration]").attr("content"));
 				
-				
+				if(likes.contains(";")){
+					System.out.println("likes before fixing " + likes);
+					likes = likes.split(";")[1];
+					System.out.println("After fixing " + likes);
+				}
+				if(dislikes.contains(";")){
+					System.out.println("likes before fixing" + dislikes);
+					dislikes = dislikes.split(";")[1];
+					System.out.println("After fixing " + dislikes);
+				}
 				
 				YTPage.setDatePublished(datePublished);
 				YTPage.setDescription(description);
