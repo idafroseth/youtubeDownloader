@@ -130,6 +130,7 @@ public class Export {
 	}
 	
 	public static void writeCSV(PageYouTube YTPage) {
+		try{
 		pw.print(YTPage.getVideoID() + ";");
 		pw.print("\"" + YTPage.getTitle().replace("\"", "\"\"") + "\";");
 		pw.print("\"" + YTPage.getAuthor().replace("\"", "\"\"") + "\";");
@@ -157,6 +158,9 @@ public class Export {
 			else pw.print(l);
 		pw.print("\";");
 		pw.println();
+		}catch(NullPointerException e){
+			System.out.println("NULLPOINTER WHEN WRITING TO FILE");
+		}
 	}
 	
 	public static void closeCSV(){

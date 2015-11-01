@@ -36,6 +36,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -66,10 +67,11 @@ public class FilterGui extends JPanel {
 	
 	private JButton searchKeywordTest = new JButton("Test Search Kword");
 	
+	private JCheckBox commentDownload = new JCheckBox();
 	private JCheckBox videoInfoDL = new JCheckBox();
 	private JCheckBox videoDownload  = new JCheckBox();
 
-	protected JComboBox videoInfoFormats = new JComboBox(new String[]{"JSON", "XML", "CSV"});
+	protected JComboBox videoInfoFormats = new JComboBox(new String[]{"JSON", "XML"});
 	protected JComboBox videoFormats = new JComboBox(new String[]{"Store video download link in metadata", "Download Video files"});
 	private JButton fileChooserButton = new JButton("Choose path");
 	private JFileChooser fileChooser = new JFileChooser();
@@ -133,12 +135,15 @@ public class FilterGui extends JPanel {
 	
 		
 	}
+	public boolean isDownloadEnabled(){
+		return commentDownload.isEnabled();
+	}
 
-	public void init(){
+	public void init(boolean api){
 		System.out.println("Initialize the filter gui");
 		this.setPreferredSize(new Dimension( PANEL_WIDTH,  PANEL_HEIGHT));//(FilteredSearchGui.CONTENT_PANE_SIZE);
 		this.setLayout(new BorderLayout());
-		this.add(drawSearchMenu(), BorderLayout.PAGE_END);
+		this.add(drawSearchMenu(api), BorderLayout.PAGE_END);
 		this.add(drawFilterMenu(), BorderLayout.CENTER);
 		selectedFilters.replace(FilteredSearch.GEOFILTER, "No City");
 		onTextFieldChange();
@@ -309,7 +314,7 @@ public void onTextFieldChange() {
 				  }
 				});
 	}
-	public JPanel drawSearchMenu(){
+	public JPanel drawSearchMenu(boolean api){
 		JPanel searchPanel = new JPanel(new FlowLayout());
 		fileChooserButton.setActionCommand("FILECHOOSER");
 		fileChooserButton.addActionListener(mouseListener);
@@ -324,6 +329,11 @@ public void onTextFieldChange() {
 		videoDL.add(new JLabel("Include video?"));
 		videoDL.add(videoDownload);
 		videoDL.add(videoFormats);
+		if(api){
+			videoDL.add(new JLabel("Include comments?"));
+			videoDL.add(commentDownload);
+		}
+		//videoDL.add(videoFormats);
 		searchPanel.add(videoInfo);
 		searchPanel.add(videoDL);
 		searchPanel.add(fileChooserButton);

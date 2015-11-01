@@ -209,7 +209,12 @@ public class CrawlerStefan {
 		}while(connectionError);
 //		System.out.println("Website: " + webSite);
 		if(webSite != null){
-			String videoID =url.split("=")[1];
+			
+			String videoID = "";
+			
+			if(url.length()==43){
+				videoID = url.split("=")[1];
+			}
 //			List<String> linkedVideos = getLinkedVideos(webSite.select("a[href]"));
 			Elements linkedUrls = webSite.select("a[href]");
 			PageYouTube YTPage = new PageYouTube();
@@ -282,8 +287,8 @@ public class CrawlerStefan {
 				
 				String author = null;
 				try{
-				author = findPattern("author\":\".*?\",", webSite.body().toString());
-				author = author.substring(9, author.length()-2);
+					author = findPattern("author\":\".*?\",", webSite.body().toString());
+					author = author.substring(9, author.length()-2);
 				}catch(IllegalStateException e){
 					
 					try{
@@ -292,10 +297,7 @@ public class CrawlerStefan {
 						author = author.substring(5, author.length()-1);
 					}catch(IllegalStateException ex){
 						author = "";
-						YTPage.setAuthor(author);
-						return YTPage;
 					}
-					return YTPage;
 				}
 				YTPage.setAuthor(author);
 	

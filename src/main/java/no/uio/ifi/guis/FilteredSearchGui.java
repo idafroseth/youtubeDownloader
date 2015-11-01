@@ -89,9 +89,9 @@ public class FilteredSearchGui extends JFrame{
 		public FilteredSearchGui(ManagementFilteredSearch mng){
 			this.mng = mng;
 			this.apiWindow = new FilterGui(this.mng);
-			apiWindow.init();
+			apiWindow.init(true);
 			this.jsoupWindow = new JsoupSearchGui(this.mng);
-			jsoupWindow.init();
+			jsoupWindow.init(false);
 			
 			this.statsWindow = new Statistics();
 		}
@@ -293,6 +293,9 @@ public class FilteredSearchGui extends JFrame{
 			revalidate();
 		}
 		
+		public boolean isDownloadEnabled(){
+			return apiWindow.isDownloadEnabled();
+		}
 		
 		
 		public void setButtonAsActive(JLabel button){

@@ -295,6 +295,7 @@ public class Statistics extends JPanel {
 		likesStat.put("Likes", new BigInteger("0"));
 		likesStat.put("Dislikes", new BigInteger("0"));
 		Integer likesVideos = 0;
+		Integer viewVideos = 0;
 		
 		Map<String, Integer> categoryStats = new HashMap<String, Integer>();
 		Map<String, Integer> yearStats = new HashMap<String, Integer>();
@@ -326,7 +327,8 @@ public class Statistics extends JPanel {
 			String view =  video.getViews().replaceAll("\\W", "");
 //			System.out.println("view" +view);
 			
-			if(view.length()>0 && view != null){
+			if(view.length()>0){
+				viewVideos++;
 				viewCount = viewCount.add(new BigInteger(view));
 			}
 //			
@@ -359,7 +361,7 @@ public class Statistics extends JPanel {
 		addBarChart(yearStats, "Years");
 //		System.out.println(viewCount);
 		addCount(new BigInteger(numberOfVideosRetrieved.toString()),  "Total number of videos retrieved: ");
-		addCount(viewCount.divide(new BigInteger(likesVideos.toString())), "Average views per video is: ");
+		addCount(viewCount.divide(new BigInteger(viewVideos.toString())), "Average views per video is: ");
 		addCount(favoritesCount.divide(new BigInteger(likesVideos.toString())),  "Average favorites per video is: ");
 		addCount(commentCount.divide(new BigInteger(likesVideos.toString())), "Average comments per video is: ");
 

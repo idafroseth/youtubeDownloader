@@ -234,12 +234,14 @@ public class ManagementFilteredSearch {
 	class ApiSearchThread extends Thread {
 		ManagementFilteredSearch mng;
 		VideoInfoExtracter infoExtracter;
+		Boolean downloadComments = false;
 
 		public ApiSearchThread(ThreadGroup tg, String s, ManagementFilteredSearch mng) {
 			super(tg, s);
 			infoExtracter = new VideoInfoExtracter(videoInfo);
 			this.mng = mng;
 			infoExtracter.initDataContent();
+			downloadComments = gui.isDownloadEnabled();
 
 			switch (videoInfo) {
 			case "JSON":
@@ -284,7 +286,7 @@ public class ManagementFilteredSearch {
 						if (!videoInfoResult.containsKey(videoId) && res.getId() != null) {
 							NUMBER_OF_VIDEOS_RETRIVED++;
 							System.out.println(res.getId().getVideoId());
-							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath, dlExtractor, false);
+							Video v = infoExtracter.getVideoInfo(res, videoFormat, filepath, dlExtractor, downloadComments);
 							videoInfoResult.put(videoId, v);
 							videoCache.add(v);
 							resultCache.add(res);	
@@ -337,7 +339,10 @@ public class ManagementFilteredSearch {
 			
 			this.mng = mng;
 			myCrawler = new CrawlerStefan(startUrl, mng);
+			
+		
 			this.startUrl = startUrl;
+			
 			System.out.println("Start url: " + startUrl);
 			
 		}
@@ -372,7 +377,7 @@ public class ManagementFilteredSearch {
 				viQueue.add(startUrl);
 			
 				loop:
-				while(count < NUMBER_OF_VIDEOS_TO_SEARCH ){
+				while(NUMBER_OF_VIDEOS_RETRIVED < NUMBER_OF_VIDEOS_TO_SEARCH ){
 //					
 						String crawlUrl = viQueue.getFirst();
 						viQueue.remove(crawlUrl);
@@ -398,8 +403,8 @@ public class ManagementFilteredSearch {
 						}else{
 							//System.out.println("No links!!");
 						}
-						count++;
-						System.out.println(count + ": " +video.getVideoID());
+						
+						System.out.println(NUMBER_OF_VIDEOS_RETRIVED + ": " +video.getVideoID());
 						//System.out.println(count + " Video : " +video );
 						switch (videoInfo) {
 						case "JSON":
@@ -444,9 +449,13 @@ public class ManagementFilteredSearch {
 						
 						NUMBER_OF_VIDEOS_RETRIVED++;
 						wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED);
+						wait.printMessage("Fetched and saved metadata for: " + count +" of " + NUMBER_OF_VIDEOS_TO_SEARCH + " videos");
+						
 						Thread.sleep(1);
 						
 				}
+				wait.printMessage("Reaching " + NUMBER_OF_VIDEOS_TO_SEARCH + " please wait for the videos links to download");
+				
 				if(videoInfo=="XML"){
 					Export.closeXML();
 				}else{

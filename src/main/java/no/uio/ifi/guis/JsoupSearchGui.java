@@ -28,21 +28,21 @@ public class JsoupSearchGui extends FilterGui{
 	private static final long serialVersionUID = 2800226228629567624L;
 	JTextField jSoupStartUrl = new JTextField("VideoId or URL");
 	private JButton jSoupApplyButton = new JButton("Apply");
-	private String startUrl = "";
+	private String startUrl = "https://www.youtube.com";
 	
 	public JsoupSearchGui(ManagementFilteredSearch mng) {
 		super(mng);
 	}
 	
 	@Override
-	public void init(){
+	public void init(boolean addComments){
 		videoInfoFormats = new  JComboBox(new String[]{"CSV", "XML"});//, "JSON"});
 		videoFormats = new JComboBox(new String[]{"Download Video files"});
 		 selectedFilters.put(FilteredSearch.JSOUPSTARTURL,  "https://www.youtube.com" );
 		System.out.println("Initialize the jsoup gui");
 		this.setPreferredSize(FilteredSearchGui.CONTENT_PANE_SIZE);
 		this.setLayout(new BorderLayout());
-		this.add(drawSearchMenu(), BorderLayout.PAGE_END);
+		this.add(drawSearchMenu(addComments), BorderLayout.PAGE_END);
 		this.add(drawFilterMenu(), BorderLayout.CENTER);
 		onTextFieldChange();
 		String infoText="The JSoup crawler does not use the YouTube APi, and will provide a result that more reflect what the user is met by";
