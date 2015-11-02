@@ -23,6 +23,7 @@ import com.google.api.services.youtube.model.SearchResultSnippet;
 import com.google.api.services.youtube.model.Thumbnail;
 import com.google.api.services.youtube.model.ThumbnailDetails;
 import com.google.api.services.youtube.model.Video;
+import com.google.api.services.youtube.model.VideoSnippet;
 
 import no.uio.ifi.guis.DownloadProgressBar;
 import no.uio.ifi.guis.FilteredSearchGui;
@@ -53,7 +54,7 @@ public class ManagementFilteredSearch {
 	FilteredSearchGui gui = new FilteredSearchGui(this);
 	public int NUMBER_OF_VIDEOS_TO_SEARCH = 100000;
 	public int NUMBER_OF_VIDEOS_RETRIVED = 0;
-	int NUMBER_OF_THREADS = 5;
+	int NUMBER_OF_THREADS = 100;
 
 	DownloadLinkExtractor dlExtractor;
 
@@ -164,7 +165,7 @@ public class ManagementFilteredSearch {
 		
 		if(gui.getKeyWordText().length() == 0 || gui.getKeyWordText() ==null) {
 			System.out.println("Using 5 threads");
-			setSearchThreadNumber(5);
+			setSearchThreadNumber(50);
 		}
 		else {
 			setSearchThreadNumber(1);
@@ -216,12 +217,9 @@ public class ManagementFilteredSearch {
 
 	}
 	public void finishedJsoupSearch(){
-
-//		Statistics stat = new Statistics();
-//		stat.addBarChart(myCrawler.getGenres(), "Generes");
-//		stat.addBarChart(myCrawler.getYears(), "Years");
 		gui.getStatWindow().computeStatistics(NUMBER_OF_VIDEOS_RETRIVED, videoJsoupInfoResult);
 		gui.drawStatistics();
+		gui.resultPartInGUI(videoCache);
 		wait.setVisible(false);
 	}
 	
@@ -428,7 +426,7 @@ public class ManagementFilteredSearch {
 						srs.setTitle(video.getTitle());
 						//add thumbnail
 						Thumbnail tumb = new Thumbnail();
-						tumb.setUrl(video.getLinkPreviewImage());
+						tumb.setUrl("");
 						ThumbnailDetails td = new ThumbnailDetails();
 						td.setDefault(tumb);
 						srs.setThumbnails(td);
@@ -437,6 +435,18 @@ public class ManagementFilteredSearch {
 						ResourceId ri = new ResourceId();
 						ri.setVideoId(video.getVideoID());
 						res.setId(ri);
+						
+						Video vi = new Video();
+						vi.setKind("youtube#video");
+						VideoSnippet snippet = new VideoSnippet();
+						snippet.setTitle(video.getTitle());
+						snippet.setThumbnails(td);
+						vi.setSnippet(snippet);
+						
+						videoCache.add(vi);
+						
+						
+						
 						switch(videoFormat){
 						case("VIDEOLINK"):
 							break;
@@ -445,11 +455,11 @@ public class ManagementFilteredSearch {
 							break;
 						default:
 						}
-						
-						
+//						videoCache.add(res);
+//						videoJsoupInfoResult(video.getVideoID(), res);
 						NUMBER_OF_VIDEOS_RETRIVED++;
 						wait.updateProgressBar(NUMBER_OF_VIDEOS_RETRIVED);
-						wait.printMessage("Fetched and saved metadata for: " + count +" of " + NUMBER_OF_VIDEOS_TO_SEARCH + " videos");
+						wait.printMessage("Fetched and saved metadata for: " + NUMBER_OF_VIDEOS_RETRIVED +" of " + NUMBER_OF_VIDEOS_TO_SEARCH + " videos");
 						
 						Thread.sleep(1);
 						

@@ -406,8 +406,7 @@ public class FilteredSearchGui extends JFrame{
 				
 				int cnt = 0;
 				if(listOfvideo != null){
-					Iterator<Video> it = listOfvideo.iterator();
-//					Iterator<Video> it = (Iterator<Video>)listIter;
+					Iterator<Video> it = listOfvideo.iterator(); 
 					while (it.hasNext()) {
 			            Video sVideo = it.next();
 			            if (sVideo.getKind().equals("youtube#video")) {
@@ -420,6 +419,7 @@ public class FilteredSearchGui extends JFrame{
 				return jscrollResultUp;
 			}catch(NullPointerException e){
 				System.out.println(e);
+				//e.printStackTrace();
 				return jscrollResultUp;
 			}
 			
@@ -505,9 +505,8 @@ public class FilteredSearchGui extends JFrame{
 				String title = svideo.getSnippet().getTitle();
 				URL url = null;
 				BufferedImage image =null;
-				
+				counter++;
 				if(numberOfVideos>100){
-					counter++;
 					jicon = new JLabel(counter + ": ");
 					jicon.setBackground(Color.WHITE);
 					jicon.setFont(new Font("Serif", Font.BOLD, 20));
@@ -516,12 +515,17 @@ public class FilteredSearchGui extends JFrame{
 					try{
 						url = new URL(urlThumbnail);
 						image = ImageIO.read(url);
+						jicon = new JLabel(new ImageIcon(image));
 					}catch(Exception e){
+						jicon = new JLabel(counter + ": ");
+						jicon.setBackground(Color.WHITE);
+						jicon.setFont(new Font("Serif", Font.BOLD, 20));
 						System.out.println("Tumbnail not available..");
-						e.printStackTrace();
-						return;
+					//	e.printStackTrace();
+						
+						//return;
 					}
-					jicon = new JLabel(new ImageIcon(image));
+					
 				}
 //				
 

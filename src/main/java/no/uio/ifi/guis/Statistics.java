@@ -222,6 +222,10 @@ public class Statistics extends JPanel {
 		likesStat.put("Likes", new BigInteger("0"));
 		likesStat.put("Dislikes", new BigInteger("0"));
 		Integer likesVideos = 1;
+		Integer durationMin = 0;
+		Integer durationSec = 0;
+		Integer durationHour = 0;
+		Integer numDurVideo = 0;
 		
 		Map<String, Integer> categoryStats = new HashMap<String, Integer>();
 		Map<String, Integer> yearStats = new HashMap<String, Integer>();
@@ -273,9 +277,34 @@ public class Statistics extends JPanel {
 			}else{
 				yearStats.put(year,1);
 			}
-		
-			
-			video.getStatistics().getLikeCount();
+//			
+//			//Duration statistics
+//			String time = video.getContentDetails().getDuration().toString().split("T")[1];
+//			
+//			String hour = time;
+//			String min = time;
+//			String sec = time;
+//			if(!time.contains("S")&&time.contains("H")){
+//				hour = time.split("H")[0];
+//				min = time.split("H")[1];
+//				durationSec +=  Integer.parseInt(hour)*24*60;
+//				durationSec +=  Integer.parseInt(min)*60;
+//			}
+//			if(time.contains("H")){
+//				hour = time.split("H")[0];
+//				min = time.split("H")[1];
+//				durationSec +=  Integer.parseInt(hour)*24*60;
+//			}
+//			if(min.contains("M")){
+//				min = min.split("M")[0];
+//				durationSec += Integer.parseInt(min.split("M")[0])*60;
+//				sec = min.split("M")[0];
+//			}
+//			if(sec.contains("S")){
+//				sec  = sec.split("S")[0];
+//				durationSec += Integer.parseInt(sec);
+//			}
+//			numDurVideo++;
 		}
 	//	Statistics stat = gui.getStatWindow();
 		addBarChart(likesStat, "Likes", likesVideos);
@@ -286,6 +315,8 @@ public class Statistics extends JPanel {
 		addCount(viewCount.divide(new BigInteger(likesVideos.toString())), "Average views per video is: ");
 		addCount(favoritesCount.divide(new BigInteger(likesVideos.toString())),  "Average favorites per video is: ");
 		addCount(commentCount.divide(new BigInteger(likesVideos.toString())), "Average comments per video is: ");
+	
+//		System.out.println("Average seconds duration is:" + durationSec/ numDurVideo);
 
 	}
 	public void computeStatistics(Integer numberOfVideosRetrieved, Map<String, PageYouTube> videoJsoupInfoResult){
